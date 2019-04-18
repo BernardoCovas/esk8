@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+
 #define E_SKATE_MSG_HEADER {0x5A, 0xA5}
 
 typedef enum e_skate_bms_err_t
@@ -44,6 +45,9 @@ int e_skate_bms_msg_find_header(
 /**
  * Creates a new message from a
  * `uint8_t` buffer.
+ * Finds the header, and the returned
+ * msg has a copy of the valid part of the
+ * buffer, if the message is valid.
  * Allocates payload resources.
  * Returns `E_SKATE_BMS_MSG_SUCCESS`
  * if the message is valid and was parsed
