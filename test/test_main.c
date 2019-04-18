@@ -7,6 +7,7 @@ void app_main()
     UNITY_BEGIN();
 
     RUN_TEST(test_e_skate_bms_msg_new);
+    RUN_TEST(test_e_skate_bms_msg_find_header);
 
     UNITY_END(); // stop unit testing
 }

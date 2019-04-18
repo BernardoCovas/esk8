@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define E_SKATE_MSG_HEADER {0x5A, 0xA5}
+
 typedef enum e_skate_bms_err_t
 {
     E_SKATE_BMS_MSG_SUCCESS,
@@ -25,6 +27,16 @@ typedef struct e_skate_bms_msg_t {
     uint8_t *msg_payload;
     uint8_t *msg_cheksum;
 } e_skate_bms_msg_t;
+
+
+/**
+ * Finds the first msg header in `buffer`.
+ * If no header is found, returns -1.
+ **/
+int e_skate_bms_msg_find_header(
+    uint8_t* buffer,
+    int buf_length
+);
 
 
 /**
