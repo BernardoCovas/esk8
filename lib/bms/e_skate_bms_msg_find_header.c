@@ -8,7 +8,7 @@ int e_skate_bms_msg_find_header(
     int buf_length
 )
 {
-    const static uint8_t msg_header[] = E_SKATE_MSG_HEADER;
+    const static uint8_t msg_header[] = E_SKATE_MSG_PKT_HEADER;
 
     if (buf_length < 2)
         return -1;

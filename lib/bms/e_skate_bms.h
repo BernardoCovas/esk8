@@ -6,7 +6,10 @@
 #include <stdlib.h>
 
 
-#define E_SKATE_MSG_HEADER {0x5A, 0xA5}
+#define E_SKATE_MSG_PKT_HEADER {0x5A, 0xA5}
+#define E_SKATE_MSG_HEADER_SIZE 5
+#define E_SKATE_MSG_MIN_SIZE 9
+
 
 typedef enum e_skate_bms_err_t
 {
@@ -18,17 +21,15 @@ typedef enum e_skate_bms_err_t
 } e_skate_bms_err_t;
 
 
-typedef struct e_skate_bms_msg_t {
-    uint8_t  raw_buffer_len;
-    uint8_t *raw_buffer;
-    uint8_t *pkt_header;
-    uint8_t *pld_length;
-    uint8_t *src_address;
-    uint8_t *dst_address;
-    uint8_t *cmd_command;
-    uint8_t *cmd_argment;
-    uint8_t *msg_payload;
-    uint8_t *msg_cheksum;
+typedef struct e_skate_bms_msg_t
+{
+    uint8_t  pld_length;
+    uint8_t  src_address;
+    uint8_t  dst_address;
+    uint8_t  cmd_command;
+    uint8_t  cmd_argment;
+    uint8_t* payload;
+    uint8_t  chk_sum[2];
 } e_skate_bms_msg_t;
 
 
@@ -53,12 +54,20 @@ int e_skate_bms_msg_find_header(
  * if the message is valid and was parsed
  * properly.
  **/
-e_skate_bms_err_t e_skate_bms_msg_new(
+e_skate_bms_err_t e_skate_bms_msg_parse(
     uint8_t* buffer,
     size_t buf_length,
     e_skate_bms_msg_t* outMsg
 );
 
+
+/**
+ * Creates a new message with the specified
+ * header and payload.
+ **/
+e_skate_bms_err_t e_skate_bms_msg_new(
+
+);
 
 /**
  * Cleans the resources of a message.
@@ -70,13 +79,14 @@ void e_skate_bms_msg_free(
 
 /**
  * Calculates and writes the
- * message checksum to `chkSumBuf`.
- * This buffer must have at least
- * 2 elements. 
+ * buffer checksum to `chkSumBuf`.
+ * This out buffer must have space
+ * for at least 2 elements.
  **/
 void e_skate_bms_msg_chk_calc(
-    e_skate_bms_msg_t msg,
-    uint8_t chkSumBuf[static 2]
+    uint8_t* buffer,
+    size_t   bufferLen,
+    uint8_t  chkSumBuf[static 2]
 );
 
 
