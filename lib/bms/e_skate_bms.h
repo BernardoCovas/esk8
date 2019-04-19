@@ -32,6 +32,13 @@ typedef struct e_skate_bms_msg_t
     uint8_t  chk_sum[2];
 } e_skate_bms_msg_t;
 
+typedef enum e_skate_bms_reg_t
+{
+    E_SKATE_BMS_REG_CAPACITY = 0x32, // (%)
+    E_SKATE_BMS_REG_CURRENT  = 0x33, // (%)
+
+} e_skate_bms_reg_t;
+
 
 /**
  * Finds the first msg header in `buffer`.
@@ -62,11 +69,34 @@ e_skate_bms_err_t e_skate_bms_msg_parse(
 
 
 /**
- * Creates a new message with the specified
- * header and payload.
+ * Gets the length of the buffer needed
+ * to hold the entire serialized message,
+ * including the initial pkt header of
+ * size 2, and the checksum of size 2.
+ **/
+size_t e_skate_bms_msg_get_serialized_length(
+    e_skate_bms_msg_t msg
+);
+
+
+/**
+ * Serializes `msg` into `buff`.
+ * The length of the buffer needed
+ * can be obtained with
+ * `e_skate_bms_msg_get_serialized_length`.
+ **/
+void e_skate_bms_msg_serialize(
+    e_skate_bms_msg_t msg,
+    uint8_t *buff
+);
+
+/**
+ * Creates a new message for reading
+ * the specified register.
  **/
 e_skate_bms_err_t e_skate_bms_msg_new(
-
+    e_skate_bms_reg_t reg,
+    e_skate_bms_msg_t *outMsg
 );
 
 /**
@@ -83,12 +113,30 @@ void e_skate_bms_msg_free(
  * This out buffer must have space
  * for at least 2 elements.
  **/
-void e_skate_bms_msg_chk_calc(
+void e_skate_bms_buff_chk_calc(
     uint8_t* buffer,
     size_t   bufferLen,
     uint8_t  chkSumBuf[static 2]
 );
 
+
+/**
+ * Calculates the checksum for
+ * a message.
+ **/
+void e_skate_bms_msg_chk_calc(
+    e_skate_bms_msg_t msg,
+    uint8_t chkSum[static 2]
+);
+
+
+/**
+ * Calculates the checksum of the supplied
+ * Overrides the `msg_chsum` field.
+ **/
+void e_skate_bms_msg_set_chk(
+    e_skate_bms_msg_t* msg
+);
 
 /**
  * Verifies the integrity of the message.

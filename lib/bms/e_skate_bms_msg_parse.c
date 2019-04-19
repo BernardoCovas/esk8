@@ -26,7 +26,7 @@ e_skate_bms_msg_parse(
     remBufferLen -= 2;
 
     e_skate_bms_msg_t msgNew;
-    memcpy((void*)&msgNew, msgBuffer, sizeof(uint8_t)*E_SKATE_MSG_HEADER_SIZE);
+    memcpy((void*)&msgNew, msgBuffer, E_SKATE_MSG_HEADER_SIZE);
 
     msgBuffer += E_SKATE_MSG_HEADER_SIZE;
     remBufferLen -= E_SKATE_MSG_HEADER_SIZE;
@@ -34,12 +34,12 @@ e_skate_bms_msg_parse(
     if(msgNew.pld_length + 2 > remBufferLen)
         return E_SKATE_BMS_MSG_ERR_INVALID_PLDLEN;
 
-    msgNew.payload = (uint8_t*)malloc(sizeof(uint8_t) * msgNew.pld_length);
-    memcpy(msgNew.payload, msgBuffer, sizeof(uint8_t) * msgNew.pld_length);
+    msgNew.payload = (uint8_t*)malloc(msgNew.pld_length);
+    memcpy(msgNew.payload, msgBuffer, msgNew.pld_length);
     
     msgBuffer += msgNew.pld_length;
     remBufferLen -= msgNew.pld_length;
-    memcpy(msgNew.chk_sum, msgBuffer, sizeof(uint8_t) * 2);
+    memcpy(msgNew.chk_sum, msgBuffer, 2);
 
     e_skate_bms_err_t errCode = e_skate_bms_msg_chk(msgNew);
 

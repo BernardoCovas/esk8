@@ -18,7 +18,7 @@ int e_skate_bms_msg_find_header(
         int memcmp_res = memcmp(
             buffer+i,
             msg_header,
-            2 * sizeof(uint8_t)
+            2
             );
 
         if (memcmp_res == 0)
