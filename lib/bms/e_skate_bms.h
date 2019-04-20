@@ -32,6 +32,7 @@ typedef struct e_skate_bms_msg_t
     uint8_t  chk_sum[2];
 } e_skate_bms_msg_t;
 
+
 typedef enum e_skate_bms_reg_t
 {
     E_SKATE_BMS_REG_CAPACITY = 0x32, // (%)
@@ -90,6 +91,7 @@ void e_skate_bms_msg_serialize(
     uint8_t *buff
 );
 
+
 /**
  * Creates a new message for reading
  * the specified register.
@@ -98,6 +100,7 @@ e_skate_bms_err_t e_skate_bms_msg_new(
     e_skate_bms_reg_t reg,
     e_skate_bms_msg_t *outMsg
 );
+
 
 /**
  * Cleans the resources of a message.
@@ -137,6 +140,7 @@ void e_skate_bms_msg_chk_calc(
 void e_skate_bms_msg_set_chk(
     e_skate_bms_msg_t* msg
 );
+
 
 /**
  * Verifies the integrity of the message.
