@@ -39,10 +39,14 @@ void app_main()
 
 #define UART_RX_BUFF_SIZE 1000
 
-    ESP_ERROR_CHECK(uart_driver_install(E_SKATE_UART_NUM, UART_RX_BUFF_SIZE, UART_RX_BUFF_SIZE, 0, NULL, 0));
-
-    ESP_ERROR_CHECK(gpio_set_pull_mode(E_SKATE_UART_BMS_RX, GPIO_PULLUP_ONLY));
-    ESP_ERROR_CHECK(gpio_pullup_en(E_SKATE_UART_BMS_RX));
+    ESP_ERROR_CHECK(uart_driver_install(
+        E_SKATE_UART_NUM,
+        UART_RX_BUFF_SIZE,
+        0,
+        0,
+        NULL,
+        0
+        ));
 
     uint8_t rx_buffer[UART_RX_BUFF_SIZE];
 
