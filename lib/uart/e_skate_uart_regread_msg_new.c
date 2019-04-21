@@ -2,6 +2,7 @@
 
 e_skate_uart_err_t e_skate_uart_regread_msg_new(
     e_skate_uart_reg_t reg,
+    uint8_t readLen,
     e_skate_uart_msg_t *outMsg
 )
 {
@@ -14,7 +15,7 @@ e_skate_uart_err_t e_skate_uart_regread_msg_new(
         .payload = (uint8_t*) malloc(1)
     };
 
-    newMsg.payload[0] = 0x02;
+    newMsg.payload[0] = readLen;
     e_skate_uart_msg_set_chk(&newMsg);
 
     (*outMsg) = newMsg;

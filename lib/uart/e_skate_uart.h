@@ -45,9 +45,12 @@ typedef struct e_skate_uart_msg_t
 
 typedef enum e_skate_uart_reg_t
 {
-    E_SKATE_REG_BMS_CAPACITY = 0x32, // (%)
-    E_SKATE_REG_BMS_CURRENT  = 0x33, // (%)
-
+    E_SKATE_REG_BMS_CAPACITY = 0x32,
+    E_SKATE_REG_BMS_CURRENT  = 0x33,
+    E_SKATE_REG_BMS_VOLTAGE  = 0x34,
+    E_SKATE_REG_BMS_TEMPRTR  = 0x35,
+    E_SKATE_REG_BMS_HEALTH   = 0x3B,
+    E_SKATE_REG_BMS_CELL1_V  = 0x40,
 } e_skate_uart_reg_t;
 
 
@@ -105,9 +108,12 @@ void e_skate_uart_msg_serialize(
 /**
  * Creates a new message for reading
  * the specified register.
+ * The new message asks for `readLen`
+ * bytes from the specified register.
  **/
 e_skate_uart_err_t e_skate_uart_regread_msg_new(
     e_skate_uart_reg_t reg,
+    uint8_t readLen,
     e_skate_uart_msg_t *outMsg
 );
 

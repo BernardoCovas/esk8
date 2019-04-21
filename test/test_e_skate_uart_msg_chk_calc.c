@@ -9,6 +9,7 @@ void test_e_skate_uart_msg_chk_calc()
     e_skate_uart_msg_t msgNew;
     e_skate_uart_regread_msg_new(
         E_SKATE_REG_BMS_CURRENT,
+        0x02,
         &msgNew
     );
 
