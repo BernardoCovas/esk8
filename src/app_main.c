@@ -1,4 +1,4 @@
-#include <e_skate_uart.h>
+#include <e_skate_uart_esp.h>
 #include <e_skate_config.h>
 
 #include <freertos/FreeRTOS.h>
@@ -12,39 +12,33 @@
 
 void app_main()
 {
-    uart_config_t uartConfig = E_SKATE_UART_CONFIG_DEFAULT_ESP32();
-
     e_skate_uart_msg_t msg;
     e_skate_uart_msg_err_t errCode;
+    e_skate_uart_esp_bms_t espUart;
 
-    ESP_ERROR_CHECK(uart_param_config(
+    e_skate_uart_esp_bms_init(
+        &espUart,
         E_SKATE_UART_NUM,
-        &uartConfig
-        ));
-
-    ESP_ERROR_CHECK(uart_set_pin(
-        E_SKATE_UART_NUM,
-        E_SKATE_UART_BMS_TX,
-        E_SKATE_UART_BMS_RX,
-        UART_PIN_NO_CHANGE,
-        UART_PIN_NO_CHANGE
-        ));
-    
-    ESP_ERROR_CHECK(uart_driver_install(
-        E_SKATE_UART_NUM,
-        E_SKATE_UART_BMS_BUFF_SIZE,
-        0,
-        0,
-        NULL,
-        0
-        ));
+        0);
 
     uint8_t rx_buffer[E_SKATE_UART_BMS_BUFF_SIZE];
 
+    int count = 1;
+    int currIndex = 0;
     while(1)
     {
+        if (count % 10 == 0)
+        {
+            e_skate_uart_esp_bms_set_rx(&espUart, currIndex);
+            currIndex ++;
+            if (currIndex > espUart.numBat)
+                currIndex = 0;
+
+            printf("Changed to index: %d", currIndex);
+        }   
+
         errCode = e_skate_uart_regread_msg_new(
-            E_SKATE_REG_BMS_TEMPRTR,
+            E_SKATE_REG_BMS_VOLTAGE,
             0x02,
             &msg);
         
@@ -69,5 +63,6 @@ void app_main()
         }
 
         free(buffer);
+        count++;
     }
 }

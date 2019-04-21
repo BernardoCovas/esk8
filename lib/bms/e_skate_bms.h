@@ -12,6 +12,4 @@ typedef enum e_skate_bms_err_t
 } e_skate_bms_err_t;
 
 
-e_skate_bms_err_t e_skate_bms_uart_setup();
-
 #endif /* _E_SKATE_BMS_H */
