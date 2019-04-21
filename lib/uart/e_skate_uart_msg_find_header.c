@@ -1,9 +1,9 @@
-#include <e_skate_bms.h>
+#include <e_skate_uart.h>
 
 #include <string.h>
 
 
-int e_skate_bms_msg_find_header(
+int e_skate_uart_msg_find_header(
     uint8_t* buffer,
     int buf_length
 )

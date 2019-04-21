@@ -1,9 +1,9 @@
-#include <e_skate_bms.h>
+#include <e_skate_uart.h>
 
 #include <stdio.h>
 
 
-void e_skate_bms_buff_chk_calc(
+void e_skate_uart_buff_chk_calc(
     uint8_t* buffer,
     size_t   bufferLen,
     uint8_t  chkSumBuf[static 2]

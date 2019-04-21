@@ -1,7 +1,7 @@
-#include <e_skate_bms.h>
+#include <e_skate_uart.h>
 
-void e_skate_bms_msg_serialize(
-    e_skate_bms_msg_t msg,
+void e_skate_uart_msg_serialize(
+    e_skate_uart_msg_t msg,
     uint8_t *buff
 )
 {
