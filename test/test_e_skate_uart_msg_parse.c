@@ -15,7 +15,7 @@ void test_e_skate_uart_msg_parse()
     uint8_t invalid_msg_buffer          [] = {0x01, 0x3E, 0x20, 0x02, 0x5A, 0xA5, 0x03, 0x01, 0x24, 0x34}; // No more space in buffer for advertized payload length.
 
     e_skate_uart_msg_t msg;
-    e_skate_uart_err_t errCode;
+    e_skate_uart_msg_err_t errCode;
 
     errCode = e_skate_uart_msg_parse(valid_msg, 10, &msg);
     TEST_ASSERT_EQUAL(E_SKATE_UART_MSG_SUCCESS, errCode);

@@ -12,16 +12,10 @@
 
 void app_main()
 {
-    uart_config_t uartConfig = {
-		.baud_rate = 115200,
-		.data_bits = UART_DATA_8_BITS,
-		.parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
-	};
+    uart_config_t uartConfig = E_SKATE_UART_CONFIG_DEFAULT_ESP32();
 
     e_skate_uart_msg_t msg;
-    e_skate_uart_err_t errCode;
+    e_skate_uart_msg_err_t errCode;
 
     ESP_ERROR_CHECK(uart_param_config(
         E_SKATE_UART_NUM,
@@ -36,23 +30,23 @@ void app_main()
         UART_PIN_NO_CHANGE
         ));
     
-
-#define UART_RX_BUFF_SIZE 1000
-
     ESP_ERROR_CHECK(uart_driver_install(
         E_SKATE_UART_NUM,
-        UART_RX_BUFF_SIZE,
+        E_SKATE_UART_BMS_BUFF_SIZE,
         0,
         0,
         NULL,
         0
         ));
 
-    uint8_t rx_buffer[UART_RX_BUFF_SIZE];
+    uint8_t rx_buffer[E_SKATE_UART_BMS_BUFF_SIZE];
 
     while(1)
     {
-        errCode = e_skate_uart_regread_msg_new(E_SKATE_REG_BMS_CAPACITY, &msg);
+        errCode = e_skate_uart_regread_msg_new(
+            E_SKATE_REG_BMS_TEMPRTR,
+            0x02,
+            &msg);
         
         if (errCode != E_SKATE_UART_MSG_SUCCESS)
             continue;
@@ -64,7 +58,7 @@ void app_main()
         e_skate_uart_msg_free(msg);
 
         uart_write_bytes(E_SKATE_UART_NUM, (const char*)  buffer, bufferSize);
-        int len = uart_read_bytes(E_SKATE_UART_NUM, rx_buffer, UART_RX_BUFF_SIZE, 200 / portTICK_RATE_MS);
+        int len = uart_read_bytes(E_SKATE_UART_NUM, rx_buffer, E_SKATE_UART_BMS_BUFF_SIZE, 200 / portTICK_RATE_MS);
 
         if (len > 0)
         {

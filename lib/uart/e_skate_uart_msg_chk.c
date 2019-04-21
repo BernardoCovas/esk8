@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 
-e_skate_uart_err_t e_skate_uart_msg_chk(
+e_skate_uart_msg_err_t e_skate_uart_msg_chk(
     e_skate_uart_msg_t msg
 )
 {

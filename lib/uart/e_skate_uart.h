@@ -21,14 +21,14 @@
 #define E_SKATE_MSG_MIN_SIZE 9
 
 
-typedef enum e_skate_uart_err_t
+typedef enum e_skate_uart_msg_err_t
 {
     E_SKATE_UART_MSG_SUCCESS,
     E_SKATE_UART_MSG_ERR_NO_HEADER,
     E_SKATE_UART_MSG_ERR_INVALID_PLDLEN,
     E_SKATE_UART_MSG_ERR_INVALID_CHKSUM,
     E_SKATE_UART_MSG_ERR_INVALID_BUFFER,
-} e_skate_uart_err_t;
+} e_skate_uart_msg_err_t;
 
 
 typedef struct e_skate_uart_msg_t
@@ -75,7 +75,7 @@ int e_skate_uart_msg_find_header(
  * if the message is valid and was parsed
  * properly.
  **/
-e_skate_uart_err_t e_skate_uart_msg_parse(
+e_skate_uart_msg_err_t e_skate_uart_msg_parse(
     uint8_t* buffer,
     size_t buf_length,
     e_skate_uart_msg_t* outMsg
@@ -111,7 +111,7 @@ void e_skate_uart_msg_serialize(
  * The new message asks for `readLen`
  * bytes from the specified register.
  **/
-e_skate_uart_err_t e_skate_uart_regread_msg_new(
+e_skate_uart_msg_err_t e_skate_uart_regread_msg_new(
     e_skate_uart_reg_t reg,
     uint8_t readLen,
     e_skate_uart_msg_t *outMsg
@@ -163,7 +163,7 @@ void e_skate_uart_msg_set_chk(
  * Returns `E_SKATE_UART_MSG_SUCCESS` if
  * valid, any of the errors if not valid.
  **/
-e_skate_uart_err_t e_skate_uart_msg_chk(
+e_skate_uart_msg_err_t e_skate_uart_msg_chk(
     e_skate_uart_msg_t msg
 );
 

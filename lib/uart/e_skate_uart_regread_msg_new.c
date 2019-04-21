@@ -1,6 +1,6 @@
 #include <e_skate_uart.h>
 
-e_skate_uart_err_t e_skate_uart_regread_msg_new(
+e_skate_uart_msg_err_t e_skate_uart_regread_msg_new(
     e_skate_uart_reg_t reg,
     uint8_t readLen,
     e_skate_uart_msg_t *outMsg
