@@ -48,7 +48,7 @@ void app_main()
 
     while(1)
     {
-        errCode = e_skate_uart_msg_new(E_SKATE_BMS_REG_CAPACITY, &msg);
+        errCode = e_skate_uart_regread_msg_new(E_SKATE_REG_BMS_CAPACITY, &msg);
         
         if (errCode != E_SKATE_UART_MSG_SUCCESS)
             continue;
