@@ -1,5 +1,5 @@
-#include <e_skate_uart_esp.h>
 #include <e_skate_config.h>
+#include <e_skate_uart_esp.h>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -18,7 +18,7 @@ void app_main()
 
     e_skate_uart_esp_bms_init(
         &espUart,
-        E_SKATE_UART_NUM,
+        E_SKATE_UART_BMS_NUM,
         0);
 
     uint8_t rx_buffer[E_SKATE_UART_BMS_BUFF_SIZE];
@@ -31,10 +31,10 @@ void app_main()
         {
             e_skate_uart_esp_bms_set_rx(&espUart, currIndex);
             currIndex ++;
-            if (currIndex > espUart.numBat)
+            if (currIndex >= espUart.numBat)
                 currIndex = 0;
 
-            printf("Changed to index: %d", currIndex);
+            printf("Changed to index: %d\n", currIndex);
         }   
 
         errCode = e_skate_uart_regread_msg_new(
@@ -51,8 +51,8 @@ void app_main()
         e_skate_uart_msg_serialize(msg, buffer);
         e_skate_uart_msg_free(msg);
 
-        uart_write_bytes(E_SKATE_UART_NUM, (const char*)  buffer, bufferSize);
-        int len = uart_read_bytes(E_SKATE_UART_NUM, rx_buffer, E_SKATE_UART_BMS_BUFF_SIZE, 200 / portTICK_RATE_MS);
+        uart_write_bytes(E_SKATE_UART_BMS_NUM, (const char*)  buffer, bufferSize);
+        int len = uart_read_bytes(E_SKATE_UART_BMS_NUM, rx_buffer, E_SKATE_UART_BMS_BUFF_SIZE, 200 / portTICK_RATE_MS);
 
         if (len > 0)
         {

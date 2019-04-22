@@ -1,5 +1,5 @@
-#include <e_skate_uart_esp.h>
 #include <e_skate_config.h>
+#include <e_skate_uart_esp.h>
 
 #include <esp_err.h>
 #include <driver/uart.h>
@@ -12,7 +12,7 @@ e_skate_uart_esp_err_t e_skate_uart_esp_bms_init(
 )
 {
     const static gpio_num_t eSkateBmsPins[] = E_SKATE_UART_BMS_RX_PINS;
-    const uint8_t numPins = sizeof(eSkateBmsPins);
+    const uint8_t numPins = sizeof(eSkateBmsPins) / sizeof(gpio_num_t);
     uart_config_t uartConfig = E_SKATE_UART_CONFIG_DEFAULT_ESP32();
 
     if (uartRxI >= numPins)

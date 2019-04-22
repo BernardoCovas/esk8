@@ -1,5 +1,5 @@
-#ifndef _E_SKATE_BMS_H
-#define _E_SKATE_BMS_H
+#ifndef _E_SKATE_UART_H
+#define _E_SKATE_UART_H
 
 #include <stdint.h>
 #include <string.h>
@@ -168,4 +168,4 @@ e_skate_uart_msg_err_t e_skate_uart_msg_chk(
 );
 
 
-#endif /* _E_SKATE_BMS_H */
+#endif /* _E_SKATE_UART_H */
