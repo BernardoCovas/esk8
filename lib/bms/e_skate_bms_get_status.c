@@ -18,7 +18,7 @@ e_skate_err_t get_data_with_response(
     e_skate_uart_msg_t msg;
 
     size_t responseLen = E_SKATE_MSG_MIN_SIZE + 2; // Payload size 2.
-    uint8_t responseBuffer[responseLen];
+    uint8_t responseBuffer[responseLen + 1];
 
     e_skate_uart_regread_msg_new(
         dstAddr,
@@ -53,7 +53,7 @@ e_skate_err_t get_data_with_response(
         int responseLenR = uart_read_bytes(
             bmsConfig->bmsUartPort,
             responseBuffer,
-            responseLen,
+            responseLen + 1, // Force timeout. If more bytes than expected are sent, return imediately.
             E_SKATE_UART_BMS_UPDATE_MS / portTICK_PERIOD_MS);
 
         if (responseLenR != responseLen)
@@ -84,6 +84,7 @@ e_skate_err_t get_data_with_response(
         }
 
         memcpy(outValue, rspMsg.payload, 2);
+
         e_skate_uart_msg_free(rspMsg);
 
         break;
