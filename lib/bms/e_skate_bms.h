@@ -39,8 +39,10 @@ e_skate_err_t e_skate_bms_init(
 );
 
 e_skate_err_t e_skate_bms_set_rx(
+
     e_skate_bms_config_t* eSkateUart,
     uint8_t uartRxI
+
 );
 
 /**

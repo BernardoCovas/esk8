@@ -8,6 +8,7 @@ void test_e_skate_uart_msg_serialize()
 {
     e_skate_uart_msg_t msg;
     e_skate_uart_regread_msg_new(
+        E_SKATE_ADDR_BMS,
         E_SKATE_REG_BMS_CURRENT,
         0x02,
         &msg
@@ -15,7 +16,7 @@ void test_e_skate_uart_msg_serialize()
 
     int msgBufferLen = (int) e_skate_uart_msg_get_serialized_length(msg);
 
-    uint8_t expectedBuffer[] = {0x5A, 0xA5, 0x01, 0x20, 0x22, 0x01, E_SKATE_REG_BMS_CURRENT, 0x02, 0x86, 0xFF};
+    uint8_t expectedBuffer[] = {0x5A, 0xA5, 0x01, 0x3e, 0x22, 0x01, E_SKATE_REG_BMS_CURRENT, 0x02, 0x68, 0xFF};
     uint8_t* actualBuffer = (uint8_t*)malloc(msgBufferLen);
 
     e_skate_uart_msg_serialize(msg, actualBuffer);

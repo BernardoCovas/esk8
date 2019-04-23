@@ -17,7 +17,6 @@ void app_main()
 
     while(1)
     {
-        printf("-----------------------------\n");
         for (int i=0; i<bmsConfig.numBat; i++)
         {
             e_skate_bms_set_rx(&bmsConfig, i);
@@ -41,6 +40,8 @@ void app_main()
             }
         }
 
+        printf("-----------------------------\n");
 
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }                

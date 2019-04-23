@@ -60,8 +60,10 @@ typedef enum e_skate_uart_addr_t
  * If no header is found, returns -1.
  **/
 int e_skate_uart_msg_find_header(
+    
     uint8_t* buffer,
     int buf_length
+
 );
 
 
@@ -77,9 +79,11 @@ int e_skate_uart_msg_find_header(
  * properly.
  **/
 e_skate_err_t e_skate_uart_msg_parse(
+
     uint8_t* buffer,
     size_t buf_length,
     e_skate_uart_msg_t* outMsg
+
 );
 
 
@@ -90,7 +94,9 @@ e_skate_err_t e_skate_uart_msg_parse(
  * size 2, and the checksum of size 2.
  **/
 size_t e_skate_uart_msg_get_serialized_length(
+
     e_skate_uart_msg_t msg
+
 );
 
 
@@ -101,8 +107,10 @@ size_t e_skate_uart_msg_get_serialized_length(
  * `e_skate_uart_msg_get_serialized_length`.
  **/
 void e_skate_uart_msg_serialize(
+
     e_skate_uart_msg_t msg,
     uint8_t *buff
+
 );
 
 
@@ -114,10 +122,12 @@ void e_skate_uart_msg_serialize(
  * bytes from the specified register.
  **/
 e_skate_err_t e_skate_uart_regread_msg_new(
+
     e_skate_uart_addr_t dstAddr,
     e_skate_uart_reg_t reg,
     uint8_t readLen,
     e_skate_uart_msg_t *outMsg
+
 );
 
 
@@ -125,7 +135,9 @@ e_skate_err_t e_skate_uart_regread_msg_new(
  * Cleans the resources of a message.
  **/
 void e_skate_uart_msg_free(
+
     e_skate_uart_msg_t msg
+
 );
 
 
@@ -136,9 +148,11 @@ void e_skate_uart_msg_free(
  * for at least 2 elements.
  **/
 void e_skate_uart_buff_chk_calc(
+
     uint8_t* buffer,
     size_t   bufferLen,
     uint8_t  chkSumBuf[static 2]
+
 );
 
 
@@ -147,8 +161,10 @@ void e_skate_uart_buff_chk_calc(
  * a message.
  **/
 void e_skate_uart_msg_chk_calc(
+
     e_skate_uart_msg_t msg,
     uint8_t chkSum[static 2]
+
 );
 
 
@@ -157,7 +173,9 @@ void e_skate_uart_msg_chk_calc(
  * Overrides the `msg_chsum` field.
  **/
 void e_skate_uart_msg_set_chk(
+
     e_skate_uart_msg_t* msg
+
 );
 
 
@@ -167,7 +185,9 @@ void e_skate_uart_msg_set_chk(
  * valid, any of the errors if not valid.
  **/
 e_skate_err_t e_skate_uart_msg_chk(
+
     e_skate_uart_msg_t msg
+
 );
 
 

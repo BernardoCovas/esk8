@@ -28,7 +28,9 @@ typedef enum e_skate_err_t
  * returns "?".
  **/
 const char* e_skate_err_to_str(
+
     e_skate_err_t errCode
+
 );
 
 #endif /* _E_SKATE_ERR_H */
