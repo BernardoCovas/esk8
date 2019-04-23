@@ -12,7 +12,7 @@ typedef struct
 {
     uint16_t capacity;
     uint16_t voltage;
-    uint16_t current;
+    int16_t  current;
     uint8_t  temperature1;
     uint8_t  temperature2;
 } e_skate_bms_status_t;
