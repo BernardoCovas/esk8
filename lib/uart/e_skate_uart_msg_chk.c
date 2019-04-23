@@ -1,9 +1,10 @@
+#include <e_skate_err.h>
 #include <e_skate_uart.h>
 
 #include <stdio.h>
 
 
-e_skate_uart_msg_err_t e_skate_uart_msg_chk(
+e_skate_err_t e_skate_uart_msg_chk(
     e_skate_uart_msg_t msg
 )
 {
@@ -13,5 +14,5 @@ e_skate_uart_msg_err_t e_skate_uart_msg_chk(
     if (memcmp(calcChkSum, msg.chk_sum, 2) != 0)
         return E_SKATE_UART_MSG_ERR_INVALID_CHKSUM;        
 
-    return E_SKATE_UART_MSG_SUCCESS;
+    return E_SKATE_SUCCESS;
 }

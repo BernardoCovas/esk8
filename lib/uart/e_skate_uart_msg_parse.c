@@ -1,7 +1,8 @@
 #include <e_skate_uart.h>
+#include <e_skate_err.h>
 
 
-e_skate_uart_msg_err_t
+e_skate_err_t
 e_skate_uart_msg_parse(
     uint8_t* buffer,
     size_t buf_length,
@@ -41,14 +42,14 @@ e_skate_uart_msg_parse(
     remBufferLen -= msgNew.pld_length;
     memcpy(msgNew.chk_sum, msgBuffer, 2);
 
-    e_skate_uart_msg_err_t errCode = e_skate_uart_msg_chk(msgNew);
+    e_skate_err_t errCode = e_skate_uart_msg_chk(msgNew);
 
-    if (errCode != E_SKATE_UART_MSG_SUCCESS)
+    if (errCode != E_SKATE_SUCCESS)
     {
         free(msgNew.payload);
         return errCode;
     }
 
     (*msgOut) = msgNew;
-    return E_SKATE_UART_MSG_SUCCESS;
+    return E_SKATE_SUCCESS;
 }

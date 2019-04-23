@@ -1,6 +1,9 @@
 #include <e_skate_uart.h>
+#include <e_skate_err.h>
 
-e_skate_uart_msg_err_t e_skate_uart_regread_msg_new(
+
+e_skate_err_t e_skate_uart_regread_msg_new(
+    e_skate_uart_addr_t dstAddr,
     e_skate_uart_reg_t reg,
     uint8_t readLen,
     e_skate_uart_msg_t *outMsg
@@ -9,7 +12,7 @@ e_skate_uart_msg_err_t e_skate_uart_regread_msg_new(
     e_skate_uart_msg_t newMsg = {
         .pld_length = 1,
         .src_address = 0x3e,
-        .dst_address = 0x22,
+        .dst_address = dstAddr,
         .cmd_command = 0x01,            // Read registers
         .cmd_argment = (uint8_t) reg,   // Reg to read
         .payload = (uint8_t*) malloc(1)
@@ -20,5 +23,5 @@ e_skate_uart_msg_err_t e_skate_uart_regread_msg_new(
 
     (*outMsg) = newMsg;
 
-    return E_SKATE_UART_MSG_SUCCESS;
+    return EXIT_SUCCESS;
 }
