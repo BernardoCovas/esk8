@@ -18,6 +18,25 @@ typedef struct
 } e_skate_bms_status_t;
 
 
+typedef struct
+{
+    uint8_t  serialNumber[15];
+    uint16_t firmwareVersion;
+    uint16_t manufactureDate;
+    uint16_t factoryCapacity_mAh;
+    uint16_t actualCapacity_mAh;
+    uint16_t remainingCapacity_mAh; // Units in mAh
+    uint16_t remainingCapacity_prc; // Units in percentage.
+    uint16_t chargeFullCycles;
+    uint16_t chargeCount;
+    uint16_t packHeath_prc;
+    uint16_t cellVoltage_mV[10];
+    bool     isCharging;
+    bool     isOverVoltage;
+    bool     isOverHeat;
+} e_skate_bms_deep_status_t;
+
+
 typedef void (*e_skate_bms_cb_t)(e_skate_bms_status_t* status, uint8_t nStatus);
 
 
@@ -68,6 +87,19 @@ e_skate_err_t e_skate_bms_get_status(
 
     e_skate_bms_config_t *bmsConfig,
     e_skate_bms_status_t *outStatus
+
+);
+
+
+/**
+ * Reads the pack's deep status.
+ * Takes a while, and the result is stored
+ * in `outDeepStatus`.
+ **/
+e_skate_err_t e_skate_bms_get_deep_status(
+
+    e_skate_bms_config_t      *bmsConfig,
+    e_skate_bms_deep_status_t *outStatus
 
 );
 
