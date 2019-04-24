@@ -76,7 +76,8 @@ int e_skate_uart_msg_find_header(
  * Allocates payload resources.
  * Returns `E_SKATE_UART_MSG_SUCCESS`
  * if the message is valid and was parsed
- * properly.
+ * properly. Any error does not allocate
+ * resources.
  **/
 e_skate_err_t e_skate_uart_msg_parse(
 
@@ -151,7 +152,7 @@ void e_skate_uart_buff_chk_calc(
 
     uint8_t* buffer,
     size_t   bufferLen,
-    uint8_t  chkSumBuf[static 2]
+    uint8_t  chkSumBuf[2]
 
 );
 
@@ -163,7 +164,7 @@ void e_skate_uart_buff_chk_calc(
 void e_skate_uart_msg_chk_calc(
 
     e_skate_uart_msg_t msg,
-    uint8_t chkSum[static 2]
+    uint8_t chkSum[2]
 
 );
 
