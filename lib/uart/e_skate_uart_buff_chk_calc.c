@@ -14,8 +14,5 @@ void e_skate_uart_buff_chk_calc(
         chksum += buffer[i];
     chksum ^= 0xFFFF;
 
-    uint8_t *chksum_l = (uint8_t*) (void*) &chksum;
-
-    chkSumBuf[0] = chksum_l[0];
-    chkSumBuf[1] = chksum_l[1];
+    memcpy((void*) chkSumBuf, (void*) &chksum, 2);
 }
