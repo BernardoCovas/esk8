@@ -37,12 +37,32 @@ typedef struct e_skate_uart_msg_t
 
 typedef enum e_skate_uart_reg_t
 {
-    E_SKATE_REG_BMS_CAPACITY = 0x32,
-    E_SKATE_REG_BMS_CURRENT  = 0x33,
-    E_SKATE_REG_BMS_VOLTAGE  = 0x34,
-    E_SKATE_REG_BMS_TEMPRTR  = 0x35,
-    E_SKATE_REG_BMS_HEALTH   = 0x3B,
-    E_SKATE_REG_BMS_CELL1_V  = 0x40,
+    /* Status */
+    E_SKATE_REG_BMS_CAPACITY    = 0x32,
+    E_SKATE_REG_BMS_CURRENT     = 0x33,
+    E_SKATE_REG_BMS_VOLTAGE     = 0x34,
+    E_SKATE_REG_BMS_TEMPRTR     = 0x35,
+    E_SKATE_REG_BMS_HEALTH      = 0x3B,
+
+    /* Deep Status */
+    E_SKATE_REG_BMS_CELL0_V     = 0x40,
+    E_SKATE_REG_BMS_CELL1_V     = 0x41,
+    E_SKATE_REG_BMS_CELL2_V     = 0x42,
+    E_SKATE_REG_BMS_CELL3_V     = 0x43,
+    E_SKATE_REG_BMS_CELL4_V     = 0x44,
+    E_SKATE_REG_BMS_CELL5_V     = 0x45,
+    E_SKATE_REG_BMS_CELL6_V     = 0x46,
+    E_SKATE_REG_BMS_CELL7_V     = 0x47,
+    E_SKATE_REG_BMS_CELL8_V     = 0x48,
+    E_SKATE_REG_BMS_CELL9_V     = 0x49,
+    E_SKATE_REG_BMS_MANUFACTURE_DATE    = 0x10,
+    E_SKATE_REG_BMS_SERIAL_NUMBER       = 0x10,
+    E_SKATE_REG_BMS_FW_VERSION          = 0x17,
+    E_SKATE_REG_BMS_FACTORY_CAPACITY    = 0x18,
+    E_SKATE_REG_BMS_ACTUAL_CAPACITY     = 0x19,
+    E_SKATE_REG_BMS_CHARGE_FULL_CYCLES  = 0x1B,
+    E_SKATE_REG_BMS_CHARGE_COUNT       = 0x1C,
+    E_SKATE_REG_BMS_CAPACITY_mAh        = 0x31,
 } e_skate_uart_reg_t;
 
 

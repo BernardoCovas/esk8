@@ -20,13 +20,13 @@ typedef struct
 
 typedef struct
 {
-    uint8_t  serialNumber[15];
+    uint8_t  serialNumber[14];
     uint16_t firmwareVersion;
     uint16_t manufactureDate;
     uint16_t factoryCapacity_mAh;
     uint16_t actualCapacity_mAh;
-    uint16_t remainingCapacity_mAh; // Units in mAh
     uint16_t remainingCapacity_prc; // Units in percentage.
+    uint16_t remainingCapacity_mAh; // Units in mAh.
     uint16_t chargeFullCycles;
     uint16_t chargeCount;
     uint16_t packHeath_prc;
