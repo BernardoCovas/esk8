@@ -45,6 +45,7 @@ typedef struct
     uart_port_t         bmsUartPort;
     uint8_t             numBat;
     uint8_t*            batRxPins;
+    uint8_t*            batTxPins;
     uint8_t             batTxPin;
     uint32_t            bmsUpdateMs;
     uart_config_t       uartConfig;

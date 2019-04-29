@@ -16,7 +16,7 @@ e_skate_err_t e_skate_bms_set_rx(
 
     ESP_ERROR_CHECK(uart_set_pin(
         bmsConfig->bmsUartPort,
-        bmsConfig->batTxPin,
+        bmsConfig->batTxPins[uartRxI],
         bmsConfig->batRxPins[uartRxI],
         UART_PIN_NO_CHANGE,
         UART_PIN_NO_CHANGE
