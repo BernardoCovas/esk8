@@ -6,6 +6,7 @@ typedef enum e_skate_err_t
 {
     E_SKATE_SUCCESS,
     E_SKATE_ERR_INVALID_PARAM,
+    E_SKATE_ERR_OOM,
     
     /* E_Skate BMS */
     E_SKATE_BMS_ERR_INVALID_DATA,
@@ -19,6 +20,11 @@ typedef enum e_skate_err_t
     E_SKATE_UART_MSG_ERR_INVALID_PLDLEN,
     E_SKATE_UART_MSG_ERR_INVALID_CHKSUM,
     E_SKATE_UART_MSG_ERR_INVALID_BUFFER,
+
+    /* E_Skate Ps2 */
+    E_SKATE_PS2_ERR_VALUE_READY,
+    E_SKATE_PS2_ERR_INVALID_STATE,
+
 } e_skate_err_t;
 
 

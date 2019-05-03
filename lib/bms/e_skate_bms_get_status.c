@@ -13,7 +13,7 @@ e_skate_err_t e_skate_bms_get_status(
 
 )
 {
-    e_skate_err_t   errorCode = E_SKATE_SUCCESS;
+    e_skate_err_t errorCode = E_SKATE_SUCCESS;
     
     e_skate_uart_reg_t  readReg[] = {
         E_SKATE_REG_BMS_CAPACITY,
