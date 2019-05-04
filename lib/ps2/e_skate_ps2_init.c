@@ -9,7 +9,7 @@
 void IRAM_ATTR e_skate_ps2_isr(void** param)
 {
     e_skate_ps2_handle_t* ps2Handle = (e_skate_ps2_handle_t*) param[0];
-    e_skate_ps2_config_t* ps2Config = (e_skate_ps2_config_t*) param[0];
+    e_skate_ps2_config_t* ps2Config = (e_skate_ps2_config_t*) param[1];
 
     bool newBit = gpio_get_level(
         ps2Config->dataPin);
