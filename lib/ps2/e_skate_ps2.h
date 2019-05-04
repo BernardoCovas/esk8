@@ -33,4 +33,16 @@ e_skate_err_t e_skate_ps2_init(
 
 );
 
+
+/**
+ * 
+ **/
+e_skate_err_t e_skate_ps2_deinit(
+
+    e_skate_ps2_handle_t* ps2Handle,
+    e_skate_ps2_config_t* ps2Config
+
+);
+
+
 #endif /* _E_SKATE_PS2_H */

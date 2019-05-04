@@ -11,11 +11,11 @@ e_skate_err_t e_skate_ps2_add_bit(
 
 )
 {
-    if (ps2Handle->newByteIndex >= 7)
+    if (ps2Handle->newByteIndex > 7)
         return E_SKATE_PS2_ERR_VALUE_READY;
 
     ps2Handle->newByte |= (value << ps2Handle->newByteIndex);
     ps2Handle->newByteIndex++;
-
-    return E_SKATE_SUCCESS;
+    
+    return ps2Handle->newByteIndex>7?E_SKATE_PS2_ERR_VALUE_READY:E_SKATE_SUCCESS;
 }

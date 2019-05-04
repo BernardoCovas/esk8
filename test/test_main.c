@@ -11,6 +11,9 @@ void app_main()
     RUN_TEST(test_e_skate_uart_msg_chk_calc);
     RUN_TEST(test_e_skate_uart_msg_parse);
     RUN_TEST(test_e_skate_uart_msg_serialize);
+    
+    RUN_TEST(test_e_skate_ps2_add_bit);
+    RUN_TEST(test_e_skate_ps2_check_parity);
 
     UNITY_END(); // stop unit testing
 }
