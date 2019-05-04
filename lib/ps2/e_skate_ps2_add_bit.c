@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-/* TODO (bcovas): Test */
+
 e_skate_err_t e_skate_ps2_add_bit(
 
     e_skate_ps2_handle_t* ps2Handle,
