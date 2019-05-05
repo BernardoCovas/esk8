@@ -23,15 +23,12 @@ void IRAM_ATTR e_skate_ps2_isr(void* param)
      * since the last clock,
      * reset and clear the values.
      **/
-    uint64_t currBitTime;
+    double currBitTime;
 
-    timer_get_counter_value(
+    timer_get_counter_time_sec(
         ps2Config->timerConfig.timerGroup,
         ps2Config->timerConfig.timerIdx,
         &currBitTime);
-
-    int     timerScale = TIMER_BASE_CLK / (ps2Handle->ps2Config.timerConfig.timerDivider * 1000);
-    uint64_t pktDiffMs = currBitTime    / timerScale;
 
     /* Reset Counter */
     timer_set_counter_value(
@@ -43,26 +40,29 @@ void IRAM_ATTR e_skate_ps2_isr(void* param)
      * If too much time passed since the last bit,
      * it's a new packet.
      **/
-    if (pktDiffMs > E_SKATE_PS2_PACKET_TIMEOUT_MS)
+    if (currBitTime > (double) E_SKATE_PS2_PACKET_TIMEOUT_MS / 1000)
         e_skate_ps2_reset_handle(
             ps2Handle,
-            true);
+            false);
 
     e_skate_err_t bitErrCode = e_skate_ps2_add_bit(
         ps2Handle,
         newBit);
 
-    if (bitErrCode == E_SKATE_PS2_ERR_VALUE_READY)
+    if  (
+            bitErrCode == E_SKATE_PS2_ERR_VALUE_READY &&
+            e_skate_ps2_check_frame(ps2Handle) == E_SKATE_SUCCESS /* It's a valid packet */
+        )
     {
         // Send the new byte to the queue
         xQueueSendFromISR(
-            ps2Handle->byteQueueHandle,
+            ps2Handle->rxByteQueueHandle,
             &( ps2Handle->newByte ),
             NULL);
 
         e_skate_ps2_reset_handle(
             ps2Handle,
-            true);
+            false);
     }
 }
 
@@ -76,11 +76,11 @@ e_skate_err_t e_skate_ps2_init(
 {
     ps2Handle->ps2Config = *ps2Config;
 
-    ps2Handle->byteQueueHandle = xQueueCreate(
+    ps2Handle->rxByteQueueHandle = xQueueCreate(
         E_SKATE_PS2_BYTE_QUEUE_LENGTH,
         1);
 
-    if (ps2Handle->byteQueueHandle == NULL)
+    if (ps2Handle->rxByteQueueHandle == NULL)
         return E_SKATE_ERR_OOM;
 
     /* GPIO Interrupt Init */

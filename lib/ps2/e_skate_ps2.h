@@ -33,7 +33,8 @@ typedef struct
 
 typedef struct
 {
-    QueueHandle_t               byteQueueHandle;
+    QueueHandle_t               rxByteQueueHandle;
+    QueueHandle_t               txByteQueueHandle;
 
     /* Packet Frame */
     uint8_t                     newStart;
@@ -74,14 +75,13 @@ e_skate_err_t e_skate_ps2_init_from_config_h(
 
 /**
  * Clears everything, including the
- * isr handler.
+ * isr handler and the timer.
  * This does NOT uninstall the isr
  * service, unless `withIsr` is true.
  **/
 e_skate_err_t e_skate_ps2_deinit(
 
     e_skate_ps2_handle_t* ps2Handle,
-    e_skate_ps2_config_t* ps2Config,
     bool                  withIsr
 
 );
