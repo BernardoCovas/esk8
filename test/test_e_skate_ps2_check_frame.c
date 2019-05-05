@@ -9,9 +9,7 @@ void test_e_skate_ps2_check_frame()
 {
     
     e_skate_ps2_handle_t ps2Handle;
-    e_skate_ps2_reset_handle(
-        &ps2Handle,
-        false);
+    e_skate_ps2_reset_pkt(&ps2Handle);
 
     uint8_t testFrames[][11] =  {
         {/* Start (Should be 1) */ 1, /* Data */ 0, 0, 0, 0, 0, 0, 0, 0, /* Parity (Right) */ 1, /* Stop (Should be 0) */ 0},
@@ -73,6 +71,6 @@ void test_e_skate_ps2_check_frame()
         e_skate_err_t resultCode = e_skate_ps2_check_frame(&ps2Handle);
 
         TEST_ASSERT_EQUAL(expectedErrCode[i], resultCode);
-        e_skate_ps2_reset_handle(&ps2Handle, false);
+        e_skate_ps2_reset_pkt(&ps2Handle);
     }
 }

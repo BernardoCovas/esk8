@@ -5,6 +5,7 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
+#include <freertos/task.h>
 #include <driver/timer.h>
 
 #include <stdint.h>
@@ -21,7 +22,6 @@ typedef struct
 {
     timer_idx_t     timerIdx;
     timer_group_t   timerGroup;
-    uint8_t     	timerDivider;
 } e_skate_ps2_timer_config_t;
 
 typedef struct
@@ -33,16 +33,26 @@ typedef struct
 
 typedef struct
 {
-    QueueHandle_t               rxByteQueueHandle;
-    QueueHandle_t               txByteQueueHandle;
-
-    /* Packet Frame */
     uint8_t                     newStart;
     uint8_t                     newByte;
     uint8_t                     newParity;
     uint8_t                     newStop;
-    
     uint8_t 	                frameIndex:5; /* A frame is 11 bits */
+} e_skate_ps2_pkt_t;
+
+
+typedef struct
+{
+    QueueHandle_t               rxBitQueueHandle;
+    QueueHandle_t               rxByteQueueHandle;
+    QueueHandle_t               txByteQueueHandle;
+
+    TaskHandle_t                rxTaskHandle;
+    TaskHandle_t                txTaskHandle;
+
+    e_skate_ps2_pkt_t           rxPkt;
+    e_skate_ps2_pkt_t           txPkt;
+
     e_skate_ps2_config_t        ps2Config;
 } e_skate_ps2_handle_t;
 
@@ -83,21 +93,6 @@ e_skate_err_t e_skate_ps2_deinit(
 
     e_skate_ps2_handle_t* ps2Handle,
     bool                  withIsr
-
-);
-
-
-/**
- * Resets the internal value and index
- * of `ps2Handle`.
- * This also resets the hardware
- * timer value, if `withTimer` is 
- * true.
- **/
-void e_skate_ps2_reset_handle(
-
-    e_skate_ps2_handle_t* ps2Handle,
-    bool withTimer
 
 );
 

@@ -6,6 +6,10 @@
 #include <driver/gpio.h>
 #include <driver/timer.h>
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
+#include <freertos/task.h>
+
 
 e_skate_err_t e_skate_ps2_deinit(
 
@@ -14,10 +18,20 @@ e_skate_err_t e_skate_ps2_deinit(
 
 )
 {
-    vQueueDelete(ps2Handle->rxByteQueueHandle);
 
-    ps2Handle->newByte = 0;
-    ps2Handle->frameIndex = 0;
+    if (ps2Handle->rxBitQueueHandle != NULL)
+        vQueueDelete(ps2Handle->rxBitQueueHandle);
+
+    if (ps2Handle->rxByteQueueHandle != NULL)
+        vQueueDelete(ps2Handle->rxByteQueueHandle);
+    
+    if (ps2Handle->txByteQueueHandle != NULL)
+        vQueueDelete(ps2Handle->txByteQueueHandle);
+
+    if (ps2Handle->rxTaskHandle != NULL)
+        vTaskDelete(ps2Handle->rxTaskHandle);
+
+    // TODO Tx task
 
     timer_pause(
         ps2Handle->ps2Config.timerConfig.timerGroup,

@@ -8,61 +8,66 @@
 #include <driver/timer.h>
 
 
-void IRAM_ATTR e_skate_ps2_isr(void* param)
-{
-    e_skate_ps2_handle_t* ps2Handle = (e_skate_ps2_handle_t*) param;
-    e_skate_ps2_config_t* ps2Config = (e_skate_ps2_config_t*) &( ps2Handle->ps2Config );
+void IRAM_ATTR e_skate_ps2_isr(
 
-    bool newBit = gpio_get_level(
+    void* param
+
+)
+{
+    e_skate_ps2_handle_t*   ps2Handle = (e_skate_ps2_handle_t*) param;
+    e_skate_ps2_config_t*   ps2Config = (e_skate_ps2_config_t*) &( ps2Handle->ps2Config );
+    e_skate_ps2_bit_t       newBit;
+
+    newBit.bit = gpio_get_level(
         ps2Config->gpioConfig.dataPin);
 
-    /**
-     * NOTE (b.covas): 100 packets
-     * per second.
-     * If around 5/6 ms have passed
-     * since the last clock,
-     * reset and clear the values.
-     **/
-    double currBitTime;
-
+    /* Get the time since the last bit */
     timer_get_counter_time_sec(
         ps2Config->timerConfig.timerGroup,
         ps2Config->timerConfig.timerIdx,
-        &currBitTime);
+        &newBit.bitInterval_s);
 
-    /* Reset Counter */
+    /* Reset Timer */
     timer_set_counter_value(
         ps2Config->timerConfig.timerGroup,
         ps2Config->timerConfig.timerIdx,
         (uint64_t) 0);
 
-    /**
-     * If too much time passed since the last bit,
-     * it's a new packet.
-     **/
-    if (currBitTime > (double) E_SKATE_PS2_PACKET_TIMEOUT_MS / 1000)
-        e_skate_ps2_reset_handle(
-            ps2Handle,
-            false);
+    xQueueSendFromISR(
+        ps2Handle->rxBitQueueHandle,
+        &newBit,
+        NULL);
+}
 
-    e_skate_err_t bitErrCode = e_skate_ps2_add_bit(
-        ps2Handle,
-        newBit);
 
-    if  (
-            bitErrCode == E_SKATE_PS2_ERR_VALUE_READY &&
-            e_skate_ps2_check_frame(ps2Handle) == E_SKATE_SUCCESS /* It's a valid packet */
-        )
+/* Infinite Task */
+void ps2_rx_consumer_task(
+
+    void* param
+
+) 
+{
+    e_skate_ps2_handle_t*   ps2Handle = (e_skate_ps2_handle_t*) param;
+    e_skate_ps2_pkt_t*      ps2Pkt    = &ps2Handle->rxPkt;
+    e_skate_ps2_bit_t       newData;
+
+    while(true)
     {
-        // Send the new byte to the queue
-        xQueueSendFromISR(
-            ps2Handle->rxByteQueueHandle,
-            &( ps2Handle->newByte ),
-            NULL);
+        if(!xQueueReceive(ps2Handle->rxBitQueueHandle, &newData, portMAX_DELAY))
+        {
+            e_skate_ps2_reset_pkt(ps2Pkt);
+            continue;
+        }
 
-        e_skate_ps2_reset_handle(
-            ps2Handle,
-            false);
+        if (newData.bitInterval_s > (double) E_SKATE_PS2_PACKET_TIMEOUT_MS / 1000)
+            e_skate_ps2_reset_pkt(ps2Pkt);
+
+        if (e_skate_ps2_add_bit(ps2Pkt, newData.bit) == E_SKATE_PS2_ERR_VALUE_READY)
+        {
+            if (e_skate_ps2_check_pkt(ps2Pkt) == E_SKATE_SUCCESS)
+                xQueueSend(ps2Handle->rxByteQueueHandle, &ps2Pkt->newByte, 0);
+            e_skate_ps2_reset_pkt(ps2Pkt);
+        }
     }
 }
 
@@ -75,13 +80,43 @@ e_skate_err_t e_skate_ps2_init(
 )
 {
     ps2Handle->ps2Config = *ps2Config;
+    timer_config_t espTimerConf = {
+        .divider        = 16,
+        .counter_dir    = TIMER_COUNT_UP    ,
+        .counter_en     = TIMER_START       ,
+        .alarm_en       = TIMER_ALARM_DIS   ,
+        .intr_type      = TIMER_INTR_LEVEL  ,
+        .auto_reload    = false
+    };
+    esp_err_t isrErrCode;
 
-    ps2Handle->rxByteQueueHandle = xQueueCreate(
-        E_SKATE_PS2_BYTE_QUEUE_LENGTH,
-        1);
 
-    if (ps2Handle->rxByteQueueHandle == NULL)
+    ps2Handle->rxBitQueueHandle  = xQueueCreate(11 /* Frame length */, sizeof(e_skate_ps2_bit_t));
+    ps2Handle->rxByteQueueHandle = xQueueCreate(E_SKATE_PS2_BYTE_QUEUE_LENGTH, 1);
+    ps2Handle->txByteQueueHandle = xQueueCreate(E_SKATE_PS2_BYTE_QUEUE_LENGTH, 1);
+
+    if (xTaskCreate(
+            ps2_rx_consumer_task,
+            "ps2_rx_consumer_task",
+            2048, ps2Handle,
+            E_SKATE_PS2_RX_TASK_PRIORITY,
+            &ps2Handle->rxTaskHandle) != pdPASS)
+    {
+        ps2Handle->rxTaskHandle = NULL;
+    }
+    
+    // TODO Tx task
+
+    if  (
+            ps2Handle->rxBitQueueHandle  == NULL ||
+            ps2Handle->rxByteQueueHandle == NULL ||
+            ps2Handle->txByteQueueHandle == NULL ||
+            ps2Handle->rxTaskHandle      == NULL
+        )
+    {
+        e_skate_ps2_deinit(ps2Handle, false);
         return E_SKATE_ERR_OOM;
+    }
 
     /* GPIO Interrupt Init */
     ESP_ERROR_CHECK(gpio_set_pull_mode(
@@ -105,8 +140,8 @@ e_skate_err_t e_skate_ps2_init(
         ps2Config->gpioConfig.clockPin,
         GPIO_INTR_NEGEDGE));
 
-    esp_err_t isrErrCode = gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
-    
+    isrErrCode = gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
+
     /* Service might already be installed. */
     if  (isrErrCode != ESP_OK && isrErrCode != ESP_ERR_INVALID_STATE)
         ESP_ERROR_CHECK(isrErrCode);
@@ -116,22 +151,14 @@ e_skate_err_t e_skate_ps2_init(
         e_skate_ps2_isr,
         ps2Handle));
 
-
-    timer_config_t espTimerConf;
-    espTimerConf.divider        = ps2Config->timerConfig.timerDivider;
-    espTimerConf.counter_dir    = TIMER_COUNT_UP;
-    espTimerConf.counter_en     = TIMER_START;
-    espTimerConf.alarm_en       = TIMER_ALARM_DIS;
-    espTimerConf.intr_type      = TIMER_INTR_LEVEL;
-    espTimerConf.auto_reload    = false;
-
     /* Timer Init */
     ESP_ERROR_CHECK(timer_init(
         ps2Config->timerConfig.timerGroup,
         ps2Config->timerConfig.timerIdx,
         &espTimerConf));
 
-    e_skate_ps2_reset_handle(ps2Handle, true);
+    e_skate_ps2_reset_pkt(&ps2Handle->rxPkt);
+    e_skate_ps2_reset_pkt(&ps2Handle->txPkt);
 
     return E_SKATE_SUCCESS;
 }

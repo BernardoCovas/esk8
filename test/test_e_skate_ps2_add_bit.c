@@ -10,9 +10,7 @@
 void test_e_skate_ps2_add_bit()
 {
     e_skate_ps2_handle_t ps2Handle;
-    e_skate_ps2_reset_handle(
-        &ps2Handle,
-        false);
+    e_skate_ps2_reset_pkt(&ps2Handle);
 
 
     uint8_t expectedValues[] = {
@@ -41,7 +39,7 @@ void test_e_skate_ps2_add_bit()
         }
 
         TEST_ASSERT_EQUAL(expectedValues[i], ps2Handle.newByte);
-        e_skate_ps2_reset_handle(&ps2Handle, false);
+        e_skate_ps2_reset_pkt(&ps2Handle);
     }
 
     e_skate_err_t errCode;

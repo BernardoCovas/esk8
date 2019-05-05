@@ -10,6 +10,8 @@
 #define E_SKATE_UART_BMS_RX_PINS                    { GPIO_NUM_26, GPIO_NUM_12, GPIO_NUM_16, GPIO_NUM_18 }
 #define E_SKATE_UART_BMS_BUFF_SIZE                  1000
 
+#define E_SKATE_PS2_RX_TASK_PRIORITY                1
+#define E_SKATE_PS2_TX_TASK_PRIORITY                1
 #define E_SKATE_PS2_BYTE_QUEUE_LENGTH               8
 #define E_SKATE_PS2_BYTE_QUEUE_TIMEOUT_MS           10000
 #define E_SKATE_PS2_PACKET_TIMEOUT_MS               5  /* Mouses, by default, broadcast 100 packets per second. */

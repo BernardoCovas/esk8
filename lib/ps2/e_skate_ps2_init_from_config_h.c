@@ -11,8 +11,7 @@ e_skate_err_t e_skate_ps2_init_from_config_h(
     e_skate_ps2_config_t ps2Config= {
         .timerConfig = {
             .timerIdx       = E_SKATE_PS2_TIMER_IDX,
-            .timerGroup     = E_SKATE_PS2_TIMER_GROUP,
-            .timerDivider   = E_SKATE_PS2_TIMER_DIVIDER
+            .timerGroup     = E_SKATE_PS2_TIMER_GROUP
         },
         .gpioConfig = {
             .dataPin  = E_SKATE_PS2_DATA_PIN,

@@ -14,17 +14,17 @@ bool findParity(uint8_t x)
     return ! (bool) (x & 1);
 }
 
-e_skate_err_t e_skate_ps2_check_frame(
+e_skate_err_t e_skate_ps2_check_pkt(
 
-    e_skate_ps2_handle_t* ps2Handle
+    e_skate_ps2_pkt_t* ps2Pkt
 
 )
 {
-    if (ps2Handle->newStart != 1 ||
-        ps2Handle->newStop  != 0 )
+    if (ps2Pkt->newStart != 1 ||
+        ps2Pkt->newStop  != 0 )
         return E_SKATE_PS2_ERR_INVALID_STATE;
 
-    return findParity(ps2Handle->newByte)==ps2Handle->newParity?
+    return findParity(ps2Pkt->newByte)==ps2Pkt->newParity?
         E_SKATE_SUCCESS:
         E_SKATE_PS2_ERR_INVALID_STATE;
 }

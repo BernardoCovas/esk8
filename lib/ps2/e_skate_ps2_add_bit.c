@@ -6,12 +6,12 @@
 
 e_skate_err_t e_skate_ps2_add_bit(
 
-    e_skate_ps2_handle_t* ps2Handle,
+    e_skate_ps2_pkt_t* ps2Pkt,
     bool value
 
 )
 {
-    int idx = ps2Handle->frameIndex;
+    int idx = ps2Pkt->frameIndex;
 
     if (idx > 10)
         return E_SKATE_PS2_ERR_VALUE_READY;
@@ -19,24 +19,24 @@ e_skate_err_t e_skate_ps2_add_bit(
     switch (idx)
     {
         case 0:
-            ps2Handle->newStart     = value;
+            ps2Pkt->newStart     = value;
             break;
         case 9:
-            ps2Handle->newParity    = value;
+            ps2Pkt->newParity    = value;
             break;
         case 10:
-            ps2Handle->newStop      = value;
-            ps2Handle->frameIndex++;
+            ps2Pkt->newStop      = value;
+            ps2Pkt->frameIndex++;
             return E_SKATE_PS2_ERR_VALUE_READY;
         default:
             goto ADD_BIT;
     }
 
-    ps2Handle->frameIndex++;
+    ps2Pkt->frameIndex++;
     return E_SKATE_SUCCESS;
 
 ADD_BIT:
-    ps2Handle->newByte |= (value << (ps2Handle->frameIndex - 1));
-    ps2Handle->frameIndex++;
+    ps2Pkt->newByte |= (value << (ps2Pkt->frameIndex - 1));
+    ps2Pkt->frameIndex++;
     return E_SKATE_SUCCESS;
 }
