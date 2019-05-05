@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 
+
 bool findParity(uint8_t x)
 {	
     x = (x & 0x0F)^(x >> 4);
@@ -13,16 +14,17 @@ bool findParity(uint8_t x)
     return ! (bool) (x & 1);
 }
 
-e_skate_err_t e_skate_ps2_check_parity(
+e_skate_err_t e_skate_ps2_check_frame(
 
-    e_skate_ps2_handle_t* ps2Handle,
-    bool value
+    e_skate_ps2_handle_t* ps2Handle
 
 )
 {
-    return
-    findParity(ps2Handle->newByte)==value?
-        E_SKATE_SUCCESS
-        :
+    if (ps2Handle->newStart != 1 ||
+        ps2Handle->newStop  != 0 )
+        return E_SKATE_PS2_ERR_INVALID_STATE;
+
+    return findParity(ps2Handle->newByte)==ps2Handle->newParity?
+        E_SKATE_SUCCESS:
         E_SKATE_PS2_ERR_INVALID_STATE;
 }

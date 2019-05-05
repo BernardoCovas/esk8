@@ -35,6 +35,8 @@ const char* e_skate_err_to_str(
             return "E_SKATE_PS2_ERR_VALUE_READY";
         case E_SKATE_PS2_ERR_INVALID_STATE:
             return "E_SKATE_PS2_ERR_INVALID_STATE";
+        case E_SKATE_PS2_ERR_TIMEOUT:
+            return "E_SKATE_PS2_ERR_TIMEOUT";
         default:
             return "?";
     }

@@ -1,6 +1,7 @@
 #include <e_skate_config.h>
 #include <e_skate_err.h>
 #include <e_skate_bms.h>
+#include <e_skate_ps2.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -11,10 +12,18 @@ void app_main()
     e_skate_bms_config_t      bmsConfig;
     e_skate_bms_status_t      bmsStatus;
     e_skate_bms_deep_status_t bmsDeepStatus;
+    
+    e_skate_ps2_handle_t      ps2Handle;
+
 
     e_skate_bms_init_from_config_h(
         &bmsConfig
     );
+
+    e_skate_ps2_init_from_config_h(
+        &ps2Handle
+    );
+
 
     while(1)
     {
@@ -95,7 +104,27 @@ void app_main()
         }
 
         printf("-----------------------------\n");
+        printf("Listening to PS2...\n");
+        while(1)
+        {
+            printf("-----------------------------\n");
+    
+            uint8_t newByte;
+            e_skate_err_t ps2ErrCode = e_skate_ps2_await_byte(
+                &ps2Handle,
+                &newByte);
 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+            if (ps2ErrCode != E_SKATE_SUCCESS)
+            {
+                printf("Got error: %s\n", e_skate_err_to_str(ps2ErrCode));
+                e_skate_ps2_reset_handle(&ps2Handle);
+            }
+            else
+            {
+                printf("Got byte: %d\n", newByte);   
+            }
+        }
+
+
     }
 }                

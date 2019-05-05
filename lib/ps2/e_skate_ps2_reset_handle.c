@@ -1,4 +1,4 @@
-#include "e_skate_ps2_utils.h"
+#include "e_skate_ps2.h"
 
 void e_skate_ps2_reset_handle(
 
@@ -6,6 +6,6 @@ void e_skate_ps2_reset_handle(
 
 )
 {
-    ps2Handle->newByte = 0;
-    ps2Handle->newByteIndex = 0;
+    ps2Handle->newByte      = 0;
+    ps2Handle->frameIndex   = 0;
 }

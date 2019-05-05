@@ -5,7 +5,7 @@
 #include <unity.h>
 
 
-void test_e_skate_ps2_check_parity()
+void test_e_skate_ps2_check_frame()
 {
     
     e_skate_ps2_handle_t ps2Handle;
@@ -51,7 +51,7 @@ void test_e_skate_ps2_check_parity()
             );
         }
 
-        e_skate_err_t resultCode = e_skate_ps2_check_parity(
+        e_skate_err_t resultCode = e_skate_ps2_check_frame(
             &ps2Handle,
             expectedParity[i]);
         

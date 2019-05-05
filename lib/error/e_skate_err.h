@@ -24,6 +24,7 @@ typedef enum e_skate_err_t
     /* E_Skate Ps2 */
     E_SKATE_PS2_ERR_VALUE_READY,
     E_SKATE_PS2_ERR_INVALID_STATE,
+    E_SKATE_PS2_ERR_TIMEOUT,
 
 } e_skate_err_t;
 

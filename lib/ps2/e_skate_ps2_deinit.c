@@ -9,14 +9,18 @@
 e_skate_err_t e_skate_ps2_deinit(
 
     e_skate_ps2_handle_t* ps2Handle,
-    e_skate_ps2_config_t* ps2Config
+    e_skate_ps2_config_t* ps2Config,
+    bool                  withIsr
 
 )
 {
     vQueueDelete(ps2Handle->byteQueueHandle);
 
     ps2Handle->newByte = 0;
-    ps2Handle->newByteIndex = 0;
+    ps2Handle->frameIndex = 0;
 
+    if (withIsr)
+        gpio_uninstall_isr_service();
+    
     return E_SKATE_SUCCESS;
 }
