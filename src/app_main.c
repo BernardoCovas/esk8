@@ -117,11 +117,11 @@ void app_main()
             if (ps2ErrCode != E_SKATE_SUCCESS)
             {
                 printf("Got error: %s\n", e_skate_err_to_str(ps2ErrCode));
-                e_skate_ps2_reset_handle(&ps2Handle);
+                e_skate_ps2_reset_handle(&ps2Handle, false);
             }
             else
             {
-                printf("Got byte: %d\n", newByte);   
+                printf("Got byte: 0x%02x\n", newByte);
             }
         }
 

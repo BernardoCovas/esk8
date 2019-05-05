@@ -11,8 +11,8 @@ void test_e_skate_ps2_add_bit()
 {
     e_skate_ps2_handle_t ps2Handle;
     e_skate_ps2_reset_handle(
-        &ps2Handle
-    );
+        &ps2Handle,
+        false);
 
 
     uint8_t expectedValues[] = {
@@ -22,35 +22,34 @@ void test_e_skate_ps2_add_bit()
         34
     };
 
-    uint8_t expectedValuesBits[][8] = {
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 1, 1, 1, 1, 0, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1},
-        {0, 0, 1, 0, 0, 0, 1, 0},
+    uint8_t expectedValuesBits[][11] = {
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+        {1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+        {1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0},
     };
 
 
     for (int i=0; i<4; i++)
     {
-        for (int j=0; j<8; j++)
+        for (int j=0; j<11; j++)
         {
             e_skate_ps2_add_bit(
                 &ps2Handle,
-                expectedValuesBits[i][7 - j] // Least significant bit first
+                expectedValuesBits[i][j] // Least significant bit first
             );
         }
 
         TEST_ASSERT_EQUAL(expectedValues[i], ps2Handle.newByte);
-        e_skate_ps2_reset_handle(&ps2Handle);
+        e_skate_ps2_reset_handle(&ps2Handle, false);
     }
 
     e_skate_err_t errCode;
-    for (int i=0; i<7; i++)
+    for (int i=0; i<10; i++)
     {
         errCode = e_skate_ps2_add_bit(
             &ps2Handle,
-            0
-            );
+            0);
 
         TEST_ASSERT_EQUAL(E_SKATE_SUCCESS, errCode);
     }

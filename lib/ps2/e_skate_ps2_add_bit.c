@@ -26,7 +26,7 @@ e_skate_err_t e_skate_ps2_add_bit(
             break;
         case 10:
             ps2Handle->newStop      = value;
-            ps2Handle->frameIndex;
+            ps2Handle->frameIndex++;
             return E_SKATE_PS2_ERR_VALUE_READY;
         default:
             goto ADD_BIT;
@@ -36,7 +36,7 @@ e_skate_err_t e_skate_ps2_add_bit(
     return E_SKATE_SUCCESS;
 
 ADD_BIT:
-    ps2Handle->newByte |= (value << ps2Handle->frameIndex - 1);
+    ps2Handle->newByte |= (value << (ps2Handle->frameIndex - 1));
     ps2Handle->frameIndex++;
     return E_SKATE_SUCCESS;
 }

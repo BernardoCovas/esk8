@@ -3,10 +3,12 @@
 
 
 e_skate_err_t e_skate_uart_regread_msg_new(
+
     e_skate_uart_addr_t dstAddr,
     e_skate_uart_reg_t reg,
     uint8_t readLen,
     e_skate_uart_msg_t *outMsg
+
 )
 {
     e_skate_uart_msg_t newMsg = {

@@ -13,15 +13,13 @@ e_skate_err_t e_skate_ps2_await_byte(
 
 )
 {
-    if  (xQueueReceive(
-            ps2Handle->byteQueueHandle,
-            outByte,
-            E_SKATE_PS2_BYTE_QUEUE_TIMEOUT_MS / portTICK_PERIOD_MS
-            )
-        )
-    {
+    bool received = xQueueReceive(
+        ps2Handle->byteQueueHandle,
+        outByte,
+        E_SKATE_PS2_BYTE_QUEUE_TIMEOUT_MS / portTICK_PERIOD_MS);
+
+    if (received)
         return E_SKATE_SUCCESS;
-    }
 
     return E_SKATE_PS2_ERR_TIMEOUT;
 }
