@@ -20,8 +20,8 @@ e_skate_err_t e_skate_ps2_check_pkt(
 
 )
 {
-    if (ps2Pkt->newStart != 1 ||
-        ps2Pkt->newStop  != 0 )
+    if (ps2Pkt->newStart != 0 ||
+        ps2Pkt->newStop  != 1 )
         return E_SKATE_PS2_ERR_INVALID_STATE;
 
     return findParity(ps2Pkt->newByte)==ps2Pkt->newParity?

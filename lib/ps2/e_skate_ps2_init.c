@@ -66,6 +66,14 @@ void ps2_rx_consumer_task(
         {
             if (e_skate_ps2_check_pkt(ps2Pkt) == E_SKATE_SUCCESS)
                 xQueueSend(ps2Handle->rxByteQueueHandle, &ps2Pkt->newByte, 0);
+            else
+            {
+                printf("\n\n[ Lost packet: %d, %d, %d, %d ]\n\n",
+                    ps2Pkt->newStart,
+                    ps2Pkt->newByte,
+                    ps2Pkt->newParity,
+                    ps2Pkt->newStop);
+            }
             e_skate_ps2_reset_pkt(ps2Pkt);
         }
     }
@@ -122,10 +130,16 @@ e_skate_err_t e_skate_ps2_init(
     ESP_ERROR_CHECK(gpio_set_pull_mode(
         ps2Config->gpioConfig.clockPin,
         GPIO_PULLUP_ONLY));
+    ESP_ERROR_CHECK(gpio_set_drive_capability(
+        ps2Config->gpioConfig.clockPin,
+        GPIO_DRIVE_CAP_0));
 
     ESP_ERROR_CHECK(gpio_set_pull_mode(
         ps2Config->gpioConfig.dataPin,
         GPIO_PULLUP_ONLY));
+    ESP_ERROR_CHECK(gpio_set_drive_capability(
+        ps2Config->gpioConfig.dataPin,
+        GPIO_DRIVE_CAP_0));
    
     ESP_ERROR_CHECK(gpio_set_direction(
         ps2Config->gpioConfig.dataPin,

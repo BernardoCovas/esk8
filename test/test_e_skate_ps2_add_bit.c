@@ -9,8 +9,8 @@
 
 void test_e_skate_ps2_add_bit()
 {
-    e_skate_ps2_handle_t ps2Handle;
-    e_skate_ps2_reset_pkt(&ps2Handle);
+    e_skate_ps2_pkt_t ps2Pkt;
+    e_skate_ps2_reset_pkt(&ps2Pkt);
 
 
     uint8_t expectedValues[] = {
@@ -33,27 +33,27 @@ void test_e_skate_ps2_add_bit()
         for (int j=0; j<11; j++)
         {
             e_skate_ps2_add_bit(
-                &ps2Handle,
+                &ps2Pkt,
                 expectedValuesBits[i][j] // Least significant bit first
             );
         }
 
-        TEST_ASSERT_EQUAL(expectedValues[i], ps2Handle.newByte);
-        e_skate_ps2_reset_pkt(&ps2Handle);
+        TEST_ASSERT_EQUAL(expectedValues[i], ps2Pkt.newByte);
+        e_skate_ps2_reset_pkt(&ps2Pkt);
     }
 
     e_skate_err_t errCode;
     for (int i=0; i<10; i++)
     {
         errCode = e_skate_ps2_add_bit(
-            &ps2Handle,
+            &ps2Pkt,
             0);
 
         TEST_ASSERT_EQUAL(E_SKATE_SUCCESS, errCode);
     }
 
     errCode = e_skate_ps2_add_bit(
-        &ps2Handle,
+        &ps2Pkt,
         0
         );
     

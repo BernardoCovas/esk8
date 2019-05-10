@@ -16,7 +16,7 @@
 #define E_SKATE_PS2_BYTE_QUEUE_TIMEOUT_MS           10000
 #define E_SKATE_PS2_PACKET_TIMEOUT_MS               5  /* Mouses, by default, broadcast 100 packets per second. */
 #define E_SKATE_PS2_DATA_PIN                        GPIO_NUM_10
-#define E_SKATE_PS2_CLOCK_PIN                       GPIO_NUM_0
+#define E_SKATE_PS2_CLOCK_PIN                       GPIO_NUM_4
 #define E_SKATE_PS2_TIMER_GROUP                     TIMER_GROUP_0
 #define E_SKATE_PS2_TIMER_IDX                       TIMER_0
 
