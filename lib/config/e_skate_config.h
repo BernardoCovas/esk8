@@ -12,11 +12,12 @@
 
 #define E_SKATE_PS2_RX_TASK_PRIORITY                1
 #define E_SKATE_PS2_TX_TASK_PRIORITY                1
-#define E_SKATE_PS2_BYTE_QUEUE_LENGTH               8
-#define E_SKATE_PS2_BYTE_QUEUE_TIMEOUT_MS           10000
-#define E_SKATE_PS2_PACKET_TIMEOUT_MS               5  /* Mouses, by default, broadcast 100 packets per second. */
-#define E_SKATE_PS2_DATA_PIN                        GPIO_NUM_10
-#define E_SKATE_PS2_CLOCK_PIN                       GPIO_NUM_4
+#define E_SKATE_PS2_BIT_QUEUE_LENGTH                1024 /* 1Kb */
+#define E_SKATE_PS2_BYTE_QUEUE_LENGTH               1024 /* 1KB */
+#define E_SKATE_PS2_BYTE_QUEUE_TIMEOUT_MS           2000
+#define E_SKATE_PS2_PACKET_TIMEOUT_MS               1 /* Ms between clock cycles to be considered a lost packet. Clock should be in the 20/30 Khz range. */
+#define E_SKATE_PS2_DATA_PIN                        GPIO_NUM_14
+#define E_SKATE_PS2_CLOCK_PIN                       GPIO_NUM_27
 #define E_SKATE_PS2_TIMER_GROUP                     TIMER_GROUP_0
 #define E_SKATE_PS2_TIMER_IDX                       TIMER_0
 

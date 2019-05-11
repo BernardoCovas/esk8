@@ -25,9 +25,6 @@ e_skate_err_t e_skate_ps2_deinit(
     if (ps2Handle->rxByteQueueHandle != NULL)
         vQueueDelete(ps2Handle->rxByteQueueHandle);
     
-    if (ps2Handle->txByteQueueHandle != NULL)
-        vQueueDelete(ps2Handle->txByteQueueHandle);
-
     if (ps2Handle->rxTaskHandle != NULL)
         vTaskDelete(ps2Handle->rxTaskHandle);
 

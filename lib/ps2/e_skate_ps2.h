@@ -24,10 +24,19 @@ typedef struct
     timer_group_t   timerGroup;
 } e_skate_ps2_timer_config_t;
 
+
+typedef enum
+{
+    PS2_DIRCN_RECV,
+    PS2_DIRCN_SEND,
+} e_skate_ps2_direction_t;
+
+
 typedef struct
 {
     e_skate_ps2_timer_config_t timerConfig;
     e_skate_ps2_gpio_config_t  gpioConfig;
+    e_skate_ps2_direction_t    dataDrctn;
 } e_skate_ps2_config_t;
 
 
@@ -43,9 +52,11 @@ typedef struct
 
 typedef struct
 {
+    TaskHandle_t                txTaskToNotift;
+    QueueHandle_t               txByteQueueHandle;
     QueueHandle_t               rxBitQueueHandle;
     QueueHandle_t               rxByteQueueHandle;
-    QueueHandle_t               txByteQueueHandle;
+
 
     TaskHandle_t                rxTaskHandle;
     TaskHandle_t                txTaskHandle;
@@ -106,6 +117,21 @@ e_skate_err_t e_skate_ps2_await_byte(
 
     e_skate_ps2_handle_t* ps2Handle,
     uint8_t*              outByte
+
+);
+
+
+/**
+ * Sends one byte of data to the
+ * device. The host has priority
+ * over the device, so this
+ * function returns when
+ * byte is ack.
+ **/
+e_skate_err_t e_skate_ps2_send_byte(
+
+    e_skate_ps2_handle_t* ps2Handle,
+    uint8_t               byte
 
 );
 

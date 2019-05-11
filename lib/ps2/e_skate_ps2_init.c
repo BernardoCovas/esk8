@@ -7,6 +7,8 @@
 #include <driver/gpio.h>
 #include <driver/timer.h>
 
+#include <math.h>
+
 
 void IRAM_ATTR e_skate_ps2_isr(
 
@@ -15,28 +17,42 @@ void IRAM_ATTR e_skate_ps2_isr(
 )
 {
     e_skate_ps2_handle_t*   ps2Handle = (e_skate_ps2_handle_t*) param;
-    e_skate_ps2_config_t*   ps2Config = (e_skate_ps2_config_t*) &( ps2Handle->ps2Config );
-    e_skate_ps2_bit_t       newBit;
+    e_skate_ps2_config_t*   ps2Config = &( ps2Handle->ps2Config );
 
-    newBit.bit = gpio_get_level(
-        ps2Config->gpioConfig.dataPin);
+    timer_group_t tg = ps2Config->timerConfig.timerGroup;
+    timer_idx_t   ti = ps2Config->timerConfig.timerIdx;
+    gpio_num_t d_pin = ps2Config->gpioConfig.dataPin;
+    gpio_num_t c_pin = ps2Config->gpioConfig.clockPin;
 
-    /* Get the time since the last bit */
-    timer_get_counter_time_sec(
-        ps2Config->timerConfig.timerGroup,
-        ps2Config->timerConfig.timerIdx,
-        &newBit.bitInterval_s);
+    if (ps2Config->dataDrctn == PS2_DIRCN_RECV)
+    {
+        e_skate_ps2_bit_t newBit;
+        newBit.bit = gpio_get_level(d_pin);                             /* Measure the data pin right away */
+        timer_get_counter_time_sec(tg, ti, &newBit.bitInterval_s);      /* Get the time since the last bit */
+        timer_set_counter_value(tg, ti, (uint64_t) 0);                  /* Reset Timer */
+        xQueueSendFromISR(ps2Handle->rxBitQueueHandle, &newBit, NULL);  /* Send to queue */
+        return;
+    }
 
-    /* Reset Timer */
-    timer_set_counter_value(
-        ps2Config->timerConfig.timerGroup,
-        ps2Config->timerConfig.timerIdx,
-        (uint64_t) 0);
+    if (ps2Handle->ps2Config.dataDrctn == PS2_DIRCN_SEND)
+    {
+        if (ps2Handle->txTaskHandle == NULL)
+            return;
 
-    xQueueSendFromISR(
-        ps2Handle->rxBitQueueHandle,
-        &newBit,
-        NULL);
+        bool bitVal;
+        e_skate_err_t errCode = e_skate_ps2_take_bit(&ps2Handle->txPkt, &bitVal);
+        gpio_set_level(d_pin, (uint32_t) bitVal);
+
+        if (errCode == E_SKATE_PS2_ERR_VALUE_READY && ps2Handle->txPkt.frameIndex++ >= 12)
+        {
+            ps2Config->dataDrctn = PS2_DIRCN_RECV;
+
+            gpio_set_direction(d_pin, GPIO_MODE_INPUT);
+            gpio_set_intr_type(c_pin, GPIO_INTR_NEGEDGE);
+
+            vTaskNotifyGiveFromISR(ps2Handle->txTaskToNotift, NULL);
+        }
+    }
 }
 
 
@@ -53,29 +69,20 @@ void ps2_rx_consumer_task(
 
     while(true)
     {
-        if(!xQueueReceive(ps2Handle->rxBitQueueHandle, &newData, portMAX_DELAY))
-        {
+        if(!xQueueReceive(ps2Handle->rxBitQueueHandle, &newData, portMAX_DELAY)) {
             e_skate_ps2_reset_pkt(ps2Pkt);
-            continue;
-        }
+            continue; }
 
         if (newData.bitInterval_s > (double) E_SKATE_PS2_PACKET_TIMEOUT_MS / 1000)
             e_skate_ps2_reset_pkt(ps2Pkt);
 
-        if (e_skate_ps2_add_bit(ps2Pkt, newData.bit) == E_SKATE_PS2_ERR_VALUE_READY)
-        {
-            if (e_skate_ps2_check_pkt(ps2Pkt) == E_SKATE_SUCCESS)
+        if (e_skate_ps2_add_bit(ps2Pkt, newData.bit) == E_SKATE_PS2_ERR_VALUE_READY) {
+            if (e_skate_ps2_check_pkt(ps2Pkt) == E_SKATE_SUCCESS) // If this is not true, we lost a packet.
                 xQueueSend(ps2Handle->rxByteQueueHandle, &ps2Pkt->newByte, 0);
             else
-            {
-                printf("\n\n[ Lost packet: %d, %d, %d, %d ]\n\n",
-                    ps2Pkt->newStart,
-                    ps2Pkt->newByte,
-                    ps2Pkt->newParity,
-                    ps2Pkt->newStop);
-            }
-            e_skate_ps2_reset_pkt(ps2Pkt);
-        }
+                printf("[Lost packet: %d %d %d %d]\n", ps2Pkt->newStart, ps2Pkt->newByte, ps2Pkt->newParity, ps2Pkt->newStop);
+
+            e_skate_ps2_reset_pkt(ps2Pkt); }
     }
 }
 
@@ -88,6 +95,7 @@ e_skate_err_t e_skate_ps2_init(
 )
 {
     ps2Handle->ps2Config = *ps2Config;
+
     timer_config_t espTimerConf = {
         .divider        = 16,
         .counter_dir    = TIMER_COUNT_UP    ,
@@ -96,29 +104,21 @@ e_skate_err_t e_skate_ps2_init(
         .intr_type      = TIMER_INTR_LEVEL  ,
         .auto_reload    = false
     };
-    esp_err_t isrErrCode;
 
-
-    ps2Handle->rxBitQueueHandle  = xQueueCreate(11 /* Frame length */, sizeof(e_skate_ps2_bit_t));
+    ps2Handle->rxBitQueueHandle  = xQueueCreate(E_SKATE_PS2_BIT_QUEUE_LENGTH , sizeof(e_skate_ps2_bit_t));
     ps2Handle->rxByteQueueHandle = xQueueCreate(E_SKATE_PS2_BYTE_QUEUE_LENGTH, 1);
-    ps2Handle->txByteQueueHandle = xQueueCreate(E_SKATE_PS2_BYTE_QUEUE_LENGTH, 1);
+    ps2Handle->rxTaskHandle = NULL;
 
-    if (xTaskCreate(
-            ps2_rx_consumer_task,
-            "ps2_rx_consumer_task",
-            2048, ps2Handle,
-            E_SKATE_PS2_RX_TASK_PRIORITY,
-            &ps2Handle->rxTaskHandle) != pdPASS)
-    {
-        ps2Handle->rxTaskHandle = NULL;
-    }
-    
-    // TODO Tx task
+    xTaskCreate(
+        ps2_rx_consumer_task,
+        "ps2_rx_consumer_task",
+        2048, ps2Handle,
+        E_SKATE_PS2_RX_TASK_PRIORITY,
+        &ps2Handle->rxTaskHandle);
 
     if  (
             ps2Handle->rxBitQueueHandle  == NULL ||
             ps2Handle->rxByteQueueHandle == NULL ||
-            ps2Handle->txByteQueueHandle == NULL ||
             ps2Handle->rxTaskHandle      == NULL
         )
     {
@@ -126,44 +126,29 @@ e_skate_err_t e_skate_ps2_init(
         return E_SKATE_ERR_OOM;
     }
 
+
     /* GPIO Interrupt Init */
-    ESP_ERROR_CHECK(gpio_set_pull_mode(
-        ps2Config->gpioConfig.clockPin,
-        GPIO_PULLUP_ONLY));
-    ESP_ERROR_CHECK(gpio_set_drive_capability(
-        ps2Config->gpioConfig.clockPin,
-        GPIO_DRIVE_CAP_0));
-
-    ESP_ERROR_CHECK(gpio_set_pull_mode(
-        ps2Config->gpioConfig.dataPin,
-        GPIO_PULLUP_ONLY));
-    ESP_ERROR_CHECK(gpio_set_drive_capability(
-        ps2Config->gpioConfig.dataPin,
-        GPIO_DRIVE_CAP_0));
-   
-    ESP_ERROR_CHECK(gpio_set_direction(
-        ps2Config->gpioConfig.dataPin,
-        GPIO_MODE_INPUT));
-
-    ESP_ERROR_CHECK(gpio_set_direction(
-        ps2Config->gpioConfig.clockPin,
-        GPIO_MODE_INPUT));
+    gpio_num_t d_pin, c_pin;
+    d_pin = ps2Config->gpioConfig.dataPin;
+    c_pin = ps2Config->gpioConfig.clockPin;
+    
+    ESP_ERROR_CHECK(gpio_set_pull_mode(c_pin, GPIO_PULLUP_ONLY));
+    ESP_ERROR_CHECK(gpio_set_pull_mode(d_pin, GPIO_PULLUP_ONLY));
+    ESP_ERROR_CHECK(gpio_set_drive_capability(c_pin, GPIO_DRIVE_CAP_0));
+    ESP_ERROR_CHECK(gpio_set_drive_capability(d_pin, GPIO_DRIVE_CAP_0));
+    ESP_ERROR_CHECK(gpio_set_direction(c_pin, GPIO_MODE_INPUT));
+    ESP_ERROR_CHECK(gpio_set_direction(d_pin, GPIO_MODE_INPUT));
 
     /* Falling edge intr, as per Ps2. */
-    ESP_ERROR_CHECK(gpio_set_intr_type(
-        ps2Config->gpioConfig.clockPin,
-        GPIO_INTR_NEGEDGE));
+    ESP_ERROR_CHECK(gpio_set_intr_type(c_pin, GPIO_INTR_NEGEDGE));
 
-    isrErrCode = gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
+    esp_err_t isrErrCode = gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
 
     /* Service might already be installed. */
     if  (isrErrCode != ESP_OK && isrErrCode != ESP_ERR_INVALID_STATE)
         ESP_ERROR_CHECK(isrErrCode);
 
-    ESP_ERROR_CHECK(gpio_isr_handler_add(
-        ps2Config->gpioConfig.clockPin,
-        e_skate_ps2_isr,
-        ps2Handle));
+    ESP_ERROR_CHECK(gpio_isr_handler_add(c_pin, e_skate_ps2_isr, ps2Handle));
 
     /* Timer Init */
     ESP_ERROR_CHECK(timer_init(

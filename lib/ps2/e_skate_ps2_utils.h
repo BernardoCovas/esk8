@@ -26,8 +26,23 @@ typedef struct
  **/
 e_skate_err_t e_skate_ps2_add_bit(
 
-    e_skate_ps2_pkt_t* ps2Pkt,
-    bool value
+    e_skate_ps2_pkt_t*  ps2Pkt,
+    bool                value
+
+);
+
+
+/**
+ * Takes a bit from the value in `ps2Pkt`.
+ * Returns `E_SKATE_PS2_ERR_VALUE_READY` if
+ * the value is done complete. If we try to add
+ * a value to an already completely empty
+ * packet, returns the same and does nothing.
+ **/
+e_skate_err_t e_skate_ps2_take_bit(
+
+    e_skate_ps2_pkt_t*  ps2Pkt,
+    bool*               outValue
 
 );
 
@@ -55,5 +70,16 @@ void e_skate_ps2_reset_pkt(
     e_skate_ps2_pkt_t* ps2Pkt
 
 );
+
+
+/**
+ * Returns the parity val.
+ **/
+bool e_skate_ps2_get_parity(
+
+    uint8_t x
+
+);
+
 
 #endif /* _E_SKATE_PS2_UTILS_H */
