@@ -36,7 +36,7 @@ void IRAM_ATTR e_skate_ps2_isr(
 
     if (ps2Handle->ps2Config.dataDrctn == PS2_DIRCN_SEND)
     {
-        if (ps2Handle->txTaskHandle == NULL)
+        if (ps2Handle->txTaskToNotift == NULL)
             return;
 
         bool bitVal;
