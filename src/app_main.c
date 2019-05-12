@@ -112,7 +112,7 @@ void app_main()
 
     uint8_t cmdList[] = {
         0xF3,
-        10,
+        200,
         0xF4
     };
     
@@ -129,7 +129,7 @@ void app_main()
 
     e_skate_ps2_mvmnt_t trckMvmnt;
 
-    int speed = 0;
+    int  speed = 0;
     while(1)
     {
         if (e_skate_ps2_await_mvmnt(&ps2Handle, &trckMvmnt) != E_SKATE_SUCCESS)
