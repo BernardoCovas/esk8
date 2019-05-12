@@ -53,13 +53,9 @@ typedef struct
 typedef struct
 {
     TaskHandle_t                txTaskToNotift;
-    QueueHandle_t               txByteQueueHandle;
+    TaskHandle_t                rxTaskHandle;
     QueueHandle_t               rxBitQueueHandle;
     QueueHandle_t               rxByteQueueHandle;
-
-
-    TaskHandle_t                rxTaskHandle;
-    TaskHandle_t                txTaskHandle;
 
     e_skate_ps2_pkt_t           rxPkt;
     e_skate_ps2_pkt_t           txPkt;
