@@ -8,15 +8,16 @@
 
 e_skate_err_t e_skate_ps2_await_byte(
 
-    e_skate_ps2_handle_t* ps2Handle,
-    uint8_t*              outByte
+    e_skate_ps2_handle_t*   ps2Handle,
+    uint8_t*                outByte,
+    int                     timeOut_ms
 
 )
 {
     bool received = xQueueReceive(
         ps2Handle->rxByteQueueHandle,
         outByte,
-        E_SKATE_PS2_BYTE_QUEUE_TIMEOUT_MS / portTICK_PERIOD_MS);
+        timeOut_ms / portTICK_PERIOD_MS);
 
     if (received)
         return E_SKATE_SUCCESS;

@@ -68,6 +68,14 @@ typedef struct
 } e_skate_ps2_handle_t;
 
 
+typedef struct
+{
+    int x;
+    int y;
+    bool lftBtn;
+} e_skate_ps2_mvmnt_t;
+
+
 /**
  * Initializes the isr for the ps2
  * protocol. This function allways
@@ -115,8 +123,22 @@ e_skate_err_t e_skate_ps2_deinit(
  **/
 e_skate_err_t e_skate_ps2_await_byte(
 
+    e_skate_ps2_handle_t*   ps2Handle,
+    uint8_t*                outByte,
+    int                     timeOut_ms
+
+);
+
+
+/**
+ * Waits for one movement packet
+ * to be received.
+ * Ps2 must be initialized.
+ **/
+e_skate_err_t e_skate_ps2_await_mvmnt(
+
     e_skate_ps2_handle_t* ps2Handle,
-    uint8_t*              outByte
+    e_skate_ps2_mvmnt_t * outMvmnt
 
 );
 

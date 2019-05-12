@@ -6,17 +6,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-void err_check(e_skate_err_t errCode, uint8_t byte)
-{
-    if (errCode != E_SKATE_SUCCESS)
-    {
-        printf("Got error: %s\n", e_skate_err_to_str(errCode));
-    }
-    else
-    {
-        printf("Got byte: 0x%02x\n", byte);
-    }
-}
 
 void app_main()
 {
@@ -121,25 +110,41 @@ void app_main()
     printf("Listening to PS2...\n");
     printf("-----------------------------\n");
 
-    uint8_t newByte;
-
     uint8_t cmdList[] = {
         0xF3,
         10,
+        0xF4
     };
     
     for (int i=0; i<sizeof(cmdList); i++)
     {
+        uint8_t byte = cmdList[i];
         e_skate_ps2_send_byte(
             &ps2Handle,
-            cmdList[i]);
+            byte);
+        e_skate_ps2_await_byte(
+            &ps2Handle,
+            &byte, 100);
     }
-    
 
+    e_skate_ps2_mvmnt_t trckMvmnt;
+
+    int speed = 0;
     while(1)
     {
-        err_check(e_skate_ps2_await_byte(
-            &ps2Handle,
-            &newByte), newByte);
+        if (e_skate_ps2_await_mvmnt(&ps2Handle, &trckMvmnt) != E_SKATE_SUCCESS)
+        {
+            printf("TIMEOUT\n");
+            continue;
+        }
+
+        if (trckMvmnt.lftBtn)
+            speed = 0;
+
+        speed += trckMvmnt.x;
+        speed = speed>255?255:speed;
+        speed = speed<  0?  0:speed;
+
+        printf("Speed: %d\n", speed);
     }
 }
