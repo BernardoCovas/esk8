@@ -18,7 +18,6 @@ e_skate_err_t e_skate_ps2_deinit(
 
 )
 {
-
     if (ps2Handle->rxBitQueueHandle != NULL)
         vQueueDelete(ps2Handle->rxBitQueueHandle);
 
@@ -28,11 +27,12 @@ e_skate_err_t e_skate_ps2_deinit(
     if (ps2Handle->rxTaskHandle != NULL)
         vTaskDelete(ps2Handle->rxTaskHandle);
 
-    // TODO Tx task
-
     timer_pause(
         ps2Handle->ps2Config.timerConfig.timerGroup,
         ps2Handle->ps2Config.timerConfig.timerIdx);
+
+    ESP_ERROR_CHECK(gpio_isr_handler_remove(
+        ps2Handle->ps2Config.gpioConfig.clockPin));
 
     if (withIsr)
         gpio_uninstall_isr_service();
