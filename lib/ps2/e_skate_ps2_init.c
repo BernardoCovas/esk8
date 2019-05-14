@@ -10,7 +10,7 @@
 #include <math.h>
 
 
-void IRAM_ATTR e_skate_ps2_isr(
+void e_skate_ps2_isr(
 
     void* param
 
@@ -27,10 +27,10 @@ void IRAM_ATTR e_skate_ps2_isr(
     if (ps2Config->dataDrctn == PS2_DIRCN_RECV)
     {
         e_skate_ps2_bit_t newBit;
-        newBit.bit = gpio_get_level(d_pin);                             /* Measure the data pin right away */
-        timer_get_counter_time_sec(tg, ti, &newBit.bitInterval_s);      /* Get the time since the last bit */
-        timer_set_counter_value(tg, ti, (uint64_t) 0);                  /* Reset Timer */
-        xQueueSendFromISR(ps2Handle->rxBitQueueHandle, &newBit, NULL);  /* Send to queue */
+        newBit.bit = gpio_get_level(d_pin);                             /* NOTE (b.covas): Measure the data pin right away */
+        timer_get_counter_time_sec(tg, ti, &newBit.bitInterval_s);      /* NOTE (b.covas): Get the time since the last bit */
+        timer_set_counter_value(tg, ti, (uint64_t) 0);                  /* NOTE (b.covas): Reset Timer */
+        xQueueSendFromISR(ps2Handle->rxBitQueueHandle, &newBit, NULL);  /* NOTE (b.covas): Send to queue */
         return;
     }
 
@@ -56,7 +56,7 @@ void IRAM_ATTR e_skate_ps2_isr(
 }
 
 
-/* Infinite Task */
+/* NOTE (b.covas): Infinite Task */
 void ps2_rx_consumer_task(
 
     void* param
@@ -77,7 +77,7 @@ void ps2_rx_consumer_task(
             e_skate_ps2_reset_pkt(ps2Pkt);
 
         if (e_skate_ps2_add_bit(ps2Pkt, newData.bit) == E_SKATE_PS2_ERR_VALUE_READY) {
-            if (e_skate_ps2_check_pkt(ps2Pkt) == E_SKATE_SUCCESS) // If this is not true, we lost a packet.
+            if (e_skate_ps2_check_pkt(ps2Pkt) == E_SKATE_SUCCESS) // NOTE (b.covas): If this is not true, we lost a packet.
                 xQueueSend(ps2Handle->rxByteQueueHandle, &ps2Pkt->newByte, 0);
             else
                 printf("[Lost packet: %d %d %d %d]\n", ps2Pkt->newStart, ps2Pkt->newByte, ps2Pkt->newParity, ps2Pkt->newStop);
@@ -127,7 +127,7 @@ e_skate_err_t e_skate_ps2_init(
     }
 
 
-    /* GPIO Interrupt Init */
+    /* NOTE (b.covas): GPIO Interrupt Init */
     gpio_num_t d_pin, c_pin;
     d_pin = ps2Config->gpioConfig.dataPin;
     c_pin = ps2Config->gpioConfig.clockPin;
@@ -139,18 +139,18 @@ e_skate_err_t e_skate_ps2_init(
     ESP_ERROR_CHECK(gpio_set_direction(c_pin, GPIO_MODE_INPUT));
     ESP_ERROR_CHECK(gpio_set_direction(d_pin, GPIO_MODE_INPUT));
 
-    /* Falling edge intr, as per Ps2. */
+    /* NOTE (b.covas): Falling edge intr, as per Ps2. */
     ESP_ERROR_CHECK(gpio_set_intr_type(c_pin, GPIO_INTR_NEGEDGE));
 
-    esp_err_t isrErrCode = gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
+    esp_err_t isrErrCode = gpio_install_isr_service(0);
 
-    /* Service might already be installed. */
+    /* NOTE (b.covas): Service might already be installed. */
     if  (isrErrCode != ESP_OK && isrErrCode != ESP_ERR_INVALID_STATE)
         ESP_ERROR_CHECK(isrErrCode);
 
     ESP_ERROR_CHECK(gpio_isr_handler_add(c_pin, e_skate_ps2_isr, ps2Handle));
 
-    /* Timer Init */
+    /* NOTE (b.covas): Timer Init */
     ESP_ERROR_CHECK(timer_init(
         ps2Config->timerConfig.timerGroup,
         ps2Config->timerConfig.timerIdx,
