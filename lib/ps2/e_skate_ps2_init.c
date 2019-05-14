@@ -10,7 +10,7 @@
 #include <math.h>
 
 
-void e_skate_ps2_isr(
+    void e_skate_ps2_isr(
 
     void* param
 
@@ -27,10 +27,10 @@ void e_skate_ps2_isr(
     if (ps2Config->dataDrctn == PS2_DIRCN_RECV)
     {
         e_skate_ps2_bit_t newBit;
-        newBit.bit = gpio_get_level(d_pin);                             /* NOTE (b.covas): Measure the data pin right away */
-        timer_get_counter_time_sec(tg, ti, &newBit.bitInterval_s);      /* NOTE (b.covas): Get the time since the last bit */
-        timer_set_counter_value(tg, ti, (uint64_t) 0);                  /* NOTE (b.covas): Reset Timer */
-        xQueueSendFromISR(ps2Handle->rxBitQueueHandle, &newBit, NULL);  /* NOTE (b.covas): Send to queue */
+        newBit.bit = gpio_get_level(d_pin);                             /* NOTE (b.covas): Measure the data pin right away  */
+        timer_get_counter_time_sec(tg, ti, &newBit.bitInterval_s);      /* NOTE (b.covas): Get the time since the last bit  */
+        timer_set_counter_value(tg, ti, (uint64_t) 0);                  /* NOTE (b.covas): Reset Timer                      */
+        xQueueSendFromISR(ps2Handle->rxBitQueueHandle, &newBit, NULL);  /* NOTE (b.covas): Send to queue                    */
         return;
     }
 
