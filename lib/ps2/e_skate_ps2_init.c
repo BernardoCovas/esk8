@@ -10,7 +10,7 @@
 #include <math.h>
 
 
-    void e_skate_ps2_isr(
+void e_skate_ps2_isr(
 
     void* param
 

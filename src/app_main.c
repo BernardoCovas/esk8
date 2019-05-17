@@ -134,7 +134,7 @@ void app_main()
     {
         if (e_skate_ps2_await_mvmnt(&ps2Handle, &trckMvmnt) != E_SKATE_SUCCESS)
         {
-            printf("TIMEOUT\n");
+            printf("TIMEOUT%40s\r", "");
             continue;
         }
 
@@ -145,6 +145,6 @@ void app_main()
         speed = speed>255?255:speed;
         speed = speed<  0?  0:speed;
 
-        printf("Speed: %d\n", speed);
+        printf("Speed: %03d %40s\r", speed, "");
     }
 }
