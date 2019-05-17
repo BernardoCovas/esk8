@@ -2,6 +2,7 @@
 #define _E_SKATE_CONTROLLER_CONFIG_H
 
 
+/* ========================================== BMS Configrations ========================================== */
 #define E_SKATE_UART_BMS_UPDATE_MS                  50
 #define E_SKATE_UART_BMS_MSG_UPDATE_RETRIES         3
 #define E_SKATE_UART_BMS_NUM                        UART_NUM_1
@@ -10,16 +11,26 @@
 #define E_SKATE_UART_BMS_RX_PINS                    { GPIO_NUM_26, GPIO_NUM_12, GPIO_NUM_16, GPIO_NUM_18 }
 #define E_SKATE_UART_BMS_BUFF_SIZE                  1000
 
-#define E_SKATE_PS2_RX_TASK_PRIORITY                1
-#define E_SKATE_PS2_TX_TASK_PRIORITY                1
-#define E_SKATE_PS2_BIT_QUEUE_LENGTH                1024 /* 1Kb */
-#define E_SKATE_PS2_BYTE_QUEUE_LENGTH               1024 /* 1KB */
-#define E_SKATE_PS2_MOVEMENT_TIMEOUT_MS             5000
-#define E_SKATE_PS2_PACKET_TIMEOUT_MS               1 /* Ms between clock cycles to be considered a lost packet. Clock should be in the 20/30 Khz range. */
+
+/* ========================================== PS2 Trackpad Configrations ================================= */
 #define E_SKATE_PS2_DATA_PIN                        GPIO_NUM_14
 #define E_SKATE_PS2_CLOCK_PIN                       GPIO_NUM_27
+#define E_SKATE_PS2_MOVEMENT_TIMEOUT_MS             5000            /* Ms between two movement packets to be considered a lost pkt sequence.    */
+#define E_SKATE_PS2_PACKET_TIMEOUT_MS               1               /* Ms between clock cycles to be considered a lost packet.                  */
+#define E_SKATE_PS2_BIT_QUEUE_LENGTH                1024            /* Number of bits a queue can handle. A 'bit' is actually a bool.           */
+#define E_SKATE_PS2_BYTE_QUEUE_LENGTH               1024            /* Number of bytes a queue can handle. These are uint8_t's.                 */
+#define E_SKATE_PS2_RX_TASK_PRIORITY                1
+#define E_SKATE_PS2_TX_TASK_PRIORITY                1
 #define E_SKATE_PS2_TIMER_GROUP                     TIMER_GROUP_0
 #define E_SKATE_PS2_TIMER_IDX                       TIMER_0
+
+
+/* ========================================== PWM Controll Configurations ================================ */
+#define E_SKATE_PWM_GPIO                            GPIO_NUM_14     /* GPIO to where the PWM signal is routed.                                                                              */
+#define E_SKATE_PWM_CHANNEL                         LEDC_CHANNEL_0  /* GPIO internal channel select. (ESP32: 0 to 7)                                                                        */
+#define E_SKATE_PWM_TIMER_NUM                       0               /* Index of the ledc timer to use. (ESP32: 0 to 3)                                                                      */
+#define E_SKATE_PWM_FREQ_HZ                         50              /* Frequency used when generating the PWM control signal. Not very restricted, but this plays with the precision bits.  */
+#define E_SKATE_PWM_NUM_BITS                        8               /* Number of precision bits. This is actually not very restricted, but the ESP hardware timer must allow it.            */
 
 
 #endif  /* _E_SKATE_CONTROLLER_CONFIG_H */
