@@ -11,10 +11,12 @@
  * the values in e_skate_config.h.
  * If you want any other values, call
  * the pwm native init funcion.
+ * Sets `out_cnfg`to the value of the
+ * current config.
  **/
 e_skate_err_t e_skate_pwm_sgnl_init(
 
-    ledc_timer_config_t* cnfg
+    ledc_timer_config_t* out_cnfg
 
 );
 
