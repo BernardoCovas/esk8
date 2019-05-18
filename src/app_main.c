@@ -2,6 +2,7 @@
 #include <e_skate_err.h>
 #include <e_skate_bms.h>
 #include <e_skate_ps2.h>
+#include <e_skate_pwm.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -107,8 +108,11 @@ void app_main()
 
 
     printf("-----------------------------\n");
-    printf("Listening to PS2...\n");
+    printf("Listening to PS2 with PWM...\n");
     printf("-----------------------------\n");
+
+    e_skate_pwm_config_t pwm_Config;
+    e_skate_pwm_sgnl_init(&pwm_Config);
 
     uint8_t cmdList[] = {
         0xF3,
@@ -129,7 +133,7 @@ void app_main()
 
     e_skate_ps2_mvmnt_t trckMvmnt;
 
-    int  speed = 0;
+    int speed = 0;
     while(1)
     {
         if (e_skate_ps2_await_mvmnt(&ps2Handle, &trckMvmnt) != E_SKATE_SUCCESS)
@@ -146,5 +150,6 @@ void app_main()
         speed = speed<  0?  0:speed;
 
         printf("Speed: %03d %40s\r", speed, "");
+        e_skate_pwm_sgnl_set(&pwm_Config, (uint8_t) speed);
     }
 }

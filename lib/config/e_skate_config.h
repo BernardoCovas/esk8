@@ -26,9 +26,9 @@
 
 
 /* ========================================== PWM Controll Configurations ================================ */
-#define E_SKATE_PWM_GPIO                            GPIO_NUM_14     /* GPIO to where the PWM signal is routed.                                                                              */
-#define E_SKATE_PWM_CHANNEL                         LEDC_CHANNEL_0  /* GPIO internal channel select. (ESP32: 0 to 7)                                                                        */
-#define E_SKATE_PWM_TIMER_NUM                       0               /* Index of the ledc timer to use. (ESP32: 0 to 3)                                                                      */
+#define E_SKATE_PWM_GPIO                            GPIO_NUM_2      /* GPIO to where the PWM signal is routed.                                                                              */
+#define E_SKATE_PWM_CHANNEL                         LEDC_CHANNEL_1  /* GPIO internal channel select. (ESP32: 0 to 7)                                                                        */
+#define E_SKATE_PWM_TIMER_NUM                       1               /* Index of the ledc timer to use. (ESP32: 0 to 3)                                                                      */
 #define E_SKATE_PWM_FREQ_HZ                         50              /* Frequency used when generating the PWM control signal. Not very restricted, but this plays with the precision bits.  */
 #define E_SKATE_PWM_NUM_BITS                        8               /* Number of precision bits. This is actually not very restricted, but the ESP hardware timer must allow it.            */
 
