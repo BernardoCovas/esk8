@@ -1,8 +1,8 @@
-#include <e_skate_config.h>
-#include <e_skate_err.h>
-#include <e_skate_bms.h>
-#include <e_skate_ps2.h>
-#include <e_skate_pwm.h>
+#include <e_ride_config.h>
+#include <e_ride_err.h>
+#include <e_ride_bms.h>
+#include <e_ride_ps2.h>
+#include <e_ride_pwm.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -10,18 +10,18 @@
 
 void app_main()
 {
-    e_skate_bms_config_t      bmsConfig;
-    e_skate_bms_status_t      bmsStatus;
-    e_skate_bms_deep_status_t bmsDeepStatus;
+    e_ride_bms_config_t      bmsConfig;
+    e_ride_bms_status_t      bmsStatus;
+    e_ride_bms_deep_status_t bmsDeepStatus;
     
-    e_skate_ps2_handle_t      ps2Handle;
+    e_ride_ps2_handle_t      ps2Handle;
 
 
-    e_skate_bms_init_from_config_h(
+    e_ride_bms_init_from_config_h(
         &bmsConfig
     );
 
-    e_skate_ps2_init_from_config_h(
+    e_ride_ps2_init_from_config_h(
         &ps2Handle
     );
 
@@ -32,16 +32,16 @@ void app_main()
 
     for (int i=0; i<bmsConfig.numBat; i++)
     {
-        e_skate_bms_set_rx(&bmsConfig, i);
-        e_skate_err_t errCodeS = e_skate_bms_get_status(
+        e_ride_bms_set_rx(&bmsConfig, i);
+        e_ride_err_t errCodeS = e_ride_bms_get_status(
             &bmsConfig,
             &bmsStatus);
         
-        e_skate_err_t errCodeDS = e_skate_bms_get_deep_status(
+        e_ride_err_t errCodeDS = e_ride_bms_get_deep_status(
             &bmsConfig,
             &bmsDeepStatus);
 
-        if (errCodeS == E_SKATE_SUCCESS)
+        if (errCodeS == E_RIDE_SUCCESS)
         {
             printf("(BMS Status) Got status: %.2fV, %d%%, %.2fA, %dºC, %dºC\n",
                 (double)    bmsStatus.voltage / 100,
@@ -53,10 +53,10 @@ void app_main()
         {
             printf("(BMS Status) Got error %d: %s.\n",
                 errCodeS,
-                e_skate_err_to_str(errCodeS));
+                e_ride_err_to_str(errCodeS));
         }
 
-        if (errCodeDS == E_SKATE_SUCCESS)
+        if (errCodeDS == E_RIDE_SUCCESS)
         {
             printf( "(BMS Deep Status) Got Deep status:\n" 
                     "   Serial Number: ");
@@ -102,7 +102,7 @@ void app_main()
         {
             printf("(BMS Deep Status) Got error %d: %s.\n",
                 errCodeDS,
-                e_skate_err_to_str(errCodeDS));
+                e_ride_err_to_str(errCodeDS));
         }
     }
 
@@ -111,8 +111,8 @@ void app_main()
     printf("Listening to PS2 with PWM...\n");
     printf("-----------------------------\n");
 
-    e_skate_pwm_config_t pwm_Config;
-    e_skate_pwm_sgnl_init(&pwm_Config);
+    e_ride_pwm_config_t pwm_Config;
+    e_ride_pwm_sgnl_init(&pwm_Config);
 
     uint8_t cmdList[] = {
         0xF3,
@@ -123,20 +123,20 @@ void app_main()
     for (int i=0; i<sizeof(cmdList); i++)
     {
         uint8_t byte = cmdList[i];
-        e_skate_ps2_send_byte(
+        e_ride_ps2_send_byte(
             &ps2Handle,
             byte);
-        e_skate_ps2_await_byte(
+        e_ride_ps2_await_byte(
             &ps2Handle,
             &byte, 100);
     }
 
-    e_skate_ps2_mvmnt_t trckMvmnt;
+    e_ride_ps2_mvmnt_t trckMvmnt;
 
     int speed = 0;
     while(1)
     {
-        if (e_skate_ps2_await_mvmnt(&ps2Handle, &trckMvmnt) != E_SKATE_SUCCESS)
+        if (e_ride_ps2_await_mvmnt(&ps2Handle, &trckMvmnt) != E_RIDE_SUCCESS)
         {
             printf("TIMEOUT%40s\r", "");
             continue;
@@ -150,6 +150,6 @@ void app_main()
         speed = speed<  0?  0:speed;
 
         printf("Speed: %03d %40s\r", speed, "");
-        e_skate_pwm_sgnl_set(&pwm_Config, (uint8_t) speed);
+        e_ride_pwm_sgnl_set(&pwm_Config, (uint8_t) speed);
     }
 }

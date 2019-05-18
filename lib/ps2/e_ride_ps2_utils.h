@@ -1,0 +1,85 @@
+#ifndef _E_RIDE_PS2_UTILS_H
+#define _E_RIDE_PS2_UTILS_H
+
+#include "e_ride_ps2.h"
+#include <e_ride_err.h>
+
+
+typedef struct
+{
+    bool    bit;
+    double  bitInterval_s; /* Time between this bit and the last, in seconds. */
+} e_ride_ps2_bit_t;
+
+
+/**
+ * Adds a bit to the value in `ps2Pkt`.
+ * This is expected to start with the least
+ * significant bit, and contains the start,
+ * parity and stop bits. For example, to 
+ * form the value 94, we would do, in order:
+ * `{1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0}`.
+ * Returns `E_RIDE_PS2_ERR_VALUE_READY` if
+ * the value is complete. If we try to add
+ * a value to an already complete handle,
+ * it is not added and returns the same.
+ **/
+e_ride_err_t e_ride_ps2_add_bit(
+
+    e_ride_ps2_pkt_t*  ps2Pkt,
+    bool                value
+
+);
+
+
+/**
+ * Takes a bit from the value in `ps2Pkt`.
+ * Returns `E_RIDE_PS2_ERR_VALUE_READY` if
+ * the value is done complete. If we try to add
+ * a value to an already completely empty
+ * packet, returns the same and does nothing.
+ **/
+e_ride_err_t e_ride_ps2_take_bit(
+
+    e_ride_ps2_pkt_t*  ps2Pkt,
+    bool*               outValue
+
+);
+
+
+/**
+ * Checks The integrity of the 
+ * packet's internal value.
+ * If it is as expected, returns
+ * `E_RIDE_SUCCESS`. If wrong, returns
+ * `E_RIDE_PS2_ERR_INVALID_STATE`.
+ **/
+e_ride_err_t e_ride_ps2_check_pkt(
+
+    e_ride_ps2_pkt_t* ps2Pkt
+
+);
+
+
+/**
+ * Resets the internal value and index
+ * of `ps2Pkt`.
+ **/
+void e_ride_ps2_reset_pkt(
+
+    e_ride_ps2_pkt_t* ps2Pkt
+
+);
+
+
+/**
+ * Returns the parity val.
+ **/
+bool e_ride_ps2_get_parity(
+
+    uint8_t x
+
+);
+
+
+#endif /* _E_RIDE_PS2_UTILS_H */

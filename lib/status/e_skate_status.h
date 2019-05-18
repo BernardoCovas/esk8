@@ -1,14 +1,14 @@
-#ifndef _E_SKATE_STATUS_H
-#define _E_SKATE_STATUS_H
+#ifndef _E_RIDE_STATUS_H
+#define _E_RIDE_STATUS_H
 
-#include <e_skate_bms.h>
+#include <e_ride_bms.h>
 
 
 typedef struct
 {
-    e_skate_bms_status_t *bmsStatus;
+    e_ride_bms_status_t *bmsStatus;
     uint8_t nStatus;
-} e_skate_status_t;
+} e_ride_status_t;
 
 
-#endif /* _E_SKATE_STATUS_H */
+#endif /* _E_RIDE_STATUS_H */
