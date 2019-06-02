@@ -1,5 +1,6 @@
 #include <e_ride_config.h>
 #include <e_ride_err.h>
+#include <e_ride_ble.h>
 #include <e_ride_bms.h>
 #include <e_ride_ps2.h>
 #include <e_ride_pwm.h>
@@ -13,9 +14,10 @@ void app_main()
     e_ride_bms_config_t      bmsConfig;
     e_ride_bms_status_t      bmsStatus;
     e_ride_bms_deep_status_t bmsDeepStatus;
-    
     e_ride_ps2_handle_t      ps2Handle;
 
+
+    e_ride_ble_init();
 
     e_ride_bms_init_from_config_h(
         &bmsConfig

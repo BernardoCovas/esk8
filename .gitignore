@@ -1,4 +1,9 @@
+
+# IDE folders and files
+
 .pio
 .pioenvs
 .piolibdeps
 .vscode
+.vs
+CppProperties.json

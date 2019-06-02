@@ -26,6 +26,9 @@ typedef enum e_ride_err_t
     E_RIDE_PS2_ERR_INVALID_STATE,
     E_RIDE_PS2_ERR_TIMEOUT,
 
+    /* E_Skate Ble*/
+    E_RIDE_BLE_INIT_FAILED,
+
 } e_ride_err_t;
 
 
