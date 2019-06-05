@@ -99,7 +99,7 @@ e_ride_err_t e_ride_ble_init()
      * for BLE to work. If NVS was already initialized,
      * nvs_flash_init() will still return OK.
      */
-	esp_err_t ret = nvs_flash_init();
+    esp_err_t ret = nvs_flash_init();
 
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
@@ -108,20 +108,20 @@ e_ride_err_t e_ride_ble_init()
     }
 
     ESP_ERROR_CHECK(    ret                                                         );
-    ESP_ERROR_CHECK(    esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)		);
-    ESP_ERROR_CHECK(    esp_bt_controller_init(&bt_Cnfig)							);
-    ESP_ERROR_CHECK(    esp_bt_controller_enable(ESP_BT_MODE_BLE)					);
+    ESP_ERROR_CHECK(    esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)       );
+    ESP_ERROR_CHECK(    esp_bt_controller_init(&bt_Cnfig)                           );
+    ESP_ERROR_CHECK(    esp_bt_controller_enable(ESP_BT_MODE_BLE)                   );
  
-	ESP_ERROR_CHECK(    esp_bluedroid_init()										);
-    ESP_ERROR_CHECK(    esp_bluedroid_enable()										);
+    ESP_ERROR_CHECK(    esp_bluedroid_init()                                        );
+    ESP_ERROR_CHECK(    esp_bluedroid_enable()                                      );
 
-    ESP_ERROR_CHECK(    esp_ble_gap_register_callback(e_ride_gap_event_hndlr)		);
-    ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(e_ride_gatts_event_hndlr)	);
-    ESP_ERROR_CHECK(    esp_ble_gatts_app_register(0x00)							);
-    ESP_ERROR_CHECK(    esp_ble_gatts_app_register(0x01)							);
-    ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(E_RIDE_BLE_DEV_NAME)			);
-    ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&adv_data)						);
-    ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&scan_rsp_data)					);
+    ESP_ERROR_CHECK(    esp_ble_gap_register_callback(e_ride_gap_event_hndlr)       );
+    ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(e_ride_gatts_event_hndlr)   );
+    ESP_ERROR_CHECK(    esp_ble_gatts_app_register(0x00)                            );
+    ESP_ERROR_CHECK(    esp_ble_gatts_app_register(0x01)                            );
+    ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(E_RIDE_BLE_DEV_NAME)            );
+    ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&adv_data)                      );
+    ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&scan_rsp_data)                 );
 
     return E_RIDE_SUCCESS;
 }
@@ -157,14 +157,14 @@ void e_ride_gap_event_hndlr(
 
 )
 {
-	switch (event)
-	{
-		case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
-			esp_ble_gap_start_advertising(&adv_Params);
-			break;
-		default:
-			break;
-	}
+    switch (event)
+    {
+        case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
+            esp_ble_gap_start_advertising(&adv_Params);
+            break;
+        default:
+            break;
+    }
 
     printf("[ E_Ride ble gap ] Got event: 0x%02x\n", event);
 }

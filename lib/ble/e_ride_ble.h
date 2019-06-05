@@ -13,7 +13,7 @@ typedef void* e_ride_ble_t;
  */
 e_ride_err_t e_ride_ble_init(
 
-	e_ride_ble_t* bleHndlr
+    e_ride_ble_t* bleHndlr
 
 );
 

@@ -95,7 +95,7 @@ void e_ride_ps2_reset_pkt(
 
 
 bool e_ride_ps2_get_parity(uint8_t x)
-{	
+{    
     x = (x & 0x0F)^(x >> 4);
     x = (x & 0x03)^(x >> 2);
     x = (x & 0x01)^(x >> 1);

@@ -18,8 +18,8 @@ typedef uint16_t e_ride_ble_app_handler_t;
  */
 typedef enum
 {
-	E_RIDE_BLE_PERM_READ 	= 1 << 0,
-	E_RIDE_BLE_PERM_WRITE	= 1 << 1,
+    E_RIDE_BLE_PERM_READ     = 1 << 0,
+    E_RIDE_BLE_PERM_WRITE    = 1 << 1,
 } e_ride_ble_perm_t;
 
 
@@ -28,17 +28,17 @@ typedef enum
  */
 typedef struct
 {
-	const char* 		app_displayName;
+    const char*         app_displayName;
 
-	uint8_t 			app_srvcUuid[32];
-	e_ride_ble_perm_t 	app_srvcPerm;
+    uint8_t             app_srvcUuid[32];
+    e_ride_ble_perm_t     app_srvcPerm;
 
-	uint8_t 			app_numChar;
-	uint16_t*			app_charUuid;
-	e_ride_ble_perm_t*	app_charPerm;
+    uint8_t             app_numChar;
+    uint16_t*            app_charUuid;
+    e_ride_ble_perm_t*    app_charPerm;
 
-	uint32_t			_initFlag;	
-	void*				_evntQueue;
+    uint32_t            _initFlag;    
+    void*                _evntQueue;
 
 } e_ride_ble_app_t;
 
@@ -48,8 +48,8 @@ typedef struct
  */
 e_ride_err_t e_ride_ble_app_register(
 
-	e_ride_ble_app_t		* app,
-	e_ride_ble_app_handler_t* appHndlr
+    e_ride_ble_app_t        * app,
+    e_ride_ble_app_handler_t* appHndlr
 
 );
 
@@ -59,7 +59,7 @@ e_ride_err_t e_ride_ble_app_register(
  */
 e_ride_err_t e_ride_ble_app_evnt_await(
 
-	e_ride_ble_app_handler_t appHndlr
+    e_ride_ble_app_handler_t appHndlr
 
 );
 

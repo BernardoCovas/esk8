@@ -46,7 +46,7 @@ typedef struct
     uint8_t                     newByte;
     uint8_t                     newParity;
     uint8_t                     newStop;
-    uint8_t 	                frameIndex:5; /* A frame is 11 bits */
+    uint8_t                     frameIndex:5; /* A frame is 11 bits */
 } e_ride_ps2_pkt_t;
 
 
