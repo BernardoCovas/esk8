@@ -16,6 +16,7 @@ static uint8_t adv_service_uuid128[32] = {
 };
 
 
+
 static esp_ble_adv_params_t adv_Params = {
     .adv_int_min        = 0x20,
     .adv_int_max        = 0x40,
@@ -63,6 +64,12 @@ static esp_ble_adv_data_t scan_rsp_data = {
 /**
  * 
  */
+e_ride_err_t e_ride_ble_init();
+
+
+/**
+ * 
+ */
 void e_ride_gatts_event_hndlr(
 
     esp_gatts_cb_event_t event,
@@ -74,11 +81,11 @@ void e_ride_gatts_event_hndlr(
 
 /**
  * 
- **/
+ */
 void e_ride_gap_event_hndlr(
 
-    esp_gap_ble_cb_event_t event,
-    esp_ble_gap_cb_param_t *param
+    esp_gap_ble_cb_event_t  event,
+    esp_ble_gap_cb_param_t* param
 
 );
 
@@ -91,14 +98,15 @@ e_ride_err_t e_ride_ble_init()
      * NOTE: (b.covas) NVS Has to be initialized
      * for BLE to work. If NVS was already initialized,
      * nvs_flash_init() will still return OK.
-     **/
+     */
 	esp_err_t ret = nvs_flash_init();
 
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
-   
+
     ESP_ERROR_CHECK(    ret                                                         );
     ESP_ERROR_CHECK(    esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)		);
     ESP_ERROR_CHECK(    esp_bt_controller_init(&bt_Cnfig)							);
@@ -127,38 +135,18 @@ void e_ride_gatts_event_hndlr(
 
 )
 {
-    static e_ride_ble_app_t _ble_app_list[] = E_RIDE_BLE_APPS_LIST();
-    int n_apps = sizeof(_ble_app_list) / sizeof(_ble_app_list[0]);
-
     printf("[ E_Ride ble gatts ] Got event %d on interface: %d.\n", event, gatts_if);
 
-    switch (event)
+    if(event == ESP_GATTS_REG_EVT)
     {
-		case ESP_GATTS_REG_EVT:
+        printf("[ E_Ride ble gatts ] Registering app id: %d, on interface: %d. Status: 0x%02x\n",
+            param->reg.app_id,
+            gatts_if,
+            param->reg.status);
+    }
 
-            printf("[ E_Ride ble gatts ] Registering app id: %d, on interface: %d. Status: 0x%02x\n",
-                param->reg.app_id,
-                gatts_if,
-                param->reg.status);
-
-            if (param->reg.status != ESP_GATT_OK) break;
-
-            _ble_app_list[param->reg.app_id]._appHandler = (e_ride_ble_app_handler_t) gatts_if;
-            break;
-
-        case ESP_GATTS_CONNECT_EVT:
-			esp_ble_gap_start_advertising(&adv_Params);
-            /* Fall trough */
-
-        default:
-            for (int idx = 0; idx < n_apps; idx++)
-            {
-                if (gatts_if == ESP_GATT_IF_NONE || gatts_if == (esp_gatt_if_t) _ble_app_list[idx]._appHandler)
-                    if (_ble_app_list[idx].evtCb)
-                        _ble_app_list[idx].evtCb(event, param);
-            }
-            break;
-    }    
+    if(event == ESP_GATTS_CONNECT_EVT)
+        esp_ble_gap_start_advertising(&adv_Params);
 }
 
 

@@ -1,26 +1,19 @@
+#include <e_ride_err.h>
 #include <e_ride_ble.h>
 #include <e_ride_ble_app.h>
 
 #include <stdio.h>
 
 
-void e_ride_status_cb(
+e_ride_err_t e_ride_ble_app_register(
 
-	esp_gatts_cb_event_t event,
-	esp_ble_gatts_cb_param_t* param
-
-)
-{
-	printf("Event %d handled by e_ride_status_cb().\n", event);
-}
-
-
-void e_ride_battery_cb(
-
-	esp_gatts_cb_event_t event,
-	esp_ble_gatts_cb_param_t* param
+	e_ride_ble_app_t		* app,
+	e_ride_ble_app_handler_t* appHndlr
 
 )
 {
-	printf("Event %d handled by e_ride_battery_cb().\n", event);
+	
+
+	
+	return E_RIDE_SUCCESS;
 }

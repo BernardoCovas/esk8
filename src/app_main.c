@@ -140,7 +140,7 @@ void app_main()
     {
         if (e_ride_ps2_await_mvmnt(&ps2Handle, &trckMvmnt) != E_RIDE_SUCCESS)
         {
-            printf("TIMEOUT%40s\r", "");
+            printf("[ PS2 ]TIMEOUT%40s\n", "");
             continue;
         }
 
@@ -151,7 +151,7 @@ void app_main()
         speed = speed>255?255:speed;
         speed = speed<  0?  0:speed;
 
-        printf("Speed: %03d %40s\r", speed, "");
+        printf("[ PS2 ] Speed: %03d %40s\n", speed, "");
         e_ride_pwm_sgnl_set(&pwm_Config, (uint8_t) speed);
     }
 }
