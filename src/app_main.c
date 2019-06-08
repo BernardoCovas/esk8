@@ -15,9 +15,11 @@ void app_main()
     e_ride_bms_status_t      bmsStatus;
     e_ride_bms_deep_status_t bmsDeepStatus;
     e_ride_ps2_handle_t      ps2Handle;
-    e_ride_ble_app_handler_t bleHandle;
 
-    e_ride_ble_init(&bleHandle);
+    e_ride_ble_config_t      bleCnfg;
+    bleCnfg.evtQueueLen      = 10;
+
+    e_ride_ble_init(&bleCnfg);
     e_ride_bms_init_from_config_h(&bmsConfig);
     e_ride_ps2_init_from_config_h(&ps2Handle);
 
