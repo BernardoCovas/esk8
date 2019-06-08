@@ -28,7 +28,7 @@ static esp_ble_adv_params_t adv_Params = {
     .adv_type           = ADV_TYPE_IND,
     .own_addr_type      = BLE_ADDR_TYPE_PUBLIC,
     .channel_map        = ADV_CHNL_ALL,
-    .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
+    .adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
 
 
@@ -139,13 +139,15 @@ e_ride_err_t e_ride_ble_close()
     if (!bleHandler.p_appList)
         return E_RIDE_SUCCESS;
 
-    for (int i=0; i<bleHandler.appNum; i++)
-    {
-        if (bleHandler.p_appList[i]->_evntQueue)
-            vQueueDelete((QueueHandle_t)bleHandler.p_appList[i]->_evntQueue);
-    }
+    for (uint16_t i=0; i<bleHandler.appNum; i++)
+        esp_ble_gatts_app_unregister(i);
 
     free(bleHandler.p_appList);
+
+    esp_bluedroid_disable();
+    esp_bluedroid_deinit();
+    esp_bt_controller_disable();
+    esp_bt_controller_deinit();
 
     return E_RIDE_SUCCESS;
 }
@@ -172,7 +174,7 @@ e_ride_err_t e_ride_ble_register_apps(
         return E_RIDE_BLE_INIT_REINIT;
 
     /**
-     * Create the app list, and event queues.
+     * Allocate app list.
      */
     e_ride_ble_app_t** appList = calloc(numApps, sizeof(e_ride_ble_app_t));
     if (!appList)
@@ -185,22 +187,8 @@ e_ride_err_t e_ride_ble_register_apps(
      * */
     memcpy((void*)bleHandler.p_appList, (void*)appList, sizeof(e_ride_ble_app_t*) * numApps);
 
-    for (int i=0; i<numApps; i++)
-    {
-        appList[i]->_evntQueue = (void*) xQueueCreate(
-            bleHandler.bleCnfg.evtQueueLen, sizeof(e_ride_ble_notif_t));
-
-        if (!appList[i]->_evntQueue)
-        {
-            e_ride_ble_close();
-            return E_RIDE_ERR_OOM;
-        }
-    }
-
     /**
-     * Only register the apps with ble once we
-     * know we have memory, after allocating
-     * all event queues.
+     * Register the apps with ble.
      */
     for (size_t i = 0; i<numApps; i++)
         ESP_ERROR_CHECK(esp_ble_gatts_app_register(currAppId++));
@@ -217,7 +205,6 @@ void e_ride_gatts_event_hndlr(
 
 )
 {
-    QueueHandle_t evtQueue;
     e_ride_ble_notif_t bleNotif;
     uint16_t appId;
 
@@ -253,9 +240,7 @@ void e_ride_gatts_event_hndlr(
 
             bleNotif.event = E_RIDE_BLE_EVT_NEWCONN;
             bleNotif.param.connect.devHandler = param->connect.conn_id;
-            memcpy(
-                bleNotif.param.connect.mac,
-                param->connect.remote_bda, 6);
+            memcpy(bleNotif.param.connect.mac, param->connect.remote_bda, 6);
             break;
 
         default:
@@ -263,15 +248,14 @@ void e_ride_gatts_event_hndlr(
     }
 
     /**
-     * Find which app this event is meant to.
+     * Find which app this event is meant to,
+     * and junp to it's event function.
      */
     for (int i=0; i<bleHandler.appNum; i++)
     {
         if (bleHandler.p_appList[i]->_appHandlr == gatts_if)
-        {
-            evtQueue = (QueueHandle_t)bleHandler.p_appList[i]->_evntQueue;
-            xQueueSend(evtQueue, &bleNotif, portMAX_DELAY);
-        }
+            if (bleHandler.p_appList[i]->app_evtFunc)
+                bleHandler.p_appList[i]->app_evtFunc(&bleNotif);
     }
 }
 

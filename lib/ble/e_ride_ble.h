@@ -31,25 +31,6 @@ typedef enum
 } e_ride_ble_event_t;
 
 
-/**
- *
- */
-typedef struct
-{
-    const char *                app_displayName;
-
-    const uint8_t               app_srvcUuid[32];
-    const e_ride_ble_perm_t     app_srvcPerm;
-
-    const uint8_t               app_numChar;
-    const uint16_t*             app_charUuid;
-    const e_ride_ble_perm_t*    app_charPerm;
-
-    uint32_t                    _appHandlr;
-    void*                       _evntQueue;
-} e_ride_ble_app_t;
-
-
 typedef union
 {
     struct
@@ -89,6 +70,33 @@ typedef struct
 } e_ride_ble_notif_t;
 
 
+/**
+ * Function called for every enent.
+ */
+typedef void(*e_ride_ble_evt_cb_t)(e_ride_ble_notif_t* evtNotif);
+
+
+/**
+ *
+ */
+typedef struct
+{
+    const char *                app_displayName;
+
+    const uint8_t               app_srvcUuid[32];
+    const e_ride_ble_perm_t     app_srvcPerm;
+
+    const uint8_t               app_numChar;
+    const uint16_t*             app_charUuid;
+    const e_ride_ble_perm_t*    app_charPerm;
+
+    e_ride_ble_evt_cb_t         app_evtFunc;
+
+    uint16_t                    _appHandlr;
+    void*                       _evntQueue;
+} e_ride_ble_app_t;
+
+
 typedef struct
 {
     size_t evtQueueLen;
@@ -117,7 +125,7 @@ e_ride_err_t e_ride_ble_init(
 
 /**
  * Free every resource associated
- * with the app and ble manager.
+ * with the apps and ble manager.
  */
 e_ride_err_t e_ride_ble_close();
 
