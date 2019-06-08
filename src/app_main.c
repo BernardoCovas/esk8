@@ -15,17 +15,12 @@ void app_main()
     e_ride_bms_status_t      bmsStatus;
     e_ride_bms_deep_status_t bmsDeepStatus;
     e_ride_ps2_handle_t      ps2Handle;
+    e_ride_ble_app_handler_t bleHandle;
 
+    e_ride_ble_init(&bleHandle);
+    e_ride_bms_init_from_config_h(&bmsConfig);
+    e_ride_ps2_init_from_config_h(&ps2Handle);
 
-    e_ride_ble_init();
-
-    e_ride_bms_init_from_config_h(
-        &bmsConfig
-    );
-
-    e_ride_ps2_init_from_config_h(
-        &ps2Handle
-    );
 
     printf("-----------------------------\n");
     printf("Listening to BMS...\n");
@@ -35,13 +30,8 @@ void app_main()
     for (int i=0; i<bmsConfig.numBat; i++)
     {
         e_ride_bms_set_rx(&bmsConfig, i);
-        e_ride_err_t errCodeS = e_ride_bms_get_status(
-            &bmsConfig,
-            &bmsStatus);
-        
-        e_ride_err_t errCodeDS = e_ride_bms_get_deep_status(
-            &bmsConfig,
-            &bmsDeepStatus);
+        e_ride_err_t errCodeS = e_ride_bms_get_status(&bmsConfig, &bmsStatus);
+        e_ride_err_t errCodeDS = e_ride_bms_get_deep_status(&bmsConfig, &bmsDeepStatus);
 
         if (errCodeS == E_RIDE_SUCCESS)
         {
@@ -125,12 +115,8 @@ void app_main()
     for (int i=0; i<sizeof(cmdList); i++)
     {
         uint8_t byte = cmdList[i];
-        e_ride_ps2_send_byte(
-            &ps2Handle,
-            byte);
-        e_ride_ps2_await_byte(
-            &ps2Handle,
-            &byte, 100);
+        e_ride_ps2_send_byte(&ps2Handle, byte);
+        e_ride_ps2_await_byte(&ps2Handle, &byte, 100);
     }
 
     e_ride_ps2_mvmnt_t trckMvmnt;

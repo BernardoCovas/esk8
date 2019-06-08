@@ -3,17 +3,22 @@
 #include <e_ride_ble_app.h>
 
 #include <stdio.h>
+#include <stddef.h>
+
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 
 
-e_ride_err_t e_ride_ble_app_register(
+e_ride_err_t e_ride_ble_register_apps(
 
-    e_ride_ble_app_t        * app,
-    e_ride_ble_app_handler_t* appHndlr
+    size_t                    numApps,
+    e_ride_ble_app_t        * appList
 
 )
 {
-    
 
-    
+
+
+
     return E_RIDE_SUCCESS;
 }
