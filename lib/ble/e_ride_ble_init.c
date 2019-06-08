@@ -1,7 +1,6 @@
 #include <e_ride_config.h>
 #include <e_ride_err.h>
 #include <e_ride_ble.h>
-#include <e_ride_ble_app.h>
 
 #include <esp_bt.h>
 #include <esp_bt_main.h>
@@ -220,11 +219,12 @@ void e_ride_gatts_event_hndlr(
 {
     QueueHandle_t evtQueue;
     e_ride_ble_notif_t bleNotif;
+    uint16_t appId;
 
     switch (event)
     {
         case ESP_GATTS_REG_EVT:
-            uint16_t appId = param->reg.app_id;
+            appId = param->reg.app_id;
 
             /**
              * The app id is the index.
@@ -267,7 +267,7 @@ void e_ride_gatts_event_hndlr(
      */
     for (int i=0; i<bleHandler.appNum; i++)
     {
-        if (bleHandler.p_appList[i]->_appHandlr = gatts_if)
+        if (bleHandler.p_appList[i]->_appHandlr == gatts_if)
         {
             evtQueue = (QueueHandle_t)bleHandler.p_appList[i]->_evntQueue;
             xQueueSend(evtQueue, &bleNotif, portMAX_DELAY);
