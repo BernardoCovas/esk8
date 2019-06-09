@@ -10,7 +10,7 @@
 
 
 #include <freertos/FreeRTOS.h>
-#include <freertos/queue.h>
+#include <freertos/semphr.h>
 
 #include <string.h>
 #include <stddef.h>
@@ -95,6 +95,23 @@ void e_ride_gap_event_hndlr(
 );
 
 
+/**
+ *
+ */
+e_ride_ble_app_t* e_ride_ble_get_app_from_if(
+
+    uint16_t gatts_if
+
+)
+{
+    for (int i=0; i<bleHandler.appNum; i++)
+        if (bleHandler.p_appList[i]->app_appHndl == gatts_if)
+            return bleHandler.p_appList[i];
+
+    return NULL;
+}
+
+
 e_ride_err_t e_ride_ble_init(
 
     e_ride_ble_config_t*    bleCnfg
@@ -139,6 +156,9 @@ e_ride_err_t e_ride_ble_close()
     if (!bleHandler.p_appList)
         return E_RIDE_SUCCESS;
 
+    if (bleHandler.charSmph)
+        vSemaphoreDelete(bleHandler.charSmph);
+
     for (uint16_t i=0; i<bleHandler.appNum; i++)
         esp_ble_gatts_app_unregister(i);
 
@@ -180,6 +200,13 @@ e_ride_err_t e_ride_ble_register_apps(
     if (!appList)
         return E_RIDE_ERR_OOM;
 
+    vSemaphoreCreateBinary(bleHandler.charSmph);
+    if (!bleHandler.charSmph)
+    {
+        e_ride_ble_close();
+        return E_RIDE_ERR_OOM;
+    }
+
     /**
      * Copy all the app's addresses to the bleHandler.
      * They are assumed to last for the time ble is
@@ -205,12 +232,17 @@ void e_ride_gatts_event_hndlr(
 
 )
 {
-    e_ride_ble_notif_t bleNotif;
     uint16_t appId;
+    e_ride_ble_app_t*  bleApp;
+    e_ride_ble_notif_t bleNotif = {
+        .event = event,
+        .param = param
+    };
 
     switch (event)
     {
         case ESP_GATTS_REG_EVT:
+        {
             appId = param->reg.app_id;
 
             /**
@@ -225,10 +257,62 @@ void e_ride_gatts_event_hndlr(
              * The handler is the interface associated
              * with the app.
              */
-            bleHandler.p_appList[appId]->_appHandlr = appId;
+            bleApp = bleHandler.p_appList[appId];
+            bleApp->app_appHndl = appId;
 
-            bleNotif.event = E_RIDE_BLE_EVT_REGISTD;
-            bleNotif.param.reg.appHandler = (e_ride_ble_app_handler_t)appId;
+            /*               | Service Handler         | Char, char value and char descriptor handle    */
+            /*               V                         V                                                */
+            int numHandles = 1 + bleApp->app_numChar * 3;
+            esp_ble_gatts_create_service(
+                gatts_if, &bleApp->app_serviceId, numHandles);
+
+        }
+        break;
+
+        case ESP_GATTS_CREATE_EVT:
+            /* TODO */
+            bleApp = e_ride_ble_get_app_from_if(gatts_if);
+
+            if (!bleApp)
+                return;
+
+            /**
+             * Add every ble char.
+             */
+            e_ride_ble_char_t* bleChar;
+            for (int i=0; i<bleApp->app_numChar; i++)
+            {
+                bleChar = bleApp->app_charList_p[i];
+
+                /**
+                 * Wait for char to be registered,
+                 * if it is not the first.
+                 */
+                if (i && xSemaphoreTake(bleHandler.charSmph, portMAX_DELAY) != pdTRUE) 
+                    return;
+
+                esp_ble_gatts_add_char(
+                    param->create.service_handle,
+                    &bleChar->char_uuid,
+                    &bleChar->char_perm,
+                    &bleChar->char_prop,
+                    &bleChar->char_val,
+                    &bleChar->char_ctrl);
+            }
+
+            break;
+
+        case ESP_GATTS_ADD_CHAR_EVT:
+            xSemaphoreGive(bleHandler.charSmph);
+            /* TODO */
+            break;
+
+        case ESP_GATTS_WRITE_EVT:
+            /* TODO */
+            break;
+
+        case ESP_GATTS_READ_EVT:
+            /* TODO */
             break;
 
         case ESP_GATTS_CONNECT_EVT:
@@ -237,10 +321,6 @@ void e_ride_gatts_event_hndlr(
              * This restarts it.
              */
             esp_ble_gap_start_advertising(&adv_Params);
-
-            bleNotif.event = E_RIDE_BLE_EVT_NEWCONN;
-            bleNotif.param.connect.devHandler = param->connect.conn_id;
-            memcpy(bleNotif.param.connect.mac, param->connect.remote_bda, 6);
             break;
 
         default:
@@ -249,14 +329,11 @@ void e_ride_gatts_event_hndlr(
 
     /**
      * Find which app this event is meant to,
-     * and junp to it's event function.
+     * and jump to it's event function.
      */
-    for (int i=0; i<bleHandler.appNum; i++)
-    {
-        if (bleHandler.p_appList[i]->_appHandlr == gatts_if)
-            if (bleHandler.p_appList[i]->app_evtFunc)
-                bleHandler.p_appList[i]->app_evtFunc(&bleNotif);
-    }
+    e_ride_ble_app_t* app = e_ride_ble_get_app_from_if(gatts_if);
+    if (app && app->app_evtFunc)
+        app->app_evtFunc(&bleNotif);
 }
 
 
@@ -277,33 +354,4 @@ void e_ride_gap_event_hndlr(
     }
 
     printf("[ E_Ride ble gap ] Got event: 0x%02x\n", event);
-}
-
-
-e_ride_err_t e_ride_ble_app_evnt_await(
-
-    e_ride_ble_app_handler_t appHndlr,
-    e_ride_ble_notif_t*      appNotif,
-    uint32_t                 timeout_ms
-
-)
-{
-    if (!bleHandler.p_appList)
-        return E_RIDE_BLE_INIT_NOINIT;
-
-    if  (
-            appHndlr >= bleHandler.appNum   ||
-            !bleHandler.p_appList[appHndlr]
-        )
-        return E_RIDE_ERR_INVALID_PARAM;
-
-    if (xQueueReceive(
-        bleHandler.p_appList[appHndlr]->_evntQueue,
-        appNotif,
-        timeout_ms / portTICK_PERIOD_MS) != pdTRUE)
-    {
-        return E_RIDE_BLE_NOTF_TIMEOUT;
-    }
-
-    return E_RIDE_SUCCESS;
 }
