@@ -48,18 +48,17 @@ typedef struct
 typedef struct
 {
     char*                 app_serviceName;
-    esp_gatt_srvc_id_t    app_serviceId;
-
-    uint8_t               app_numChar;
+    esp_gatt_srvc_id_t*   app_serviceId_p;
     e_ride_ble_char_t**   app_charList_p;
+    uint8_t               app_numChar;
     e_ride_ble_evt_cb_t   app_evtFunc;
-    uint16_t                    app_appHndl;
+    uint16_t              app_appHndl;
 } e_ride_ble_app_t;
 
 
 typedef struct
 {
-    /* TODO */
+    void* dummy;
 } e_ride_ble_config_t;
 
 
@@ -69,7 +68,6 @@ typedef struct
 
     e_ride_ble_app_t**  p_appList;
     uint16_t            appNum;
-    void*               charSmph;
 } e_ride_ble_t;
 
 

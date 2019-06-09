@@ -5,23 +5,26 @@
 #include <e_ride_ps2.h>
 #include <e_ride_pwm.h>
 
+#include <app_ble_srvc.h>
+
 #include <stdint.h>
 #include <stdio.h>
 
 
 void app_main()
 {
-    e_ride_bms_config_t      bmsConfig;
-    e_ride_bms_status_t      bmsStatus;
-    e_ride_bms_deep_status_t bmsDeepStatus;
-    e_ride_ps2_handle_t      ps2Handle;
+    e_ride_bms_config_t         bmsConfig;
+    e_ride_bms_status_t         bmsStatus;
+    e_ride_bms_deep_status_t    bmsDeepStatus;
+    e_ride_ps2_handle_t         ps2Handle;
 
-    e_ride_ble_config_t      bleCnfg;
-    bleCnfg.evtQueueLen      = 10;
+    e_ride_ble_config_t         bleCnfg;
+    e_ride_ble_app_t*           appSrvcList_p[] = APP_ALL_SRVC_LIST_P();
 
-    e_ride_ble_init(&bleCnfg);
     e_ride_bms_init_from_config_h(&bmsConfig);
     e_ride_ps2_init_from_config_h(&ps2Handle);
+    e_ride_ble_init(&bleCnfg);
+    e_ride_ble_register_apps((uint16_t) sizeof(appSrvcList_p) / sizeof(appSrvcList_p[0]), appSrvcList_p);
 
 
     printf("-----------------------------\n");
@@ -119,6 +122,9 @@ void app_main()
         uint8_t byte = cmdList[i];
         e_ride_ps2_send_byte(&ps2Handle, byte);
         e_ride_ps2_await_byte(&ps2Handle, &byte, 100);
+
+        if (byte != 0xFA)
+            return;
     }
 
     e_ride_ps2_mvmnt_t trckMvmnt;

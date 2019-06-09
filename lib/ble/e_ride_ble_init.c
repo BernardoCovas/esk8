@@ -2,31 +2,24 @@
 #include <e_ride_err.h>
 #include <e_ride_ble.h>
 
+#include <esp_log.h>
 #include <esp_bt.h>
 #include <esp_bt_main.h>
 #include <esp_gap_ble_api.h>
 #include <esp_gatts_api.h>
 #include <nvs_flash.h>
 
-
-#include <freertos/FreeRTOS.h>
-#include <freertos/semphr.h>
-
 #include <string.h>
 #include <stddef.h>
 
 
-static uint8_t adv_service_uuid128[32] = {
-    0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0xEE, 0x00, 0x00, 0x00,
-    0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00,
-};
-
-
-static esp_ble_adv_params_t adv_Params = {
+static esp_ble_adv_params_t adv_params = {
     .adv_int_min        = 0x20,
     .adv_int_max        = 0x40,
     .adv_type           = ADV_TYPE_IND,
     .own_addr_type      = BLE_ADDR_TYPE_PUBLIC,
+//  .peer_addr          = {0},
+//  .peer_addr_type     = 0,
     .channel_map        = ADV_CHNL_ALL,
     .adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
@@ -36,33 +29,16 @@ static esp_ble_adv_data_t adv_data = {
     .set_scan_rsp = false,
     .include_name = true,
     .include_txpower = true,
-    .min_interval = 0x0006, //slave connection min interval, Time = min_interval * 1.25 msec
-    .max_interval = 0x0010, //slave connection max interval, Time = max_interval * 1.25 msec
-    .appearance = 0x00,
-    .manufacturer_len = 0, //TEST_MANUFACTURER_DATA_LEN,
-    .p_manufacturer_data =  NULL, //&test_manufacturer[0],
-    .service_data_len = 0,
-    .p_service_data = NULL,
-    .service_uuid_len = sizeof(adv_service_uuid128),
-    .p_service_uuid = adv_service_uuid128,
-    .flag = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT),
-};
-
-
-static esp_ble_adv_data_t scan_rsp_data = {
-    .set_scan_rsp = true,
-    .include_name = true,
-    .include_txpower = true,
     .min_interval = 0x0006,
     .max_interval = 0x0010,
     .appearance = 0x00,
     .manufacturer_len = 0,
-    .p_manufacturer_data = NULL,
+    .p_manufacturer_data =  NULL,
     .service_data_len = 0,
     .p_service_data = NULL,
-    .service_uuid_len = sizeof(adv_service_uuid128),
-    .p_service_uuid = adv_service_uuid128,
-    .flag = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT),
+    .service_uuid_len = 0,
+    .p_service_uuid = NULL,
+    .flag = NULL,
 };
 
 
@@ -142,10 +118,9 @@ e_ride_err_t e_ride_ble_init(
     ESP_ERROR_CHECK(    esp_bluedroid_enable()                                      );
 
     ESP_ERROR_CHECK(    esp_ble_gap_register_callback(e_ride_gap_event_hndlr)       );
-    ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(e_ride_gatts_event_hndlr)   );
     ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(E_RIDE_BLE_DEV_NAME)            );
+    ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(e_ride_gatts_event_hndlr)   );
     ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&adv_data)                      );
-    ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&scan_rsp_data)                 );
 
     return E_RIDE_SUCCESS;
 }
@@ -155,9 +130,6 @@ e_ride_err_t e_ride_ble_close()
 {
     if (!bleHandler.p_appList)
         return E_RIDE_SUCCESS;
-
-    if (bleHandler.charSmph)
-        vSemaphoreDelete(bleHandler.charSmph);
 
     for (uint16_t i=0; i<bleHandler.appNum; i++)
         esp_ble_gatts_app_unregister(i);
@@ -196,23 +168,18 @@ e_ride_err_t e_ride_ble_register_apps(
     /**
      * Allocate app list.
      */
-    e_ride_ble_app_t** appList = calloc(numApps, sizeof(e_ride_ble_app_t));
-    if (!appList)
+    bleHandler.p_appList = calloc(numApps, sizeof(void*));
+    if (!bleHandler.p_appList)
         return E_RIDE_ERR_OOM;
 
-    vSemaphoreCreateBinary(bleHandler.charSmph);
-    if (!bleHandler.charSmph)
-    {
-        e_ride_ble_close();
-        return E_RIDE_ERR_OOM;
-    }
+    bleHandler.appNum = numApps;
 
     /**
      * Copy all the app's addresses to the bleHandler.
      * They are assumed to last for the time ble is
      * running.
      * */
-    memcpy((void*)bleHandler.p_appList, (void*)appList, sizeof(e_ride_ble_app_t*) * numApps);
+    memcpy((void*)bleHandler.p_appList, (void*)p_appList, sizeof(e_ride_ble_app_t*) * numApps);
 
     /**
      * Register the apps with ble.
@@ -241,6 +208,9 @@ void e_ride_gatts_event_hndlr(
 
     switch (event)
     {
+        /**
+         * Register an app.
+         */
         case ESP_GATTS_REG_EVT:
         {
             appId = param->reg.app_id;
@@ -251,89 +221,80 @@ void e_ride_gatts_event_hndlr(
              * the index is unexpected.
              */
             if (appId > bleHandler.appNum)
+            {
+                ESP_LOGE(__func__, "App id was %d, but there are %d apps.", appId, bleHandler.appNum);
                 return;
+            }
 
             /**
              * The handler is the interface associated
              * with the app.
              */
             bleApp = bleHandler.p_appList[appId];
-            bleApp->app_appHndl = appId;
+            bleApp->app_appHndl = gatts_if;
 
-            /*               | Service Handler         | Char, char value and char descriptor handle    */
-            /*               V                         V                                                */
+            /*               | Service Handler         | Char, char value and char descriptor handle.   */
+            /*               V                         V One of each per BLE char.                      */
             int numHandles = 1 + bleApp->app_numChar * 3;
             esp_ble_gatts_create_service(
-                gatts_if, &bleApp->app_serviceId, numHandles);
+                gatts_if, bleApp->app_serviceId_p, numHandles);
 
         }
         break;
 
+        /**
+         * Service was created. Start it, and then
+         * create it's BLE chars.
+         */
         case ESP_GATTS_CREATE_EVT:
-            /* TODO */
+        {
+            esp_ble_gatts_start_service(param->create.service_handle);
+
             bleApp = e_ride_ble_get_app_from_if(gatts_if);
 
             if (!bleApp)
-                return;
-
-            /**
-             * Add every ble char.
-             */
-            e_ride_ble_char_t* bleChar;
-            for (int i=0; i<bleApp->app_numChar; i++)
             {
-                bleChar = bleApp->app_charList_p[i];
-
-                /**
-                 * Wait for char to be registered,
-                 * if it is not the first.
-                 */
-                if (i && xSemaphoreTake(bleHandler.charSmph, portMAX_DELAY) != pdTRUE) 
-                    return;
-
-                esp_ble_gatts_add_char(
-                    param->create.service_handle,
-                    &bleChar->char_uuid,
-                    &bleChar->char_perm,
-                    &bleChar->char_prop,
-                    &bleChar->char_val,
-                    &bleChar->char_ctrl);
+                ESP_LOGE(__func__, "No app for gatts interface %d", gatts_if);
+                return;
             }
 
-            break;
+            /**
+             * Add every BLE char.
+             */
+            e_ride_ble_char_t* bleChar_p;
+            for (int i=0; i<bleApp->app_numChar; i++)
+            {
+                bleChar_p = bleApp->app_charList_p[i];
 
-        case ESP_GATTS_ADD_CHAR_EVT:
-            xSemaphoreGive(bleHandler.charSmph);
-            /* TODO */
-            break;
+                ESP_LOGD(__func__, "Adding char %d from app '%s'", i, bleApp->app_serviceName);
 
-        case ESP_GATTS_WRITE_EVT:
-            /* TODO */
-            break;
+                ESP_ERROR_CHECK(esp_ble_gatts_add_char(
+                    param->create.service_handle,
+                    &bleChar_p->char_uuid,
+                    bleChar_p->char_perm,
+                    bleChar_p->char_prop,
+                    &bleChar_p->char_val,
+                    &bleChar_p->char_ctrl));
+            }
 
-        case ESP_GATTS_READ_EVT:
-            /* TODO */
+        }
             break;
 
         case ESP_GATTS_CONNECT_EVT:
-            /**
-             * Esp stops advertising.
-             * This restarts it.
-             */
-            esp_ble_gap_start_advertising(&adv_Params);
+            ESP_ERROR_CHECK(esp_ble_gap_start_advertising(&adv_params));
             break;
 
         default:
-            return;
+            break;
     }
 
     /**
      * Find which app this event is meant to,
      * and jump to it's event function.
      */
-    e_ride_ble_app_t* app = e_ride_ble_get_app_from_if(gatts_if);
-    if (app && app->app_evtFunc)
-        app->app_evtFunc(&bleNotif);
+    bleApp = e_ride_ble_get_app_from_if(gatts_if);
+    if (bleApp && bleApp->app_evtFunc)
+        bleApp->app_evtFunc(&bleNotif);
 }
 
 
@@ -346,12 +307,10 @@ void e_ride_gap_event_hndlr(
 {
     switch (event)
     {
-        case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
-            esp_ble_gap_start_advertising(&adv_Params);
+        case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
+            ESP_ERROR_CHECK(esp_ble_gap_start_advertising(&adv_params));
             break;
         default:
             break;
     }
-
-    printf("[ E_Ride ble gap ] Got event: 0x%02x\n", event);
 }
