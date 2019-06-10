@@ -81,7 +81,7 @@ e_ride_ble_app_t* e_ride_ble_get_app_from_if(
 )
 {
     for (int i=0; i<bleHandler.appNum; i++)
-        if (bleHandler.p_appList[i]->app_appHndl == gatts_if)
+        if (bleHandler.p_appList[i]->_app_appHndl == gatts_if)
             return bleHandler.p_appList[i];
 
     return NULL;
@@ -199,8 +199,7 @@ void e_ride_gatts_event_hndlr(
 
 )
 {
-    uint16_t appId;
-    e_ride_ble_app_t*  bleApp;
+    e_ride_ble_app_t*  bleApp = e_ride_ble_get_app_from_if(gatts_if);
     e_ride_ble_notif_t bleNotif = {
         .event = event,
         .param = param
@@ -213,7 +212,7 @@ void e_ride_gatts_event_hndlr(
          */
         case ESP_GATTS_REG_EVT:
         {
-            appId = param->reg.app_id;
+            uint16_t appId = param->reg.app_id;
 
             /**
              * The app id is the index.
@@ -222,7 +221,7 @@ void e_ride_gatts_event_hndlr(
              */
             if (appId > bleHandler.appNum)
             {
-                ESP_LOGE(__func__, "App id was %d, but there are %d apps.", appId, bleHandler.appNum);
+                ESP_LOGE("APP_REGISTER", "App id was %d, but there are %d apps.", appId, bleHandler.appNum);
                 return;
             }
 
@@ -231,57 +230,54 @@ void e_ride_gatts_event_hndlr(
              * with the app.
              */
             bleApp = bleHandler.p_appList[appId];
-            bleApp->app_appHndl = gatts_if;
+            bleApp->_app_appHndl = gatts_if;
 
-            /*               | Service Handler         | Char, char value and char descriptor handle.   */
-            /*               V                         V One of each per BLE char.                      */
-            int numHandles = 1 + bleApp->app_numChar * 3;
-            esp_ble_gatts_create_service(
-                gatts_if, bleApp->app_serviceId_p, numHandles);
+            ESP_ERROR_CHECK(esp_ble_gatts_create_attr_tab(
+                bleApp->attr_list,
+                gatts_if,
+                bleApp->attr_numAttr,
+                bleApp->app_srvcId
+            ));
 
+            break;
         }
-        break;
 
-        /**
-         * Service was created. Start it, and then
-         * create it's BLE chars.
-         */
-        case ESP_GATTS_CREATE_EVT:
+        case ESP_GATTS_CREAT_ATTR_TAB_EVT:
         {
-            esp_ble_gatts_start_service(param->create.service_handle);
-
-            bleApp = e_ride_ble_get_app_from_if(gatts_if);
+            if (param->add_attr_tab.status != ESP_OK)
+            {
+                ESP_LOGE("CREATE_TABLE", "Error creating table: %d", param->add_attr_tab.status);
+                break;
+            }
 
             if (!bleApp)
             {
-                ESP_LOGE(__func__, "No app for gatts interface %d", gatts_if);
-                return;
+                ESP_LOGE("CREATE_TABLE", "Table created but no app associated with gatts if: %d", gatts_if);
+                break;
             }
 
-            /**
-             * Add every BLE char.
-             */
-            e_ride_ble_char_t* bleChar_p;
-            for (int i=0; i<bleApp->app_numChar; i++)
+            if (param->add_attr_tab.num_handle != bleApp->attr_numAttr)
             {
-                bleChar_p = bleApp->app_charList_p[i];
-
-                ESP_LOGD(__func__, "Adding char %d from app '%s'", i, bleApp->app_serviceName);
-
-                ESP_ERROR_CHECK(esp_ble_gatts_add_char(
-                    param->create.service_handle,
-                    &bleChar_p->char_uuid,
-                    bleChar_p->char_perm,
-                    bleChar_p->char_prop,
-                    &bleChar_p->char_val,
-                    &bleChar_p->char_ctrl));
+                ESP_LOGE("CREATE_TABLE",
+                    "Table created but the returned number of handles is %d. Expected %d instead.",
+                    param->add_attr_tab.num_handle,
+                    bleApp->attr_numAttr
+                );
+                break;
             }
 
-        }
+            memcpy(bleApp->attr_hndlList, param->add_attr_tab.handles, bleApp->attr_numAttr * sizeof(uint16_t));
+
+            esp_ble_gatts_start_service(bleApp->attr_hndlList[0]); /* Service is idx 0 */
             break;
+        }
 
         case ESP_GATTS_CONNECT_EVT:
             ESP_ERROR_CHECK(esp_ble_gap_start_advertising(&adv_params));
+
+            if (bleApp)
+                bleApp->_app_connId = param->connect.conn_id;
+
             break;
 
         default:

@@ -13,8 +13,8 @@
 
 
 /* ========================================== PS2 Trackpad Configrations ================================= */
-#define E_RIDE_PS2_DATA_PIN                         GPIO_NUM_14
-#define E_RIDE_PS2_CLOCK_PIN                        GPIO_NUM_27
+#define E_RIDE_PS2_DATA_PIN                         GPIO_NUM_27
+#define E_RIDE_PS2_CLOCK_PIN                        GPIO_NUM_14
 #define E_RIDE_PS2_MOVEMENT_TIMEOUT_MS              5000            /* Ms between two movement packets to be considered a lost pkt sequence.    */
 #define E_RIDE_PS2_PACKET_TIMEOUT_MS                1               /* Ms between clock cycles to be considered a lost packet.                  */
 #define E_RIDE_PS2_BIT_QUEUE_LENGTH                 1024            /* Number of bits a queue can handle. A 'bit' is actually a bool.           */

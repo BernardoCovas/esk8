@@ -23,9 +23,19 @@ typedef struct
 
 
 /**
- * Function called for every enent.
+ * Function called for every event.
  */
 typedef void(*e_ride_ble_evt_cb_t)(e_ride_ble_notif_t* evtNotif);
+
+
+typedef struct
+{
+    uint16_t                desc_hndl;
+    esp_bt_uuid_t           desc_uuid;
+    esp_gatt_perm_t         desc_perm;
+    esp_attr_value_t        desc_val;
+    esp_attr_control_t      desc_ctrl;
+} e_ride_ble_char_desc_t;
 
 
 typedef struct
@@ -36,30 +46,39 @@ typedef struct
     esp_gatt_char_prop_t    char_prop;
     esp_attr_control_t      char_ctrl;
     esp_attr_value_t        char_val;
+    e_ride_ble_char_desc_t* char_desc_p;
 } e_ride_ble_char_t;
 
-typedef struct
-{
-    uint16_t        svc_hndl;
-    esp_gatt_id_t   srv_gattId;
-} e_ride_ble_service_t;
+
+/**
+ * Function used to get the char by
+ * char_handle.
+ */
+typedef e_ride_ble_char_t* (*e_ride_ble_app_get_char_t)(uint16_t char_handle);
 
 
-typedef struct
+typedef struct 
 {
-    char*                 app_serviceName;
-    esp_gatt_srvc_id_t*   app_serviceId_p;
-    e_ride_ble_char_t**   app_charList_p;
-    uint8_t               app_numChar;
-    e_ride_ble_evt_cb_t   app_evtFunc;
-    uint16_t              app_appHndl;
-} e_ride_ble_app_t;
+    const char*                 app_serviceName;
+    uint16_t                    _app_appHndl;
+    uint16_t                    _app_connId;
+
+    esp_gatts_attr_db_t*        attr_list;
+    uint16_t*                   attr_hndlList;
+    uint8_t                     attr_numAttr;
+
+    e_ride_ble_evt_cb_t         app_evtFunc;
+    uint8_t                     app_srvcId;
+
+}
+e_ride_ble_app_t;
 
 
 typedef struct
 {
     void* dummy;
-} e_ride_ble_config_t;
+}
+e_ride_ble_config_t;
 
 
 typedef struct

@@ -10,19 +10,64 @@
 #include <stdint.h>
 #include <stdio.h>
 
+void ps2_task()
+{
+    e_ride_ps2_handle_t         ps2Handle;
+    e_ride_ps2_init_from_config_h(&ps2Handle);
+
+    printf("-----------------------------\n");
+    printf("Listening to PS2 with PWM...\n");
+    printf("-----------------------------\n");
+
+    e_ride_pwm_config_t pwm_Config;
+    e_ride_pwm_sgnl_init(&pwm_Config);
+
+    uint8_t cmdList[] = {
+        0xF4
+    };
+    
+    for (int i=0; i<sizeof(cmdList); i++)
+    {
+        uint8_t byte = cmdList[i];
+        e_ride_ps2_send_byte(&ps2Handle, byte);
+        e_ride_ps2_await_byte(&ps2Handle, &byte, 100);
+    }
+
+    e_ride_ps2_mvmnt_t trckMvmnt;
+
+    int speed = 0;
+    while(1)
+    {
+        if (e_ride_ps2_await_mvmnt(&ps2Handle, &trckMvmnt) != E_RIDE_SUCCESS)
+        {
+            printf("[ PS2 ]TIMEOUT%40s\n", "");
+            continue;
+        }
+
+        if (trckMvmnt.lftBtn)
+            speed = 0;
+
+        speed += trckMvmnt.x;
+        speed = speed>255?255:speed;
+        speed = speed<  0?  0:speed;
+
+        printf("[ PS2 ] Speed: %03d, X: %d %40s\n", speed, trckMvmnt.x, "");
+        e_ride_pwm_sgnl_set(&pwm_Config, (uint8_t) speed);
+        app_srvc_status_update_speed((uint8_t)speed);
+    }
+
+}
 
 void app_main()
 {
     e_ride_bms_config_t         bmsConfig;
     e_ride_bms_status_t         bmsStatus;
     e_ride_bms_deep_status_t    bmsDeepStatus;
-    e_ride_ps2_handle_t         ps2Handle;
 
     e_ride_ble_config_t         bleCnfg;
     e_ride_ble_app_t*           appSrvcList_p[] = APP_ALL_SRVC_LIST_P();
 
     e_ride_bms_init_from_config_h(&bmsConfig);
-    e_ride_ps2_init_from_config_h(&ps2Handle);
     e_ride_ble_init(&bleCnfg);
     e_ride_ble_register_apps((uint16_t) sizeof(appSrvcList_p) / sizeof(appSrvcList_p[0]), appSrvcList_p);
 
@@ -103,49 +148,8 @@ void app_main()
         }
     }
 
-
-    printf("-----------------------------\n");
-    printf("Listening to PS2 with PWM...\n");
-    printf("-----------------------------\n");
-
-    e_ride_pwm_config_t pwm_Config;
-    e_ride_pwm_sgnl_init(&pwm_Config);
-
-    uint8_t cmdList[] = {
-        0xF3,
-        200,
-        0xF4
-    };
-    
-    for (int i=0; i<sizeof(cmdList); i++)
-    {
-        uint8_t byte = cmdList[i];
-        e_ride_ps2_send_byte(&ps2Handle, byte);
-        e_ride_ps2_await_byte(&ps2Handle, &byte, 100);
-
-        if (byte != 0xFA)
-            return;
-    }
-
-    e_ride_ps2_mvmnt_t trckMvmnt;
-
-    int speed = 0;
-    while(1)
-    {
-        if (e_ride_ps2_await_mvmnt(&ps2Handle, &trckMvmnt) != E_RIDE_SUCCESS)
-        {
-            printf("[ PS2 ]TIMEOUT%40s\n", "");
-            continue;
-        }
-
-        if (trckMvmnt.lftBtn)
-            speed = 0;
-
-        speed += trckMvmnt.x;
-        speed = speed>255?255:speed;
-        speed = speed<  0?  0:speed;
-
-        printf("[ PS2 ] Speed: %03d %40s\n", speed, "");
-        e_ride_pwm_sgnl_set(&pwm_Config, (uint8_t) speed);
-    }
+    xTaskCreatePinnedToCore(
+        ps2_task,
+        "ps2_task",
+        2048, NULL, 1, NULL, 1);
 }
