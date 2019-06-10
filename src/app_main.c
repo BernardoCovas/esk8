@@ -148,6 +148,13 @@ void app_main()
         }
     }
 
+    /**
+     * The bluetooth stack seems
+     * to either take priority over our
+     * ISR's, or absolutely devour the
+     * available CPU time. We can't have
+     * ps2 and BLE on the same core.
+     */
     xTaskCreatePinnedToCore(
         ps2_task,
         "ps2_task",
