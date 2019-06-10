@@ -20,7 +20,7 @@ e_ride_err_t e_ride_ps2_await_mvmnt(
         if(errCode != E_RIDE_SUCCESS)
             return errCode;
 
-        timeOut_ms = 50;
+        timeOut_ms = E_RIDE_PS2_MOVEMENT_BYTE_TIMEOUT_MS;
     }
 
     bool sX, sY;
