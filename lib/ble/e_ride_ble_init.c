@@ -272,8 +272,11 @@ void e_ride_gatts_event_hndlr(
             break;
         }
 
-        case ESP_GATTS_CONNECT_EVT:
+        case ESP_GATTS_DISCONNECT_EVT:
             ESP_ERROR_CHECK(esp_ble_gap_start_advertising(&adv_params));
+            break;
+
+        case ESP_GATTS_CONNECT_EVT:
 
             if (bleApp)
                 bleApp->_app_connId = param->connect.conn_id;
