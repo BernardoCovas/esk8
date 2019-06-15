@@ -25,7 +25,7 @@ void ps2_task()
     uint8_t cmdList[] = {
         0xF4
     };
-    
+
     for (int i=0; i<sizeof(cmdList); i++)
     {
         uint8_t byte = cmdList[i];
@@ -100,13 +100,13 @@ void app_main()
 
         if (errCodeDS == E_RIDE_SUCCESS)
         {
-            printf( "(BMS Deep Status) Got Deep status:\n" 
+            printf( "(BMS Deep Status) Got Deep status:\n"
                     "   Serial Number: ");
             for (int i=0; i<14; i++)
             {
                 printf(i<13?"%d-":"%d\n", bmsDeepStatus.serialNumber[i]);
-            }  
-        
+            }
+
             printf( "   Firmware Version: %d\n"
                     "   Factory Capacity: %d\n"
                     "   Actual capacity: %d\n"

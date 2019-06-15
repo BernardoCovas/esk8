@@ -3,6 +3,7 @@
 #include <e_ride_bms.h>
 
 #include <driver/uart.h>
+#include <driver/gpio.h>
 
 
 e_ride_err_t e_ride_bms_init_from_config_h(

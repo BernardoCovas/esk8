@@ -1,9 +1,10 @@
-
-# IDE folders and files
-
-.pio
-.pioenvs
-.piolibdeps
-.vscode
+# ide
 .vs
-CppProperties.json
+.vscode
+
+# build
+build
+
+# esp-idf
+sdkconfig
+main/sdkconfig.h

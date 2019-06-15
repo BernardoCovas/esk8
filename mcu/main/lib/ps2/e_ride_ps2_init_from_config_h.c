@@ -2,6 +2,9 @@
 #include <e_ride_err.h>
 #include <e_ride_ps2.h>
 
+#include <driver/gpio.h>
+
+
 e_ride_err_t e_ride_ps2_init_from_config_h(
 
     e_ride_ps2_handle_t* ps2Handle

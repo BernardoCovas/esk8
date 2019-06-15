@@ -1,6 +1,6 @@
 #include <e_ride_config.h>
 #include <e_ride_err.h>
-#include "e_ride_ps2.h"
+#include <e_ride_ps2.h>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
