@@ -61,15 +61,11 @@ void ps2_task()
     e_ride_pwm_config_t pwm_Config;
     e_ride_pwm_sgnl_init(&pwm_Config);
 
-    uint8_t cmdList[] = {
-        0xF4
-    };
-
-    for (int i=0; i<sizeof(cmdList); i++)
+    e_ride_err_t errCode = e_ride_ps2_send_cmd(&ps2Handle, E_RIDE_PS2_CMD_DATA_ENABLE, 1000);
+    if (errCode)
     {
-        uint8_t byte = cmdList[i];
-        e_ride_ps2_send_byte(&ps2Handle, byte);
-        e_ride_ps2_await_byte(&ps2Handle, &byte, 100);
+        printf("[ PS2 ] Got err: %d at init.\n", errCode);
+        return;
     }
 
     e_ride_ps2_mvmnt_t trckMvmnt;
@@ -77,17 +73,18 @@ void ps2_task()
     int speed = 0;
     while(1)
     {
-        if (e_ride_ps2_await_mvmnt(&ps2Handle, &trckMvmnt) != E_RIDE_SUCCESS)
+        errCode = e_ride_ps2_await_mvmnt(&ps2Handle, &trckMvmnt);
+        if (errCode != E_RIDE_SUCCESS)
         {
-            printf("[ PS2 ]TIMEOUT%40s\n", "");
+            printf("[ PS2 ] Got err: %s\n", e_ride_err_to_str(errCode));
 
             /**
              * For good measure let's enable the
              * PS2 device again. It might have disconnected.
              */
-            uint8_t _dummy;
-            e_ride_ps2_send_byte(&ps2Handle, 0xF4);
-            e_ride_ps2_await_byte(&ps2Handle, &_dummy, 100);
+            errCode = e_ride_ps2_send_cmd(&ps2Handle, E_RIDE_PS2_CMD_DATA_ENABLE, 100);
+            if (errCode)
+                printf("[ PS2 ] Got err: %s\n", e_ride_err_to_str(errCode));
 
             continue;
         }
@@ -100,10 +97,11 @@ void ps2_task()
         speed = speed<  0?  0:speed;
 
         printf("[ PS2 ] Speed: %03d, X: %d %40s\n", speed, trckMvmnt.x, "");
+
         e_ride_pwm_sgnl_set(&pwm_Config, (uint8_t) speed);
         app_srvc_status_update_speed((uint8_t)speed);
-    }
 
+    }
 }
 
 void app_main()

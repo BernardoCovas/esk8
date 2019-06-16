@@ -4,8 +4,7 @@
 
 e_ride_err_t e_ride_status_init(
 
-    e_ride_status_t* status,
-
+    e_ride_status_t* status
 
 )
 {
