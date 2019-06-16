@@ -8,7 +8,7 @@
 #include <driver/uart.h>
 
 
-typedef struct
+typedef struct __attribute__((__packed__))
 {
     uint16_t capacity;
     uint16_t voltage;
@@ -18,7 +18,7 @@ typedef struct
 } e_ride_bms_status_t;
 
 
-typedef struct
+typedef struct __attribute__((__packed__))
 {
     uint8_t  serialNumber[14];
     uint16_t firmwareVersion;
