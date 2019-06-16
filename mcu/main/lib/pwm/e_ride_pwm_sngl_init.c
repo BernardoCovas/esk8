@@ -30,7 +30,7 @@ e_ride_err_t e_ride_pwm_sgnl_init(
     c_Config.timer_sel  = E_RIDE_PWM_TIMER_NUM;
     c_Config.hpoint     = 0;
 
-    if(ledc_channel_config(&c_Config) != E_RIDE_SUCCESS)
+    if(ledc_channel_config(&c_Config) != ESP_OK)
         return E_RIDE_ERR_INVALID_PARAM;
 
     if (out_cnfg)
