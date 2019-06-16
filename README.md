@@ -172,7 +172,6 @@ Most important maybe are the BMS and PS2 Config, more specifically:
 
 ## BMS
 
-So here is the deal.
 If you have 1 BMS, you need 2 GPIOS.  
 For more than 2 BMS, you can actually use one TX GPIO for multiple  
 BMS's, and so you can repeat this same value for the config value.
