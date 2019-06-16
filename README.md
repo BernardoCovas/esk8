@@ -5,9 +5,9 @@ As of now this is a somewhat useful app for the ESP32 SoC, paired with a
 companion Android app.  
 
 The main objective is to serve as a complete electric transport manager.  
-It manages the batteries, controls the speed and serves as a BLE server.  
+It manages all the BMS, controls the speed and serves as a BLE server.  
   
-It supports the PS2 protocol, allowing you to use any ps2 trackpad to controll  
+It supports the PS2 protocol, allowing you to use any ps2 trackpad to control  
 the device.  
 
 It supports the entire UART protocol for the Ninebot es1/2/3/4 scooters, allowing you  
