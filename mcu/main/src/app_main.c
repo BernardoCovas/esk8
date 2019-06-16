@@ -31,10 +31,10 @@ void status_task()
             e_ride_err_t errCodeDS = e_ride_bms_get_deep_status(&bmsConfig, &bmsDeepStatus);
 
             if (errCodeS)
-                printf("[BMS] Got error: %s reading BMS status at index: %d.\n",
+                printf("[ BMS ] Got error: %s reading BMS status at index: %d.\n",
                     e_ride_err_to_str(errCodeS), i);
             if (errCodeDS)
-                printf("[BMS] Got error: %s reading BMS deep status at index: %d.\n",
+                printf("[ BMS ] Got error: %s reading BMS deep status at index: %d.\n",
                     e_ride_err_to_str(errCodeDS), i);
 
             app_srvc_status_update_bms_shallow(errCodeS, i, &bmsStatus);
