@@ -31,9 +31,9 @@ typedef struct __attribute__((__packed__))
     uint16_t chargeCount;
     uint16_t packHeath_prc;
     uint16_t cellVoltage_mV[10];
-    bool     isCharging;
-    bool     isOverVoltage;
-    bool     isOverHeat;
+    uint8_t  isCharging;
+    uint8_t  isOverVoltage;
+    uint8_t  isOverHeat;
 } e_ride_bms_deep_status_t;
 
 
