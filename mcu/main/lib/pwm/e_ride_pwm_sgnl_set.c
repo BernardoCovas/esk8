@@ -11,8 +11,14 @@ e_ride_err_t e_ride_pwm_sgnl_set(
 
 )
 {
-    ledc_set_duty(pwm_Config->t_Config.speed_mode, pwm_Config->c_Config.channel, pwm_Val);
-    ledc_update_duty(pwm_Config->t_Config.speed_mode, pwm_Config->c_Config.channel);
+    esp_err_t errCode;
+    errCode = ledc_set_duty(pwm_Config->t_Config.speed_mode, pwm_Config->c_Config.channel, pwm_Val);
+    if (errCode != ESP_OK)
+        return E_RIDE_ERR_INVALID_PARAM;
+
+    errCode = ledc_update_duty(pwm_Config->t_Config.speed_mode, pwm_Config->c_Config.channel);
+    if (errCode != ESP_OK)
+        return E_RIDE_ERR_INVALID_PARAM;
 
     return E_RIDE_SUCCESS;
 }
