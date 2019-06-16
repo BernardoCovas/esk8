@@ -25,6 +25,7 @@ typedef enum e_ride_err_t
     E_RIDE_PS2_ERR_VALUE_READY,
     E_RIDE_PS2_ERR_INVALID_STATE,
     E_RIDE_PS2_ERR_TIMEOUT,
+    E_RIDE_PS2_ERR_NO_ACK,                  /* Device has not ack the received command */
 
     /* E_Skate Ble*/
     E_RIDE_BLE_INIT_NOINIT,                 /* Not initialized */
