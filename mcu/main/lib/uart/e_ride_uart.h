@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 
-#define E_RIDE_UART_CONFIG_DEFAULT_ESP32()     \
+#define E_RIDE_UART_CONFIG_DEFAULT_ESP32()      \
 {                                               \
     .baud_rate = 115200,                        \
     .data_bits = UART_DATA_8_BITS,              \

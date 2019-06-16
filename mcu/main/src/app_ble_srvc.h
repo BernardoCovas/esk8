@@ -2,10 +2,12 @@
 #define _APP_BLE_SRVC
 
 #include <e_ride_ble.h>
+#include <e_ride_bms.h>
+
 
 extern e_ride_ble_app_t app_srvc_status;
 
-#define APP_ALL_SRVC_LIST_P() { &app_srvc_status}
+#define APP_ALL_SRVC_LIST_P() { &app_srvc_status }
 
 
 /**
@@ -21,14 +23,37 @@ void app_srvc_status_update_speed(
 
 
 /**
- * Updates the internal battery value
+ * Updates the internal status
  * that is used as response to
- * the battery characteristic.
+ * the shallow bms status characteristic.
+ * Also, if a connection is active
+ * with notify enabled, this will
+ * send a notification with the error code
+ * so the client can pull the data.
  */
-void app_srvc_status_update_battery(
+e_ride_err_t app_srvc_status_update_bms_shallow(
 
-    uint8_t*    batVals,
-    uint8_t     numBat
+    e_ride_err_t            bmsErrCode,
+    uint16_t                bmsIndex,
+    e_ride_bms_status_t*    bmsStatus
+
+);
+
+
+/**
+ * Updates the internal status
+ * that is used as response to
+ * the deep bms status characteristic.
+ * Also, if a connection is active
+ * with notify enabled, this will
+ * send a notification with the error code
+ * so the client can pull the data.
+ */
+e_ride_err_t app_srvc_status_update_bms_deep(
+
+    e_ride_err_t                bmsErrCode,
+    uint16_t                    bmsIndex,
+    e_ride_bms_deep_status_t*   bmsStatus
 
 );
 
