@@ -10,6 +10,45 @@
 #include <stdint.h>
 #include <stdio.h>
 
+void status_task()
+{
+    e_ride_bms_status_t         bmsStatus       = {0};
+    e_ride_bms_deep_status_t    bmsDeepStatus   = {0};
+    e_ride_bms_config_t         bmsConfig;
+    e_ride_bms_init_from_config_h(&bmsConfig);
+
+    printf("-----------------------------\n");
+    printf("Listening to BMS...\n");
+    printf("-----------------------------\n");
+
+
+    while(true)
+    {
+        for (int i=0; i<E_RIDE_UART_BMS_CONF_NUM; i++)
+        {
+            e_ride_bms_set_rx(&bmsConfig, i);
+            e_ride_err_t errCodeS = e_ride_bms_get_status(&bmsConfig, &bmsStatus);
+            e_ride_err_t errCodeDS = e_ride_bms_get_deep_status(&bmsConfig, &bmsDeepStatus);
+
+            if (errCodeS)
+                printf("[BMS] Got error: %s reading BMS status at index: %d.\n",
+                    e_ride_err_to_str(errCodeS), i);
+            if (errCodeDS)
+                printf("[BMS] Got error: %s reading BMS deep status at index: %d.\n",
+                    e_ride_err_to_str(errCodeDS), i);
+
+            app_srvc_status_update_bms_shallow(errCodeS, i, &bmsStatus);
+            app_srvc_status_update_bms_deep(errCodeDS, i, &bmsDeepStatus);
+
+            /* We might wait quite a long time here */
+            vTaskDelay(10000 / portTICK_PERIOD_MS);
+        }
+
+    }
+
+}
+
+
 void ps2_task()
 {
     e_ride_ps2_handle_t         ps2Handle;
@@ -41,6 +80,15 @@ void ps2_task()
         if (e_ride_ps2_await_mvmnt(&ps2Handle, &trckMvmnt) != E_RIDE_SUCCESS)
         {
             printf("[ PS2 ]TIMEOUT%40s\n", "");
+
+            /**
+             * For good measure let's enable the
+             * PS2 device again. It might have disconnected.
+             */
+            uint8_t _dummy;
+            e_ride_ps2_send_byte(&ps2Handle, 0xF4);
+            e_ride_ps2_await_byte(&ps2Handle, &_dummy, 100);
+
             continue;
         }
 
@@ -60,93 +108,12 @@ void ps2_task()
 
 void app_main()
 {
-    e_ride_bms_config_t         bmsConfig;
-    e_ride_bms_status_t         bmsStatus;
-    e_ride_bms_deep_status_t    bmsDeepStatus;
-
     e_ride_ble_config_t         bleCnfg;
     e_ride_ble_app_t*           appSrvcList_p[] = APP_ALL_SRVC_LIST_P();
 
-    e_ride_bms_init_from_config_h(&bmsConfig);
     e_ride_ble_init(&bleCnfg);
     e_ride_ble_register_apps((uint16_t) sizeof(appSrvcList_p) / sizeof(appSrvcList_p[0]), appSrvcList_p);
 
-
-    printf("-----------------------------\n");
-    printf("Listening to BMS...\n");
-    printf("-----------------------------\n");
-
-
-    for (int i=0; i<bmsConfig.numBat; i++)
-    {
-        e_ride_bms_set_rx(&bmsConfig, i);
-        e_ride_err_t errCodeS = e_ride_bms_get_status(&bmsConfig, &bmsStatus);
-        e_ride_err_t errCodeDS = e_ride_bms_get_deep_status(&bmsConfig, &bmsDeepStatus);
-
-        if (errCodeS == E_RIDE_SUCCESS)
-        {
-            printf("(BMS Status) Got status: %.2fV, %d%%, %.2fA, %dºC, %dºC\n",
-                (double)    bmsStatus.voltage / 100,
-                (int)       bmsStatus.capacity,
-                (double)    bmsStatus.current / 100,
-                (int)       bmsStatus.temperature1 - 20,
-                (int)       bmsStatus.temperature2 - 20);
-        } else
-        {
-            printf("(BMS Status) Got error %d: %s.\n",
-                errCodeS,
-                e_ride_err_to_str(errCodeS));
-        }
-
-        if (errCodeDS == E_RIDE_SUCCESS)
-        {
-            printf( "(BMS Deep Status) Got Deep status:\n"
-                    "   Serial Number: ");
-            for (int i=0; i<14; i++)
-            {
-                printf(i<13?"%d-":"%d\n", bmsDeepStatus.serialNumber[i]);
-            }
-
-            printf( "   Firmware Version: %d\n"
-                    "   Factory Capacity: %d\n"
-                    "   Actual capacity: %d\n"
-                    "   Charge Full Cycles: %d\n"
-                    "   Charge Count: %d\n"
-                    "   Manufacture Date: %d\n"
-                    "   Cell 0 Voltage, mV: %d\n"
-                    "   Cell 1 Voltage, mV: %d\n"
-                    "   Cell 2 Voltage, mV: %d\n"
-                    "   Cell 3 Voltage, mV: %d\n"
-                    "   Cell 4 Voltage, mV: %d\n"
-                    "   Cell 5 Voltage, mV: %d\n"
-                    "   Cell 6 Voltage, mV: %d\n"
-                    "   Cell 7 Voltage, mV: %d\n"
-                    "   Cell 8 Voltage, mV: %d\n"
-                    "   Cell 9 Voltage, mV: %d\n",
-                    bmsDeepStatus.firmwareVersion,
-                    bmsDeepStatus.factoryCapacity_mAh,
-                    bmsDeepStatus.actualCapacity_mAh,
-                    bmsDeepStatus.chargeFullCycles,
-                    bmsDeepStatus.chargeCount,
-                    bmsDeepStatus.manufactureDate,
-                    bmsDeepStatus.cellVoltage_mV[0],
-                    bmsDeepStatus.cellVoltage_mV[1],
-                    bmsDeepStatus.cellVoltage_mV[2],
-                    bmsDeepStatus.cellVoltage_mV[3],
-                    bmsDeepStatus.cellVoltage_mV[4],
-                    bmsDeepStatus.cellVoltage_mV[5],
-                    bmsDeepStatus.cellVoltage_mV[6],
-                    bmsDeepStatus.cellVoltage_mV[7],
-                    bmsDeepStatus.cellVoltage_mV[8],
-                    bmsDeepStatus.cellVoltage_mV[9]
-                    );
-        } else
-        {
-            printf("(BMS Deep Status) Got error %d: %s.\n",
-                errCodeDS,
-                e_ride_err_to_str(errCodeDS));
-        }
-    }
 
     /**
      * The bluetooth stack seems
@@ -155,8 +122,6 @@ void app_main()
      * available CPU time. We can't have
      * ps2 and BLE on the same core.
      */
-    xTaskCreatePinnedToCore(
-        ps2_task,
-        "ps2_task",
-        2048, NULL, 1, NULL, 1);
+    xTaskCreatePinnedToCore(ps2_task, "ps2_task", 2048, NULL, 1, NULL, 1);
+    xTaskCreate(status_task, "status_task", 2048, NULL, 2, NULL);
 }
