@@ -11,6 +11,29 @@
 #include <stdint.h>
 
 
+typedef enum
+{
+    E_RIDE_PS2_CMD_RESET                    = 0xFF,
+    E_RIDE_PS2_CMD_RESEND                   = 0xFE,
+    E_RIDE_PS2_CMD_DATA_DISABLE             = 0xF5,
+    E_RIDE_PS2_CMD_DATA_ENABLE              = 0xF4,
+    E_RIDE_PS2_CMD_GET_DEV_ID               = 0xF2,
+    E_RIDE_PS2_CMD_GET_STATUS               = 0xE9,
+    E_RIDE_PS2_CMD_SET_DEFAULT              = 0xF6,
+    E_RIDE_PS2_CMD_SET_SMPL_RATE            = 0xF3,
+    E_RIDE_PS2_CMD_SET_MODE_STREAM          = 0xEA,
+    E_RIDE_PS2_CMD_SET_MODE_REMOTE          = 0xF0,
+    E_RIDE_PS2_CMD_SET_MODE_WRAP            = 0xEE,
+    E_RIDE_PS2_CMD_SET_MODE_NOWRAP          = 0xEC,
+    E_RIDE_PS2_CMD_SET_SCALE_2_1            = 0xE7,
+    E_RIDE_PS2_CMD_SET_SCALE_1_1            = 0xE6,
+    E_RIDE_PS2_CMD_SET_RESOLUTION           = 0xE8,
+    E_RIDE_PS2_CMD_MODE_REMOTE_DATA_READ    = 0xEB,
+
+    E_RIDE_PS2_RES_ACK                      = 0xFA
+} e_ride_ps2_cmd_t;
+
+
 typedef struct
 {
     uint8_t         clockPin;
@@ -141,15 +164,28 @@ e_ride_err_t e_ride_ps2_await_mvmnt(
 
 /**
  * Sends one byte of data to the
- * device. The host has priority
- * over the device, so this
- * function returns when
- * byte is ack.
+ * device.
  **/
 e_ride_err_t e_ride_ps2_send_byte(
 
     e_ride_ps2_handle_t* ps2Handle,
     uint8_t               byte
+
+);
+
+
+/**
+ * Sends the command to the
+ * device. The host has priority
+ * over the device, so this
+ * function returns when we receive
+ * a valid ack response.
+ **/
+e_ride_err_t e_ride_ps2_send_cmd(
+
+    e_ride_ps2_handle_t* ps2Handle,
+    e_ride_ps2_cmd_t     cmd,
+    int                  timeOut_ms
 
 );
 
