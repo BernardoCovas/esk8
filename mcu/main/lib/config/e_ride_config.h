@@ -6,9 +6,9 @@
 #define E_RIDE_UART_BMS_UPDATE_MS                   50
 #define E_RIDE_UART_BMS_MSG_UPDATE_RETRIES          3
 #define E_RIDE_UART_BMS_NUM                         UART_NUM_1
-#define E_RIDE_UART_BMS_TX                          GPIO_NUM_12
-#define E_RIDE_UART_BMS_TX_PINS                     { GPIO_NUM_25, GPIO_NUM_14, GPIO_NUM_4 , GPIO_NUM_5  }
+#define E_RIDE_UART_BMS_TX_PINS                     { GPIO_NUM_25, GPIO_NUM_25, GPIO_NUM_25, GPIO_NUM_25 }
 #define E_RIDE_UART_BMS_RX_PINS                     { GPIO_NUM_26, GPIO_NUM_12, GPIO_NUM_16, GPIO_NUM_18 }
+#define E_RIDE_UART_BMS_CONF_NUM                    4               /* Number of BMS configured                                                 */
 #define E_RIDE_UART_BMS_BUFF_SIZE                   1000
 
 

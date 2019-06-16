@@ -7,8 +7,10 @@
 
 
 e_ride_err_t e_ride_bms_set_rx(
+
     e_ride_bms_config_t* bmsConfig,
     uint8_t uartRxI
+
 )
 {
     if (uartRxI > bmsConfig->numBat)

@@ -9,8 +9,8 @@ e_ride_err_t get_data_with_response(
     e_ride_bms_config_t *bmsConfig,
     e_ride_uart_addr_t   dstAddr,
     e_ride_uart_reg_t    readReg,
-    size_t                readRegSize,
-    void                 *outValue
+    size_t               readRegSize,
+    void                *outValue
 
 );
 
