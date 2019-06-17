@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+
 void status_task()
 {
     e_ride_bms_status_t         bmsStatus       = {0};
@@ -51,15 +52,15 @@ void status_task()
 
 void ps2_task()
 {
-    e_ride_ps2_handle_t         ps2Handle;
+    e_ride_ps2_handle_t ps2Handle;
+    e_ride_pwm_config_t pwm_Config;
+
     e_ride_ps2_init_from_config_h(&ps2Handle);
+    e_ride_pwm_sgnl_init(&pwm_Config);
 
     printf("-----------------------------\n");
     printf("Listening to PS2 with PWM...\n");
     printf("-----------------------------\n");
-
-    e_ride_pwm_config_t pwm_Config;
-    e_ride_pwm_sgnl_init(&pwm_Config);
 
     e_ride_err_t errCode = e_ride_ps2_send_cmd(&ps2Handle, E_RIDE_PS2_CMD_DATA_ENABLE, 1000);
     if (errCode)
@@ -69,7 +70,6 @@ void ps2_task()
     }
 
     e_ride_ps2_mvmnt_t trckMvmnt;
-
     int speed = 0;
     while(1)
     {
@@ -112,14 +112,6 @@ void app_main()
     e_ride_ble_init(&bleCnfg);
     e_ride_ble_register_apps((uint16_t) sizeof(appSrvcList_p) / sizeof(appSrvcList_p[0]), appSrvcList_p);
 
-
-    /**
-     * The bluetooth stack seems
-     * to either take priority over our
-     * ISR's, or absolutely devour the
-     * available CPU time. We can't have
-     * ps2 and BLE on the same core.
-     */
-    xTaskCreatePinnedToCore(ps2_task, "ps2_task", 2048, NULL, 1, NULL, 1);
-    xTaskCreate(status_task, "status_task", 2048, NULL, 2, NULL);
+    xTaskCreate(ps2_task   , "ps2_task"   , 2048, NULL, 1, NULL);
+    xTaskCreate(status_task, "status_task", 2048, NULL, 1, NULL);
 }

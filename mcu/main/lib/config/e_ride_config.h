@@ -20,8 +20,8 @@
 #define E_RIDE_PS2_PACKET_TIMEOUT_MS                1               /* Ms between clock cycles to be considered a lost packet.                  */
 #define E_RIDE_PS2_BIT_QUEUE_LENGTH                 1024            /* Number of bits a queue can handle. A 'bit' is actually a bool.           */
 #define E_RIDE_PS2_BYTE_QUEUE_LENGTH                1024            /* Number of bytes a queue can handle. These are uint8_t's.                 */
-#define E_RIDE_PS2_RX_TASK_PRIORITY                 1
-#define E_RIDE_PS2_TX_TASK_PRIORITY                 1
+#define E_RIDE_PS2_RX_TASK_PRIORITY                 2
+#define E_RIDE_PS2_TX_TASK_PRIORITY                 2
 #define E_RIDE_PS2_TIMER_GROUP                      TIMER_GROUP_0
 #define E_RIDE_PS2_TIMER_IDX                        TIMER_0
 
