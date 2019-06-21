@@ -9,17 +9,17 @@
 #define SRVC_STATUS_NAME    "Status Service"
 
 
-static uint16_t SRVC_STATUS_UUID                = 0x5AA5;
+       uint16_t SRVC_STATUS_UUID                = 0x5AA5;
 
-static uint16_t SRVC_STATUS_SPEED_UUID          = 0x5A01;
+       uint16_t SRVC_STATUS_SPEED_UUID          = 0x5A01;
 static uint8_t  SRVC_STATUS_SPEED_VAL[1]        = {0};
 static uint16_t SRVC_STATUS_SPEED_DESC          = 0x0000;
 
-static uint16_t SRVC_STATUS_BMS_SHALLOW_UUID    = 0x5ABA;
+       uint16_t SRVC_STATUS_BMS_SHALLOW_UUID    = 0x5ABA;
 static uint8_t  SRVC_STATUS_BMS_SHALLOW_VAL[sizeof(e_ride_bms_status_t) * 4]    = {0};
 static uint16_t SRVC_STATUS_BMS_SHALLOW_DESC    = 0x0000;
 
-static uint16_t SRVC_STATUS_BMS_DEEP_UUID       = 0x5ABD;
+       uint16_t SRVC_STATUS_BMS_DEEP_UUID       = 0x5ABD;
 static uint8_t  SRVC_STATUS_BMS_DEEP_VAL[sizeof(e_ride_bms_deep_status_t) * 4]  = {0};
 static uint16_t SRVC_STATUS_BMS_DEEP_DESC       = 0x0000;
 

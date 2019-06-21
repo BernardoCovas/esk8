@@ -17,9 +17,12 @@ void signal_b_start(
 
     gpio_set_direction(c_pin, GPIO_MODE_OUTPUT);
     gpio_set_direction(d_pin, GPIO_MODE_OUTPUT);
+
     ps2Handle->ps2Config.dataDrctn = PS2_DIRCN_SEND;
+
     gpio_set_level(c_pin, 0);
     vTaskDelay(60 / portTICK_PERIOD_MS / 1000);
+
     gpio_set_intr_type(c_pin, GPIO_INTR_POSEDGE);
     gpio_set_direction(c_pin, GPIO_MODE_INPUT);
 }

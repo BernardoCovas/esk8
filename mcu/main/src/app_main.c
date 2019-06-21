@@ -16,10 +16,11 @@ void status_task()
     e_ride_bms_status_t         bmsStatus       = {0};
     e_ride_bms_deep_status_t    bmsDeepStatus   = {0};
     e_ride_bms_config_t         bmsConfig;
+
     e_ride_bms_init_from_config_h(&bmsConfig);
 
     printf("-----------------------------\n");
-    printf("Listening to BMS...\n");
+    printf("Listening to BMS...          \n");
     printf("-----------------------------\n");
 
 
@@ -59,7 +60,7 @@ void ps2_task()
     e_ride_pwm_sgnl_init(&pwm_Config);
 
     printf("-----------------------------\n");
-    printf("Listening to PS2 with PWM...\n");
+    printf("Listening to PS2 with PWM... \n");
     printf("-----------------------------\n");
 
     e_ride_err_t errCode = e_ride_ps2_send_cmd(&ps2Handle, E_RIDE_PS2_CMD_DATA_ENABLE, 1000);

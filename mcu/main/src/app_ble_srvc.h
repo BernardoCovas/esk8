@@ -5,9 +5,21 @@
 #include <e_ride_bms.h>
 
 
-extern e_ride_ble_app_t app_srvc_status;
+extern uint16_t SRVC_STATUS_UUID;
+extern uint16_t SRVC_STATUS_SPEED_UUID;
+extern uint16_t SRVC_STATUS_BMS_SHALLOW_UUID;
+extern uint16_t SRVC_STATUS_BMS_DEEP_UUID;
 
-#define APP_ALL_SRVC_LIST_P() { &app_srvc_status }
+extern uint16_t SRVC_CTRL_UUID;
+extern uint16_t SRVC_CTRL_SPEED_UUID;
+extern uint16_t SRVC_CTRL_PWR_UUID;
+
+
+extern e_ride_ble_app_t app_srvc_status;
+extern e_ride_ble_app_t app_srvc_ctrl;
+
+
+#define APP_ALL_SRVC_LIST_P() { &app_srvc_status, &app_srvc_ctrl }
 
 
 /**
