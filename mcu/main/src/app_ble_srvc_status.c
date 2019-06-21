@@ -27,7 +27,6 @@ static uint16_t SRVC_UUID_PRIMARY               = ESP_GATT_UUID_PRI_SERVICE;
 static uint16_t CHAR_UUID_DECLARE               = ESP_GATT_UUID_CHAR_DECLARE;
 static uint16_t CHAR_UUID_CONFIG                = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
 static uint8_t  CHAR_PROP_READ_NOTIFY           = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
-static uint8_t  CHAR_PROP_READ_INDICATE         = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_INDICATE;
 
 
 static void srvc_status_evt_cb(e_ride_ble_notif_t* bleNotif);
@@ -133,7 +132,7 @@ static esp_gatts_attr_db_t srvc_status_attr_list[] =
         {ESP_GATT_AUTO_RSP},
         {
             ESP_UUID_LEN_16, (uint8_t*)&CHAR_UUID_DECLARE, ESP_GATT_PERM_READ,
-            sizeof(uint8_t), sizeof(uint8_t), &CHAR_PROP_READ_INDICATE
+            sizeof(uint8_t), sizeof(uint8_t), &CHAR_PROP_READ_NOTIFY
         },
     },
 
