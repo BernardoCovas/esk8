@@ -31,24 +31,7 @@ static esp_ble_adv_data_t adv_data = {
     .include_txpower = true,
     .min_interval = 0x0006,
     .max_interval = 0x0010,
-    .appearance = 0x01,
-    .manufacturer_len = 0,
-    .p_manufacturer_data =  NULL,
-    .service_data_len = 0,
-    .p_service_data = NULL,
-    .service_uuid_len = 0,
-    .p_service_uuid = NULL,
-    .flag = 0,
-};
-
-
-static esp_ble_adv_data_t rsp_data = {
-    .set_scan_rsp = true,
-    .include_name = true,
-    .include_txpower = true,
-    .min_interval = 0x0006,
-    .max_interval = 0x0010,
-    .appearance = 0x01,
+    .appearance = ESP_BLE_APPEARANCE_GENERIC_PERSONAL_MOBILITY_DEVICE, /* Oh yes */
     .manufacturer_len = 0,
     .p_manufacturer_data =  NULL,
     .service_data_len = 0,
@@ -138,7 +121,6 @@ e_ride_err_t e_ride_ble_init(
     ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(E_RIDE_BLE_DEV_NAME)            );
     ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(e_ride_gatts_event_hndlr)   );
     ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&adv_data)                      );
-    ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&rsp_data)                      );
 
     return E_RIDE_SUCCESS;
 }

@@ -35,7 +35,7 @@
 
 
 /* ========================================== BLE Configurations ========================================= */
-#define E_RIDE_BLE_DEV_NAME                         "E_Ride"        /* Advertized device name                                                                                               */
+#define E_RIDE_BLE_DEV_NAME                         "Esk8"          /* Advertized device name                                                                                               */
 
 
 #endif  /* _E_RIDE_CONTROLLER_CONFIG_H */
