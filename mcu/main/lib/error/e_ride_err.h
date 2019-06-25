@@ -33,6 +33,13 @@ typedef enum e_ride_err_t
     E_RIDE_BLE_INIT_FAILED,
     E_RIDE_BLE_INIT_MAXREG,                 /* Maximum number of registed apps reached */
     E_RIDE_BLE_NOTF_TIMEOUT,
+
+    /* Esk8 NVS */
+    E_RIDE_NVS_NOT_INIT,                    /* NVS was not initialized */
+    E_RIDE_NVS_NOT_AVAILABLE,               /* Could not be initialized in any way. Probably broken */
+    E_RIDE_NVS_FULL,                        /* No space left on NVS */
+    E_RIDE_NVS_NO_SETTINGS,                 /* No settigs stored */
+    E_RIDE_NVS_WRONG_SIZE                   /* Stored value returned an unexpected size. Might also mean non existent value */
 } e_ride_err_t;
 
 
@@ -40,7 +47,7 @@ typedef enum e_ride_err_t
  * String representation of `errCode`.
  * If the error code is unkown,
  * returns "?".
- **/
+ */
 const char* e_ride_err_to_str(
 
     e_ride_err_t errCode
