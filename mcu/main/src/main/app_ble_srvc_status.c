@@ -1,6 +1,5 @@
 #include <e_ride_ble.h>
 #include <e_ride_bms.h>
-#include <e_ride_status.h>
 
 #include <app_ble_srvc.h>
 
