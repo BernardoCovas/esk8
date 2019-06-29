@@ -26,7 +26,7 @@ be as easy as:
 $ idf.py flash
 ```
 
-This is a CMake project, so make sure tu use the latest IDF and toolchain with CMake support.
+This is a CMake project, so make sure to use the latest IDF and toolchain with CMake support.
 
 ## BLE
 
