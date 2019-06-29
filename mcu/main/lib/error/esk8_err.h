@@ -1,6 +1,7 @@
 #ifndef _ESK8_ERR_H
 #define _ESK8_ERR_H
 
+#define ESK8_ERRCHECK_THROW(X) do { esk8_err_t __err_c = (X); if (__err_c) return __err_c; } while(0)
 
 typedef enum esk8_err_t
 {
@@ -33,6 +34,7 @@ typedef enum esk8_err_t
     ESK8_BLE_INIT_FAILED,
     ESK8_BLE_INIT_MAXREG,                 /* Maximum number of registed apps reached */
     ESK8_BLE_NOTF_TIMEOUT,
+    ESK8_BLE_FAILED_WL,
 
     /* Esk8 NVS */
     ESK8_NVS_NOT_INIT,                    /* NVS was not initialized */
