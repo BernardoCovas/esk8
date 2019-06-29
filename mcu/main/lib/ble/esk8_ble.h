@@ -69,14 +69,13 @@ typedef struct
 
     esk8_ble_evt_cb_t         app_evtFunc;
     uint8_t                     app_srvcId;
-
 }
 esk8_ble_app_t;
 
 
 typedef struct
 {
-    void* dummy;
+    bool  blck_conn;
 }
 esk8_ble_config_t;
 
@@ -132,6 +131,34 @@ esk8_err_t esk8_ble_app_evnt_await(
     uint32_t                 timeout_ms
 
 );
+
+
+/**
+ * If the config is set to restrict
+ * connections, this will allow them
+ * temporarily. If a connection is made
+ * during this time, the connection address
+ * is saved and only connection requests
+ * from this address are allowed.
+ *
+ * `timeout_ms`: If no connections are
+ * attempted in this ammount of time,
+ * cancel and relock.
+ */
+esk8_err_t esk8_ride_ble_conn_allow(
+
+    uint32_t timeout_ms
+
+);
+
+
+/**
+ * If the config is set to restrict
+ * connections and the system is
+ * currently allowing them, this
+ * will cancel and relock.
+ */
+esk8_err_t esk8_ble_conn_block();
 
 
 #endif /* _ESK8_BLE_H */

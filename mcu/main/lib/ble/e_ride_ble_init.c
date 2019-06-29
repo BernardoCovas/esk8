@@ -1,6 +1,7 @@
 #include <esk8_config.h>
 #include <esk8_err.h>
 #include <esk8_ble.h>
+#include <esk8_nvs.h>
 
 #include <esp_log.h>
 #include <esp_bt.h>
@@ -21,7 +22,7 @@ static esp_ble_adv_params_t adv_params = {
 //  .peer_addr          = {0},
 //  .peer_addr_type     = 0,
     .channel_map        = ADV_CHNL_ALL,
-    .adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
+    .adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_WLST,
 };
 
 
@@ -43,14 +44,14 @@ static esp_ble_adv_data_t adv_data = {
 
 
 /**
- * Global one and only BLE allocation.
+ * Global BLE allocation.
  */
 static esk8_ble_t bleHandler = {0};
 
 
-/**
- * 
- */
+esk8_err_t esk8_ble_conn_clear();
+
+
 void esk8_gatts_event_hndlr(
 
     esp_gatts_cb_event_t event,
@@ -60,9 +61,6 @@ void esk8_gatts_event_hndlr(
 );
 
 
-/**
- * 
- */
 void esk8_gap_event_hndlr(
 
     esp_gap_ble_cb_event_t  event,
@@ -71,9 +69,6 @@ void esk8_gap_event_hndlr(
 );
 
 
-/**
- *
- */
 esk8_ble_app_t* esk8_ble_get_app_from_if(
 
     uint16_t gatts_if
@@ -113,7 +108,7 @@ esk8_err_t esk8_ble_init(
     ESP_ERROR_CHECK(    esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)       );
     ESP_ERROR_CHECK(    esp_bt_controller_init(&bt_Cnfg)                            );
     ESP_ERROR_CHECK(    esp_bt_controller_enable(ESP_BT_MODE_BLE)                   );
- 
+
     ESP_ERROR_CHECK(    esp_bluedroid_init()                                        );
     ESP_ERROR_CHECK(    esp_bluedroid_enable()                                      );
 
@@ -121,6 +116,24 @@ esk8_err_t esk8_ble_init(
     ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(ESK8_BLE_DEV_NAME)            );
     ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(esk8_gatts_event_hndlr)   );
     ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&adv_data)                      );
+
+    esk8_err_t err_code;
+    esp_err_t _err_code;
+
+    ESK8_ERRCHECK_THROW(esk8_ble_conn_clear());
+
+    err_code = esk8_nvs_init();
+    if (err_code == ESK8_NVS_NO_SETTINGS) return ESK8_SUCCESS;
+    ESK8_ERRCHECK_THROW(err_code);
+
+    esk8_nvs_settings_t sttgs;
+    ESK8_ERRCHECK_THROW(esk8_nvs_settings_get(&sttgs));
+
+    _err_code = esp_ble_gap_update_whitelist(
+        true, sttgs.esk8_ble_peer_addr, BLE_WL_ADDR_TYPE_RANDOM);
+
+    if (_err_code)
+        return ESK8_BLE_FAILED_WL;
 
     return ESK8_SUCCESS;
 }
@@ -281,8 +294,22 @@ void esk8_gatts_event_hndlr(
             if (bleApp)
                 bleApp->_app_connId = param->connect.conn_id;
 
-            break;
+        {
+            esp_ble_gap_update_whitelist(true, param->connect.remote_bda, BLE_WL_ADDR_TYPE_RANDOM);
+            adv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_WLST;
+            esp_ble_gap_start_advertising(&adv_params);
 
+            /* Update settings */
+            esk8_nvs_settings_t sttgs;
+            esk8_err_t err_code;
+            err_code = esk8_nvs_settings_get(&sttgs);
+            if (err_code)
+                break;
+
+            memcpy(sttgs.esk8_ble_peer_addr, param->connect.remote_bda, sizeof(sttgs.esk8_ble_peer_addr));
+            esk8_nvs_settings_set(&sttgs);
+        }
+            break;
         default:
             break;
     }
@@ -313,4 +340,48 @@ void esk8_gap_event_hndlr(
         default:
             break;
     }
+}
+
+
+esk8_err_t esk8_ble_conn_clear()
+{
+    int dev_num = esp_ble_get_bond_device_num();
+    if (dev_num < 0) return ESK8_BLE_FAILED_WL;
+
+    if (dev_num > 0)
+    {
+        esp_err_t _err_code;
+        esp_ble_bond_dev_t* bond_dev_l = malloc(sizeof(esp_ble_bond_dev_t)*dev_num);
+
+        if (!bond_dev_l) return ESK8_ERR_OOM;
+        _err_code = esp_ble_get_bond_device_list(&dev_num, bond_dev_l);
+        if (_err_code) return ESK8_BLE_FAILED_WL;
+
+        for (int i = 0; i < dev_num; i++)
+            esp_ble_remove_bond_device(bond_dev_l[i].bd_addr);
+
+        free(bond_dev_l);
+    }
+
+    return ESK8_SUCCESS;
+}
+
+
+esk8_err_t esk8_ble_conn_allow(
+
+    uint32_t timeout_ms
+
+)
+{
+    esp_ble_gap_stop_advertising();
+    adv_params.adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
+    esp_ble_gap_start_advertising(&adv_params);
+
+    return ESK8_SUCCESS;
+}
+
+
+esk8_err_t esk8_ble_conn_block()
+{
+    return ESK8_SUCCESS;
 }

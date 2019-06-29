@@ -105,6 +105,7 @@ void ps2_task()
     }
 }
 
+
 void app_main()
 {
     esk8_ble_config_t         bleCnfg;
@@ -113,6 +114,6 @@ void app_main()
     esk8_ble_init(&bleCnfg);
     esk8_ble_register_apps((uint16_t) sizeof(appSrvcList_p) / sizeof(appSrvcList_p[0]), appSrvcList_p);
 
-    xTaskCreate(ps2_task   , "ps2_task"   , 2048, NULL, 1, NULL);
+    // xTaskCreate(ps2_task   , "ps2_task"   , 2048, NULL, 1, NULL);
     xTaskCreate(status_task, "status_task", 2048, NULL, 1, NULL);
 }

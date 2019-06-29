@@ -3,12 +3,19 @@
 #include <nvs.h>
 #include <nvs_flash.h>
 
+#include <stdbool.h>
 
-static nvs_handle_t esk8_nvs_handle = 0;
+
+static esk8_nvs_settings_t    esk8_nvs_settings = {0};
+static nvs_handle_t             esk8_nvs_handle   = 0;
+static bool                     esk8_nvs_loaded   = false;
 
 
 esk8_err_t esk8_nvs_init()
 {
+    if (esk8_nvs_handle > 0)
+        return ESK8_SUCCESS;
+
     esp_err_t errCode = nvs_flash_init();
 
     if (errCode == ESP_ERR_NVS_NO_FREE_PAGES || errCode == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -36,15 +43,25 @@ esk8_err_t esk8_nvs_settings_get(
 
 )
 {
+    esp_err_t errCode;
+
     if (esk8_nvs_handle == 0)
         return ESK8_NVS_NOT_INIT;
 
-    esp_err_t errCode;
+    if (esk8_nvs_loaded)
+    {
+        (*out_settings) = esk8_nvs_settings;
+        return ESK8_SUCCESS;
+    }
+
     size_t sttgs_size   = sizeof(esk8_nvs_settings_t);
     size_t sttgs_size_r = 0;
 
-    nvs_get_blob(esk8_nvs_handle,
+    errCode = nvs_get_blob(esk8_nvs_handle,
         ESK8_NVS_STORAGE_KEY_SETTINGS, NULL, &sttgs_size_r);
+    
+    if (errCode == ESP_ERR_NVS_NOT_FOUND)
+        return ESK8_NVS_NO_SETTINGS;
 
     if (sttgs_size != sttgs_size_r)
         return ESK8_NVS_WRONG_SIZE;
@@ -55,6 +72,7 @@ esk8_err_t esk8_nvs_settings_get(
     if (errCode)
         return ESK8_NVS_NOT_AVAILABLE;
 
+    esk8_nvs_loaded = true;
     return ESK8_SUCCESS;
 }
 
@@ -75,7 +93,11 @@ esk8_err_t esk8_nvs_settings_set(
         ESK8_NVS_STORAGE_KEY_SETTINGS, (void*)settings, sttgs_size);
 
     if (!errCode)
+    {
+        esk8_nvs_settings = (*settings);
+        esk8_nvs_loaded   = true;
         return ESK8_SUCCESS;
+    }
 
     switch (errCode)
     {
