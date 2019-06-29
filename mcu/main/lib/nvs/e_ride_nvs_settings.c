@@ -6,6 +6,10 @@
 #include <stdbool.h>
 
 
+static e_ride_nvs_settings_t    esk8_nvs_settings = {0};
+static nvs_handle_t             esk8_nvs_handle   = 0;
+static bool                     esk8_nvs_loaded   = false;
+
 static esk8_nvs_settings_t    esk8_nvs_settings = {0};
 static nvs_handle_t             esk8_nvs_handle   = 0;
 static bool                     esk8_nvs_loaded   = false;
@@ -14,7 +18,7 @@ static bool                     esk8_nvs_loaded   = false;
 esk8_err_t esk8_nvs_init()
 {
     if (esk8_nvs_handle > 0)
-        return ESK8_SUCCESS;
+        return E_RIDE_SUCCESS;
 
     esp_err_t errCode = nvs_flash_init();
 
@@ -51,17 +55,17 @@ esk8_err_t esk8_nvs_settings_get(
     if (esk8_nvs_loaded)
     {
         (*out_settings) = esk8_nvs_settings;
-        return ESK8_SUCCESS;
+        return E_RIDE_SUCCESS;
     }
 
-    size_t sttgs_size   = sizeof(esk8_nvs_settings_t);
+    size_t sttgs_size   = sizeof(e_ride_nvs_settings_t);
     size_t sttgs_size_r = 0;
 
     errCode = nvs_get_blob(esk8_nvs_handle,
         ESK8_NVS_STORAGE_KEY_SETTINGS, NULL, &sttgs_size_r);
     
     if (errCode == ESP_ERR_NVS_NOT_FOUND)
-        return ESK8_NVS_NO_SETTINGS;
+        return E_RIDE_NVS_NO_SETTINGS;
 
     if (sttgs_size != sttgs_size_r)
         return ESK8_NVS_WRONG_SIZE;
@@ -73,7 +77,7 @@ esk8_err_t esk8_nvs_settings_get(
         return ESK8_NVS_NOT_AVAILABLE;
 
     esk8_nvs_loaded = true;
-    return ESK8_SUCCESS;
+    return E_RIDE_SUCCESS;
 }
 
 
@@ -96,7 +100,7 @@ esk8_err_t esk8_nvs_settings_set(
     {
         esk8_nvs_settings = (*settings);
         esk8_nvs_loaded   = true;
-        return ESK8_SUCCESS;
+        return E_RIDE_SUCCESS;
     }
 
     switch (errCode)

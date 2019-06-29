@@ -1,7 +1,7 @@
-#include <esk8_config.h>
-#include <esk8_err.h>
-#include <esk8_ble.h>
-#include <esk8_nvs.h>
+#include <e_ride_config.h>
+#include <e_ride_err.h>
+#include <e_ride_ble.h>
+#include <e_ride_nvs.h>
 
 #include <esp_log.h>
 #include <esp_bt.h>
@@ -49,10 +49,10 @@ static esp_ble_adv_data_t adv_data = {
 static esk8_ble_t bleHandler = {0};
 
 
-esk8_err_t esk8_ble_conn_clear();
+e_ride_err_t e_ride_ble_conn_clear();
 
 
-void esk8_gatts_event_hndlr(
+void e_ride_gatts_event_hndlr(
 
     esp_gatts_cb_event_t event,
     esp_gatt_if_t gatts_if,
@@ -61,7 +61,7 @@ void esk8_gatts_event_hndlr(
 );
 
 
-void esk8_gap_event_hndlr(
+void e_ride_gap_event_hndlr(
 
     esp_gap_ble_cb_event_t  event,
     esp_ble_gap_cb_param_t* param
@@ -69,7 +69,7 @@ void esk8_gap_event_hndlr(
 );
 
 
-esk8_ble_app_t* esk8_ble_get_app_from_if(
+e_ride_ble_app_t* e_ride_ble_get_app_from_if(
 
     uint16_t gatts_if
 
@@ -117,25 +117,25 @@ esk8_err_t esk8_ble_init(
     ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(esk8_gatts_event_hndlr)   );
     ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&adv_data)                      );
 
-    esk8_err_t err_code;
+    e_ride_err_t err_code;
     esp_err_t _err_code;
 
-    ESK8_ERRCHECK_THROW(esk8_ble_conn_clear());
+    E_RIDE_ERRCHECK_THROW(e_ride_ble_conn_clear());
 
-    err_code = esk8_nvs_init();
-    if (err_code == ESK8_NVS_NO_SETTINGS) return ESK8_SUCCESS;
-    ESK8_ERRCHECK_THROW(err_code);
+    err_code = e_ride_nvs_init();
+    if (err_code == E_RIDE_NVS_NO_SETTINGS) return E_RIDE_SUCCESS;
+    E_RIDE_ERRCHECK_THROW(err_code);
 
-    esk8_nvs_settings_t sttgs;
-    ESK8_ERRCHECK_THROW(esk8_nvs_settings_get(&sttgs));
+    e_ride_nvs_settings_t sttgs;
+    E_RIDE_ERRCHECK_THROW(e_ride_nvs_settings_get(&sttgs));
 
     _err_code = esp_ble_gap_update_whitelist(
         true, sttgs.esk8_ble_peer_addr, BLE_WL_ADDR_TYPE_RANDOM);
 
     if (_err_code)
-        return ESK8_BLE_FAILED_WL;
+        return E_RIDE_BLE_FAILED_WL;
 
-    return ESK8_SUCCESS;
+    return E_RIDE_SUCCESS;
 }
 
 
@@ -191,8 +191,8 @@ esk8_err_t esk8_ble_register_apps(
      * Copy all the app's addresses to the bleHandler.
      * They are assumed to last for the time ble is
      * running.
-     * */
-    memcpy((void*)bleHandler.p_appList, (void*)p_appList, sizeof(esk8_ble_app_t*) * numApps);
+     */
+    memcpy((void*)bleHandler.p_appList, (void*)p_appList, sizeof(e_ride_ble_app_t*) * numApps);
 
     /**
      * Register the apps with ble.
@@ -300,14 +300,14 @@ void esk8_gatts_event_hndlr(
             esp_ble_gap_start_advertising(&adv_params);
 
             /* Update settings */
-            esk8_nvs_settings_t sttgs;
-            esk8_err_t err_code;
-            err_code = esk8_nvs_settings_get(&sttgs);
+            e_ride_nvs_settings_t sttgs;
+            e_ride_err_t err_code;
+            err_code = e_ride_nvs_settings_get(&sttgs);
             if (err_code)
                 break;
 
             memcpy(sttgs.esk8_ble_peer_addr, param->connect.remote_bda, sizeof(sttgs.esk8_ble_peer_addr));
-            esk8_nvs_settings_set(&sttgs);
+            e_ride_nvs_settings_set(&sttgs);
         }
             break;
         default:
@@ -343,19 +343,19 @@ void esk8_gap_event_hndlr(
 }
 
 
-esk8_err_t esk8_ble_conn_clear()
+e_ride_err_t e_ride_ble_conn_clear()
 {
     int dev_num = esp_ble_get_bond_device_num();
-    if (dev_num < 0) return ESK8_BLE_FAILED_WL;
+    if (dev_num < 0) return E_RIDE_BLE_FAILED_WL;
 
     if (dev_num > 0)
     {
         esp_err_t _err_code;
         esp_ble_bond_dev_t* bond_dev_l = malloc(sizeof(esp_ble_bond_dev_t)*dev_num);
 
-        if (!bond_dev_l) return ESK8_ERR_OOM;
+        if (!bond_dev_l) return E_RIDE_ERR_OOM;
         _err_code = esp_ble_get_bond_device_list(&dev_num, bond_dev_l);
-        if (_err_code) return ESK8_BLE_FAILED_WL;
+        if (_err_code) return E_RIDE_BLE_FAILED_WL;
 
         for (int i = 0; i < dev_num; i++)
             esp_ble_remove_bond_device(bond_dev_l[i].bd_addr);
@@ -363,11 +363,11 @@ esk8_err_t esk8_ble_conn_clear()
         free(bond_dev_l);
     }
 
-    return ESK8_SUCCESS;
+    return E_RIDE_SUCCESS;
 }
 
 
-esk8_err_t esk8_ble_conn_allow(
+e_ride_err_t e_ride_ble_conn_allow(
 
     uint32_t timeout_ms
 
@@ -377,11 +377,11 @@ esk8_err_t esk8_ble_conn_allow(
     adv_params.adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
     esp_ble_gap_start_advertising(&adv_params);
 
-    return ESK8_SUCCESS;
+    return E_RIDE_SUCCESS;
 }
 
 
-esk8_err_t esk8_ble_conn_block()
+e_ride_err_t e_ride_ble_conn_block()
 {
-    return ESK8_SUCCESS;
+    return E_RIDE_SUCCESS;
 }

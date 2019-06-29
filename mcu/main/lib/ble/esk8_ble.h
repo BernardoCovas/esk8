@@ -86,7 +86,8 @@ typedef struct
 
     esk8_ble_app_t**  p_appList;
     uint16_t            appNum;
-} esk8_ble_t;
+}
+e_ride_ble_t;
 
 
 /**
@@ -126,8 +127,8 @@ esk8_err_t esk8_ble_register_apps(
  */
 esk8_err_t esk8_ble_app_evnt_await(
 
-    esk8_ble_app_handler_t appHndlr,
-    esk8_ble_notif_t *     appNotif,
+    e_ride_ble_app_handler_t appHndlr,
+    e_ride_ble_notif_t*      appNotif,
     uint32_t                 timeout_ms
 
 );
@@ -145,7 +146,7 @@ esk8_err_t esk8_ble_app_evnt_await(
  * attempted in this ammount of time,
  * cancel and relock.
  */
-esk8_err_t esk8_ride_ble_conn_allow(
+e_ride_err_t e_ride_ble_conn_allow(
 
     uint32_t timeout_ms
 
@@ -158,7 +159,7 @@ esk8_err_t esk8_ride_ble_conn_allow(
  * currently allowing them, this
  * will cancel and relock.
  */
-esk8_err_t esk8_ble_conn_block();
+e_ride_err_t e_ride_ble_conn_block();
 
 
-#endif /* _ESK8_BLE_H */
+#endif /* _E_RIDE_BLE_H */
