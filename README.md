@@ -1,21 +1,68 @@
 # Esk8
 
-## Welcome  
-As of now this is a somewhat useful app for the ESP32 SoC, paired with a  
-companion Android app.  
+This repo contains an app for the ESP32 SoC, paired with a
+companion Android app. It`s main objective is to serve as
+a complete electric skateboard manager.  
+It manages the batteries, the speed controller, and has a Bluetooth low Energy server that allows you to both get information on the status of the device, and control it.  
 
-The main objective is to serve as a complete electric transport manager.  
-It manages all the BMS, controls the speed and serves as a BLE server.  
+There are two apps in this repo. One is meant to be on the skateboard, and the other on the remote controller.  
+
+Some features include:  
+
+- Complete support for any PS2 device, for example trackpads
+- Complete implementation of the UART Battery Management System protocol for the Ninebot ESx Scooters
+- Fully featured BLE Server with status and controll
+- Non-volatile storage to remember previously connected devices and changed settings
+
+The BMS protocol allows you to use some new/old/used/half-broken scooter battery(s) in your skateboard, and receive all it`s status through BLE. These can be bought for cheap on Ebay.
+
+## Build
+
+This is a raw ESP-IDF project, meaning that, as long as you  
+follow the install instructions in their website, this should  
+be as easy as:  
+
+```
+$ idf.py flash
+```
+
+This is a CMake project, so make sure tu use the latest IDF and toolchain with CMake support.
+
+## BLE
+
+For the Bluetooth low energy, there are two services.
+One for the status and one for the control. (WIP)  
+
+The status service has notification support, and it works like this:  
+There is a backgrould task running on the SoC that continuously updates the status
+of the battery. After each battery update, it sends a notification to any connected device.
+This notification contains a `uint32_t` and a `uint16_t`.
+The `uint32_t` represents the error code from reading the battery info, and the `uint16_t`
+represents the battery index that was updated.
+
+An example value would be the following array:
+```C
+{0x07, 0x00, 0x00, 0x00, 0x01, 0x00}
+```
+
+This would mean error code 0x00000007 (`E_RIDE_BMS_ERR_NO_RESPONSE`) at BMS index 0x0001.  
+Indexing starts at 0, and as such this would mean my second BMS is fried or disconnected.  
+In my board I have 4 of these BMSs, and so this index ranges from 0 to 3.
   
-It supports the PS2 protocol, allowing you to use any ps2 trackpad to control  
-the device.  
+After the notification, you can read the attribute value, if it there are no errors.
+This will give you an array of
 
-It supports the entire UART protocol for the Ninebot es1/2/3/4 scooters, allowing you  
-to use some new/old/used/half-broken scooter battery(s) in your skateboard, and receive  
-all it's characteristics over BLE, using the included android (only) app.  
+```C
+size_of(e_ride_bms_deep_status_t) * number_of_bms
+```
+or 
+```C
+size_of(e_ride_bms_status_t) * number_of_bms
+```
+bytes, depending on the characteristic you are reading.
+These bytes are the packed structs from the SoC:
 
-These include a shallow info:  
-
+For the shallow info:
 ```C
 typedef struct __attribute__((__packed__))
 {
@@ -49,52 +96,7 @@ typedef struct __attribute__((__packed__))
 } e_ride_bms_deep_status_t;
 ```
 
-## Build
 
-This is a raw ESP-IDF project, meaning that, as long as you  
-follow the install instructions in their website, this should  
-be as easy as:  
-
-```
-$ idf.py flash
-```
-
-Keep in mind I have no idea how to use the Make build tool, and  
-don't really care to learn it so this project only contains CMake files.  
-
-
-## BLE
-This is somewhat simple as of now.
-What you have is one service (soon to be 2), and this with two characteristics.
-One of which will give you the shallower info,
-and the other the deeper.
-
-You will receive a BLE notification when the BMS values have been updated,  
-and the bytes you receive in this notif. are the error code and the index of  
-the BMS updated.
-
-The error code are the first 4 bytes, and the bms index the last two.
-An example value would be:
-
-```C
-{0x07, 0x00, 0x00, 0x00, 0x01, 0x00}
-```
-This would mean error code 0x0007 (`E_RIDE_BMS_ERR_NO_RESPONSE`) at BMS index 0x0001.  
-Since we are all sane here, indexing starts at 0, and as such this would mean  
-my second BMS is fried or disconnected.  
-In my board I have 4 of these BMSs, and so this index ranges from 0 to 3.
-  
-After the notification, you can read the attribute value, if it there are no errors.
-This will give you an array of
-
-```C
-size(e_ride_bms_deep_status_t) * number_of_bms
-```
-or 
-```C
-size(e_ride_bms_status_t) * number_of_bms
-```
-bytes, of course each representing the matching value.
   
 With 4 MBS´s, this array is `220` bytes long for the deep status, and `32` for the shallow.
 
@@ -158,7 +160,7 @@ This alows easy configuring of some basic params:
 
 ```
 
-Most important maybe are the BMS and PS2 Config, more specifically:
+Most important settings are the BMS and PS2 Config, more specifically:
 
 ```C
 #define E_RIDE_UART_BMS_TX_PINS
@@ -170,25 +172,97 @@ Most important maybe are the BMS and PS2 Config, more specifically:
 
 ```
 
+You can try different configurations with the PWM control, but keep in mind the 
+SoC hardware must support it. Not all frequency / precision are supported by the hardware,
+but this tends to be a problem on the 10´s of KHz.
+
+
 ## BMS
 
-If you have 1 BMS, you need 2 GPIOS.  
-For more than 2 BMS, you can actually use one TX GPIO for multiple  
-BMS's, and so you can repeat this same value for the config value.
-For example, for me I can have:  
+Every BMS UART port has a TX and RX line, and so one single BMS needs two GPIOs.
+However, if you have more than one BMS, you can choose to join the TX lines into one
+GPIO. The software is expecting this, and so it will work fine.
+There seems to be an issue with pullup though, but this will be fixed soon.
+
+For my BMS settup, this works:  
 
 ```C
 #define E_RIDE_UART_BMS_TX_PINS                     { GPIO_NUM_25, GPIO_NUM_25, GPIO_NUM_25, GPIO_NUM_25 }
 #define E_RIDE_UART_BMS_RX_PINS                     { GPIO_NUM_26, GPIO_NUM_12, GPIO_NUM_16, GPIO_NUM_18 }
 ```
-And this seems to work just fine.
+Notice the repeated GPIO in the TX config.
+This is entirely up to you, but keep in mind not all pins work as outputs, and so not all pins can be used for the TX line.
 
 # Error Codes
 
-This project uses a common e_ride_err_t enum.  
+This project uses a common `e_ride_err_t` enum.  
 This means that if an error occurs in any of the lower level functions,  
 it will be propagated and that is exactly what you will receive at the end.  
 For example, in the BLE if you receive error code `E_RIDE_UART_MSG_ERR_INVALID_CHKSUM`,  
 this actually might have more meaning than just a 'failed' kind of error. In fact,  
 receiving this specific error would mean that the message checksum does not match,  
 and so the response from the BMS was currupted.  
+
+The enum is the following:  
+
+```C
+typedef enum esk8_err_t
+{
+    ESK8_SUCCESS,
+    ESK8_ERR_INVALID_PARAM,
+    ESK8_ERR_OOM,
+    
+    /* E_Skate BMS */
+    ESK8_BMS_ERR_INVALID_DATA,
+    ESK8_BMS_ERR_INVALID_LEN,
+    ESK8_BMS_ERR_WRONG_ADDRESS,           /* Address was not what was expected */
+    ESK8_BMS_ERR_WRONG_RESPONSE,          /* Response was not what was expected */
+    ESK8_BMS_ERR_NO_RESPONSE,
+    
+    /* E_Skate Uart */
+    ESK8_UART_MSG_ERR_NO_HEADER,
+    ESK8_UART_MSG_ERR_INVALID_PLDLEN,     /* Payload was either bigger or smaller than advertized in header */
+    ESK8_UART_MSG_ERR_INVALID_CHKSUM,
+    ESK8_UART_MSG_ERR_INVALID_BUFFER,
+
+    /* E_Skate Ps2 */
+    ESK8_PS2_ERR_VALUE_READY,
+    ESK8_PS2_ERR_INVALID_STATE,
+    ESK8_PS2_ERR_TIMEOUT,
+    ESK8_PS2_ERR_NO_ACK,                  /* Device has not ack the received command */
+
+    /* E_Skate Ble*/
+    ESK8_BLE_INIT_NOINIT,                 /* Not initialized */
+    ESK8_BLE_INIT_REINIT,                 /* Already had been initialized */
+    ESK8_BLE_INIT_FAILED,
+    ESK8_BLE_INIT_MAXREG,                 /* Maximum number of registed apps reached */
+    ESK8_BLE_NOTF_TIMEOUT,
+    ESK8_BLE_FAILED_WL,
+
+    /* Esk8 NVS */
+    ESK8_NVS_NOT_INIT,                    /* NVS was not initialized */
+    ESK8_NVS_NOT_AVAILABLE,               /* Could not be initialized in any way. Probably broken */
+    ESK8_NVS_FULL,                        /* No space left on NVS */
+    ESK8_NVS_NO_SETTINGS,                 /* No settigs stored */
+    ESK8_NVS_WRONG_SIZE                   /* Stored value returned an unexpected size. Might also mean non existent value */
+} esk8_err_t;
+
+```
+
+If you make changes to the code, make sure to propagate the error if your code uses some lower fundtions.
+For this, to prevent multiple
+```C
+if (err_code)
+    return err_code;
+```
+
+you can use the provided definition:
+```C
+#define ESK8_ERRCHECK_THROW(X) do { esk8_err_t __err_c = (X); if (__err_c) return __err_c; } while(0)
+
+```
+This can be use as follows:
+```C
+ESK8_ERRCHECK_THROW(esk8_ble_conn_clear());
+```
+This will return if there is an error, propagating it.
