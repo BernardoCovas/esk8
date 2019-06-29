@@ -249,7 +249,7 @@ typedef enum esk8_err_t
 
 ```
 
-If you make changes to the code, make sure to propagate the error if your code uses some lower fundtions.
+If you make changes to the code, make sure to propagate the error if your code uses some lower functions.
 For this, to prevent multiple
 ```C
 if (err_code)
