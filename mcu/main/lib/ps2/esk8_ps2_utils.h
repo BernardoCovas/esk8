@@ -1,15 +1,15 @@
-#ifndef _E_RIDE_PS2_UTILS_H
-#define _E_RIDE_PS2_UTILS_H
+#ifndef _ESK8_PS2_UTILS_H
+#define _ESK8_PS2_UTILS_H
 
-#include "e_ride_ps2.h"
-#include <e_ride_err.h>
+#include "esk8_ps2.h"
+#include <esk8_err.h>
 
 
 typedef struct
 {
     bool    bit;
     double  bitInterval_s; /* Time between this bit and the last, in seconds. */
-} e_ride_ps2_bit_t;
+} esk8_ps2_bit_t;
 
 
 /**
@@ -19,14 +19,14 @@ typedef struct
  * parity and stop bits. For example, to 
  * form the value 94, we would do, in order:
  * `{1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0}`.
- * Returns `E_RIDE_PS2_ERR_VALUE_READY` if
+ * Returns `ESK8_PS2_ERR_VALUE_READY` if
  * the value is complete. If we try to add
  * a value to an already complete handle,
  * it is not added and returns the same.
  **/
-e_ride_err_t e_ride_ps2_add_bit(
+esk8_err_t esk8_ps2_add_bit(
 
-    e_ride_ps2_pkt_t*  ps2Pkt,
+    esk8_ps2_pkt_t*  ps2Pkt,
     bool                value
 
 );
@@ -34,14 +34,14 @@ e_ride_err_t e_ride_ps2_add_bit(
 
 /**
  * Takes a bit from the value in `ps2Pkt`.
- * Returns `E_RIDE_PS2_ERR_VALUE_READY` if
+ * Returns `ESK8_PS2_ERR_VALUE_READY` if
  * the value is done complete. If we try to add
  * a value to an already completely empty
  * packet, returns the same and does nothing.
  **/
-e_ride_err_t e_ride_ps2_take_bit(
+esk8_err_t esk8_ps2_take_bit(
 
-    e_ride_ps2_pkt_t*  ps2Pkt,
+    esk8_ps2_pkt_t*  ps2Pkt,
     bool*               outValue
 
 );
@@ -51,12 +51,12 @@ e_ride_err_t e_ride_ps2_take_bit(
  * Checks The integrity of the 
  * packet's internal value.
  * If it is as expected, returns
- * `E_RIDE_SUCCESS`. If wrong, returns
- * `E_RIDE_PS2_ERR_INVALID_STATE`.
+ * `ESK8_SUCCESS`. If wrong, returns
+ * `ESK8_PS2_ERR_INVALID_STATE`.
  **/
-e_ride_err_t e_ride_ps2_check_pkt(
+esk8_err_t esk8_ps2_check_pkt(
 
-    e_ride_ps2_pkt_t* ps2Pkt
+    esk8_ps2_pkt_t* ps2Pkt
 
 );
 
@@ -65,9 +65,9 @@ e_ride_err_t e_ride_ps2_check_pkt(
  * Resets the internal value and index
  * of `ps2Pkt`.
  **/
-void e_ride_ps2_reset_pkt(
+void esk8_ps2_reset_pkt(
 
-    e_ride_ps2_pkt_t* ps2Pkt
+    esk8_ps2_pkt_t* ps2Pkt
 
 );
 
@@ -75,11 +75,11 @@ void e_ride_ps2_reset_pkt(
 /**
  * Returns the parity val.
  **/
-bool e_ride_ps2_get_parity(
+bool esk8_ps2_get_parity(
 
     uint8_t x
 
 );
 
 
-#endif /* _E_RIDE_PS2_UTILS_H */
+#endif /* _ESK8_PS2_UTILS_H */

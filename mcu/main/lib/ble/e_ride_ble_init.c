@@ -1,6 +1,6 @@
-#include <e_ride_config.h>
-#include <e_ride_err.h>
-#include <e_ride_ble.h>
+#include <esk8_config.h>
+#include <esk8_err.h>
+#include <esk8_ble.h>
 
 #include <esp_log.h>
 #include <esp_bt.h>
@@ -45,13 +45,13 @@ static esp_ble_adv_data_t adv_data = {
 /**
  * Global one and only BLE allocation.
  */
-static e_ride_ble_t bleHandler = {0};
+static esk8_ble_t bleHandler = {0};
 
 
 /**
  * 
  */
-void e_ride_gatts_event_hndlr(
+void esk8_gatts_event_hndlr(
 
     esp_gatts_cb_event_t event,
     esp_gatt_if_t gatts_if,
@@ -63,7 +63,7 @@ void e_ride_gatts_event_hndlr(
 /**
  * 
  */
-void e_ride_gap_event_hndlr(
+void esk8_gap_event_hndlr(
 
     esp_gap_ble_cb_event_t  event,
     esp_ble_gap_cb_param_t* param
@@ -74,7 +74,7 @@ void e_ride_gap_event_hndlr(
 /**
  *
  */
-e_ride_ble_app_t* e_ride_ble_get_app_from_if(
+esk8_ble_app_t* esk8_ble_get_app_from_if(
 
     uint16_t gatts_if
 
@@ -88,9 +88,9 @@ e_ride_ble_app_t* e_ride_ble_get_app_from_if(
 }
 
 
-e_ride_err_t e_ride_ble_init(
+esk8_err_t esk8_ble_init(
 
-    e_ride_ble_config_t*    bleCnfg
+    esk8_ble_config_t*    bleCnfg
 
 )
 {
@@ -117,19 +117,19 @@ e_ride_err_t e_ride_ble_init(
     ESP_ERROR_CHECK(    esp_bluedroid_init()                                        );
     ESP_ERROR_CHECK(    esp_bluedroid_enable()                                      );
 
-    ESP_ERROR_CHECK(    esp_ble_gap_register_callback(e_ride_gap_event_hndlr)       );
-    ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(E_RIDE_BLE_DEV_NAME)            );
-    ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(e_ride_gatts_event_hndlr)   );
+    ESP_ERROR_CHECK(    esp_ble_gap_register_callback(esk8_gap_event_hndlr)       );
+    ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(ESK8_BLE_DEV_NAME)            );
+    ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(esk8_gatts_event_hndlr)   );
     ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&adv_data)                      );
 
-    return E_RIDE_SUCCESS;
+    return ESK8_SUCCESS;
 }
 
 
-e_ride_err_t e_ride_ble_close()
+esk8_err_t esk8_ble_close()
 {
     if (!bleHandler.p_appList)
-        return E_RIDE_SUCCESS;
+        return ESK8_SUCCESS;
 
     for (uint16_t i=0; i<bleHandler.appNum; i++)
         esp_ble_gatts_app_unregister(i);
@@ -141,21 +141,21 @@ e_ride_err_t e_ride_ble_close()
     esp_bt_controller_disable();
     esp_bt_controller_deinit();
 
-    return E_RIDE_SUCCESS;
+    return ESK8_SUCCESS;
 }
 
 
-e_ride_err_t e_ride_ble_register_apps(
+esk8_err_t esk8_ble_register_apps(
 
     uint16_t           numApps,
-    e_ride_ble_app_t** p_appList
+    esk8_ble_app_t** p_appList
 
 )
 {
     static size_t currAppId = 0;
 
     if (!numApps || !p_appList)
-        return E_RIDE_ERR_INVALID_PARAM;
+        return ESK8_ERR_INVALID_PARAM;
 
     if (currAppId > 0)
         /**
@@ -163,14 +163,14 @@ e_ride_err_t e_ride_ble_register_apps(
          * We don't want that. It can only
          * be called once.
          */
-        return E_RIDE_BLE_INIT_REINIT;
+        return ESK8_BLE_INIT_REINIT;
 
     /**
      * Allocate app list.
      */
     bleHandler.p_appList = calloc(numApps, sizeof(void*));
     if (!bleHandler.p_appList)
-        return E_RIDE_ERR_OOM;
+        return ESK8_ERR_OOM;
 
     bleHandler.appNum = numApps;
 
@@ -179,7 +179,7 @@ e_ride_err_t e_ride_ble_register_apps(
      * They are assumed to last for the time ble is
      * running.
      * */
-    memcpy((void*)bleHandler.p_appList, (void*)p_appList, sizeof(e_ride_ble_app_t*) * numApps);
+    memcpy((void*)bleHandler.p_appList, (void*)p_appList, sizeof(esk8_ble_app_t*) * numApps);
 
     /**
      * Register the apps with ble.
@@ -187,11 +187,11 @@ e_ride_err_t e_ride_ble_register_apps(
     for (size_t i = 0; i<numApps; i++)
         ESP_ERROR_CHECK(esp_ble_gatts_app_register(currAppId++));
 
-    return E_RIDE_SUCCESS;
+    return ESK8_SUCCESS;
 }
 
 
-void e_ride_gatts_event_hndlr(
+void esk8_gatts_event_hndlr(
 
     esp_gatts_cb_event_t event,
     esp_gatt_if_t gatts_if,
@@ -199,8 +199,8 @@ void e_ride_gatts_event_hndlr(
 
 )
 {
-    e_ride_ble_app_t*  bleApp = e_ride_ble_get_app_from_if(gatts_if);
-    e_ride_ble_notif_t bleNotif = {
+    esk8_ble_app_t*  bleApp = esk8_ble_get_app_from_if(gatts_if);
+    esk8_ble_notif_t bleNotif = {
         .event = event,
         .param = param
     };
@@ -291,13 +291,13 @@ void e_ride_gatts_event_hndlr(
      * Find which app this event is meant to,
      * and jump to it's event function.
      */
-    bleApp = e_ride_ble_get_app_from_if(gatts_if);
+    bleApp = esk8_ble_get_app_from_if(gatts_if);
     if (bleApp && bleApp->app_evtFunc)
         bleApp->app_evtFunc(&bleNotif);
 }
 
 
-void e_ride_gap_event_hndlr(
+void esk8_gap_event_hndlr(
 
     esp_gap_ble_cb_event_t  event,
     esp_ble_gap_cb_param_t* param

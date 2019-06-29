@@ -1,14 +1,14 @@
-#include <e_ride_uart.h>
+#include <esk8_uart.h>
 
 #include <string.h>
 
 
-int e_ride_uart_msg_find_header(
+int esk8_uart_msg_find_header(
     uint8_t* buffer,
     int buf_length
 )
 {
-    const static uint8_t msg_header[] = E_RIDE_MSG_PKT_HEADER;
+    const static uint8_t msg_header[] = ESK8_MSG_PKT_HEADER;
 
     if (buf_length < 2)
         return -1;

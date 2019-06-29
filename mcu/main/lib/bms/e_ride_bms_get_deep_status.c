@@ -1,36 +1,36 @@
-#include <e_ride_err.h>
+#include <esk8_err.h>
 
-#include <e_ride_bms.h>
-#include <e_ride_bms_utils.h>
+#include <esk8_bms.h>
+#include <esk8_bms_utils.h>
 
-e_ride_err_t e_ride_bms_get_deep_status(
+esk8_err_t esk8_bms_get_deep_status(
 
-    e_ride_bms_config_t      *bmsConfig,
-    e_ride_bms_deep_status_t *outStatus
+    esk8_bms_config_t      *bmsConfig,
+    esk8_bms_deep_status_t *outStatus
 
 )
 {
-    e_ride_uart_reg_t readRegs[] = {
-        E_RIDE_REG_BMS_SERIAL_NUMBER,
-        E_RIDE_REG_BMS_FW_VERSION,
-        E_RIDE_REG_BMS_MANUFACTURE_DATE,
-        E_RIDE_REG_BMS_FACTORY_CAPACITY,
-        E_RIDE_REG_BMS_ACTUAL_CAPACITY,
-        E_RIDE_REG_BMS_CAPACITY,
-        E_RIDE_REG_BMS_CAPACITY_mAh,
-        E_RIDE_REG_BMS_CHARGE_FULL_CYCLES,
-        E_RIDE_REG_BMS_CHARGE_COUNT,
-        E_RIDE_REG_BMS_HEALTH,
-        E_RIDE_REG_BMS_CELL0_V,
-        E_RIDE_REG_BMS_CELL1_V,
-        E_RIDE_REG_BMS_CELL2_V,
-        E_RIDE_REG_BMS_CELL3_V,
-        E_RIDE_REG_BMS_CELL4_V,
-        E_RIDE_REG_BMS_CELL5_V,
-        E_RIDE_REG_BMS_CELL6_V,
-        E_RIDE_REG_BMS_CELL7_V,
-        E_RIDE_REG_BMS_CELL8_V,
-        E_RIDE_REG_BMS_CELL9_V,
+    esk8_uart_reg_t readRegs[] = {
+        ESK8_REG_BMS_SERIAL_NUMBER,
+        ESK8_REG_BMS_FW_VERSION,
+        ESK8_REG_BMS_MANUFACTURE_DATE,
+        ESK8_REG_BMS_FACTORY_CAPACITY,
+        ESK8_REG_BMS_ACTUAL_CAPACITY,
+        ESK8_REG_BMS_CAPACITY,
+        ESK8_REG_BMS_CAPACITY_mAh,
+        ESK8_REG_BMS_CHARGE_FULL_CYCLES,
+        ESK8_REG_BMS_CHARGE_COUNT,
+        ESK8_REG_BMS_HEALTH,
+        ESK8_REG_BMS_CELL0_V,
+        ESK8_REG_BMS_CELL1_V,
+        ESK8_REG_BMS_CELL2_V,
+        ESK8_REG_BMS_CELL3_V,
+        ESK8_REG_BMS_CELL4_V,
+        ESK8_REG_BMS_CELL5_V,
+        ESK8_REG_BMS_CELL6_V,
+        ESK8_REG_BMS_CELL7_V,
+        ESK8_REG_BMS_CELL8_V,
+        ESK8_REG_BMS_CELL9_V,
         };
 
     void* outRegP[] = {
@@ -60,19 +60,19 @@ e_ride_err_t e_ride_bms_get_deep_status(
 
     for (int i=0; i<nReg; i++)
     {
-        size_t readSize = readRegs[i]==E_RIDE_REG_BMS_SERIAL_NUMBER?0x0E:0x02;
+        size_t readSize = readRegs[i]==ESK8_REG_BMS_SERIAL_NUMBER?0x0E:0x02;
 
-        e_ride_err_t errCode = get_data_with_response(
+        esk8_err_t errCode = get_data_with_response(
             bmsConfig,
-            E_RIDE_ADDR_BMS,
+            ESK8_ADDR_BMS,
             readRegs[i],
             readSize,
             outRegP[i]);
 
-        if (errCode != E_RIDE_SUCCESS)
+        if (errCode != ESK8_SUCCESS)
             return errCode;
 
     }
 
-    return E_RIDE_SUCCESS;
+    return ESK8_SUCCESS;
 }

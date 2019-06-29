@@ -1,8 +1,8 @@
-#include <e_ride_uart.h>
+#include <esk8_uart.h>
 
 
-void e_ride_uart_msg_free(
-    e_ride_uart_msg_t msg
+void esk8_uart_msg_free(
+    esk8_uart_msg_t msg
 )
 {
     free(msg.payload);

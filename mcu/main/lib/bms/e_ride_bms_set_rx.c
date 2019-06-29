@@ -1,20 +1,20 @@
-#include <e_ride_config.h>
-#include <e_ride_err.h>
-#include <e_ride_bms.h>
+#include <esk8_config.h>
+#include <esk8_err.h>
+#include <esk8_bms.h>
 
 #include <esp_err.h>
 #include <driver/uart.h>
 
 
-e_ride_err_t e_ride_bms_set_rx(
+esk8_err_t esk8_bms_set_rx(
 
-    e_ride_bms_config_t* bmsConfig,
+    esk8_bms_config_t* bmsConfig,
     uint8_t uartRxI
 
 )
 {
     if (uartRxI > bmsConfig->numBat)
-        return E_RIDE_ERR_INVALID_PARAM;
+        return ESK8_ERR_INVALID_PARAM;
 
     ESP_ERROR_CHECK(uart_set_pin(
         bmsConfig->bmsUartPort,
@@ -24,5 +24,5 @@ e_ride_err_t e_ride_bms_set_rx(
         UART_PIN_NO_CHANGE
         ));
 
-    return E_RIDE_SUCCESS;
+    return ESK8_SUCCESS;
 }

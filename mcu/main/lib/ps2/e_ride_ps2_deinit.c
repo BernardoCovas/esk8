@@ -1,6 +1,6 @@
-#include <e_ride_err.h>
-#include <e_ride_ps2.h>
-#include <e_ride_ps2_utils.h>
+#include <esk8_err.h>
+#include <esk8_ps2.h>
+#include <esk8_ps2_utils.h>
 
 #include <esp_intr_alloc.h>
 #include <driver/gpio.h>
@@ -11,9 +11,9 @@
 #include <freertos/task.h>
 
 
-e_ride_err_t e_ride_ps2_deinit(
+esk8_err_t esk8_ps2_deinit(
 
-    e_ride_ps2_handle_t* ps2Handle,
+    esk8_ps2_handle_t* ps2Handle,
     bool                  withIsr
 
 )
@@ -37,5 +37,5 @@ e_ride_err_t e_ride_ps2_deinit(
     if (withIsr)
         gpio_uninstall_isr_service();
 
-    return E_RIDE_SUCCESS;
+    return ESK8_SUCCESS;
 }

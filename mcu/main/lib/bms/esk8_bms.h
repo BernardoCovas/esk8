@@ -1,9 +1,9 @@
-#ifndef _E_RIDE_BMS_H
-#define _E_RIDE_BMS_H
+#ifndef _ESK8_BMS_H
+#define _ESK8_BMS_H
 
-#include <e_ride_config.h>
-#include <e_ride_uart.h>
-#include <e_ride_err.h>
+#include <esk8_config.h>
+#include <esk8_uart.h>
+#include <esk8_err.h>
 
 #include <driver/uart.h>
 
@@ -15,7 +15,7 @@ typedef struct __attribute__((__packed__))
     int16_t  current;
     uint8_t  temperature1;
     uint8_t  temperature2;
-} e_ride_bms_status_t;
+} esk8_bms_status_t;
 
 
 typedef struct __attribute__((__packed__))
@@ -34,10 +34,10 @@ typedef struct __attribute__((__packed__))
     uint8_t  isCharging;
     uint8_t  isOverVoltage;
     uint8_t  isOverHeat;
-} e_ride_bms_deep_status_t;
+} esk8_bms_deep_status_t;
 
 
-typedef void (*e_ride_bms_cb_t)(e_ride_bms_status_t* status, uint8_t nStatus);
+typedef void (*esk8_bms_cb_t)(esk8_bms_status_t* status, uint8_t nStatus);
 
 
 typedef struct
@@ -49,29 +49,29 @@ typedef struct
     uint8_t             batTxPin;
     uint32_t            bmsUpdateMs;
     uart_config_t       uartConfig;
-} e_ride_bms_config_t;
+} esk8_bms_config_t;
 
 
-e_ride_err_t e_ride_bms_init(
+esk8_err_t esk8_bms_init(
 
-    e_ride_bms_config_t* bmsConfig
+    esk8_bms_config_t* bmsConfig
 
 );
 
-e_ride_err_t e_ride_bms_set_rx(
+esk8_err_t esk8_bms_set_rx(
 
-    e_ride_bms_config_t* eSkateUart,
+    esk8_bms_config_t* eSkateUart,
     uint8_t uartRxI
 
 );
 
 /**
- * Same as `e_ride_bms_init()`, but uses
- * values from `e_ride_config.h`.
+ * Same as `esk8_bms_init()`, but uses
+ * values from `esk8_config.h`.
  **/
-e_ride_err_t e_ride_bms_init_from_config_h(
+esk8_err_t esk8_bms_init_from_config_h(
 
-    e_ride_bms_config_t* outConfig
+    esk8_bms_config_t* outConfig
 
 );
 
@@ -81,13 +81,13 @@ e_ride_err_t e_ride_bms_init_from_config_h(
  * registers, and updates `outStatus`.
  * This function waits for all the
  * responses.
- * Returns `E_RIDE_BMS_SUCCESS` on
+ * Returns `ESK8_BMS_SUCCESS` on
  * success, anything else on error.
  **/
-e_ride_err_t e_ride_bms_get_status(
+esk8_err_t esk8_bms_get_status(
 
-    e_ride_bms_config_t *bmsConfig,
-    e_ride_bms_status_t *outStatus
+    esk8_bms_config_t *bmsConfig,
+    esk8_bms_status_t *outStatus
 
 );
 
@@ -97,10 +97,10 @@ e_ride_err_t e_ride_bms_get_status(
  * Takes a while, and the result is stored
  * in `outDeepStatus`.
  **/
-e_ride_err_t e_ride_bms_get_deep_status(
+esk8_err_t esk8_bms_get_deep_status(
 
-    e_ride_bms_config_t      *bmsConfig,
-    e_ride_bms_deep_status_t *outStatus
+    esk8_bms_config_t      *bmsConfig,
+    esk8_bms_deep_status_t *outStatus
 
 );
 
@@ -110,11 +110,11 @@ e_ride_err_t e_ride_bms_get_deep_status(
  * the messages to read all the registers
  * with battery info.
  **/
-e_ride_err_t e_ride_bms_get_all_status(
+esk8_err_t esk8_bms_get_all_status(
 
-    e_ride_bms_config_t* bmsConfig
+    esk8_bms_config_t* bmsConfig
 
 );
 
 
-#endif /* _E_RIDE_BMS_H */
+#endif /* _ESK8_BMS_H */

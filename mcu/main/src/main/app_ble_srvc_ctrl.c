@@ -1,5 +1,5 @@
-#include <e_ride_pwm.h>
-#include <e_ride_ble.h>
+#include <esk8_pwm.h>
+#include <esk8_ble.h>
 
 #include <app_ble_srvc.h>
 
@@ -41,12 +41,12 @@ typedef enum
 
     SRVC_CTRL_NUM_ATTR
 }
-e_ride_app_attr_idx_t;
+esk8_app_attr_idx_t;
 
 
-static e_ride_pwm_config_t pwm_Config = {0};
-static void srvc_ctrl_evt_cb(e_ride_ble_notif_t* bleNotif);
-static e_ride_err_t srvc_ctrl_get_idx_from_handle(uint16_t handle, e_ride_app_attr_idx_t* out_idx);
+static esk8_pwm_config_t pwm_Config = {0};
+static void srvc_ctrl_evt_cb(esk8_ble_notif_t* bleNotif);
+static esk8_err_t srvc_ctrl_get_idx_from_handle(uint16_t handle, esk8_app_attr_idx_t* out_idx);
 
 static void srvc_ctrl_update_speed(uint8_t speed);
 static void srvc_ctrl_update_pwr(bool pwr);
@@ -123,7 +123,7 @@ static esp_gatts_attr_db_t srvc_ctrl_attr_list[] =
 
 
 /* Declared in service header, defined here */
-e_ride_ble_app_t app_srvc_ctrl =
+esk8_ble_app_t app_srvc_ctrl =
 {
     .app_serviceName = SRVC_CTRL_NAME,
     .attr_list       = srvc_ctrl_attr_list,
@@ -135,7 +135,7 @@ e_ride_ble_app_t app_srvc_ctrl =
 
 
 
-void srvc_ctrl_evt_cb(e_ride_ble_notif_t* bleNotif)
+void srvc_ctrl_evt_cb(esk8_ble_notif_t* bleNotif)
 {
     /**
      * TODO:
@@ -152,13 +152,13 @@ void srvc_ctrl_evt_cb(e_ride_ble_notif_t* bleNotif)
          * This is fine, because it means it is also never read.
          */
         case ESP_GATTS_CREAT_ATTR_TAB_EVT:
-            e_ride_pwm_sgnl_init(&pwm_Config);
+            esk8_pwm_sgnl_init(&pwm_Config);
             break;
 
         case ESP_GATTS_WRITE_EVT:
         {
-            e_ride_app_attr_idx_t srvcIdx;
-            e_ride_err_t errCode = srvc_ctrl_get_idx_from_handle(bleNotif->param->write.handle, &srvcIdx);
+            esk8_app_attr_idx_t srvcIdx;
+            esk8_err_t errCode = srvc_ctrl_get_idx_from_handle(bleNotif->param->write.handle, &srvcIdx);
             if (errCode)
                 break;
 
@@ -186,29 +186,29 @@ void srvc_ctrl_evt_cb(e_ride_ble_notif_t* bleNotif)
 }
 
 
-static e_ride_err_t srvc_ctrl_get_idx_from_handle(
+static esk8_err_t srvc_ctrl_get_idx_from_handle(
 
     uint16_t handle,
-    e_ride_app_attr_idx_t* out_idx
+    esk8_app_attr_idx_t* out_idx
 
 )
 {
     for (int i=0; i<SRVC_CTRL_NUM_ATTR; i++)
         if (srvc_ctrl_attr_hndl_list[i] == handle)
         {
-            (*out_idx) = (e_ride_app_attr_idx_t) i;
-            return E_RIDE_SUCCESS;
+            (*out_idx) = (esk8_app_attr_idx_t) i;
+            return ESK8_SUCCESS;
         }
 
-    return E_RIDE_ERR_INVALID_PARAM;
+    return ESK8_ERR_INVALID_PARAM;
 }
 
 
 void srvc_ctrl_update_speed(uint8_t speed)
 {
-    e_ride_err_t errCode = e_ride_pwm_sgnl_set(&pwm_Config, speed);
+    esk8_err_t errCode = esk8_pwm_sgnl_set(&pwm_Config, speed);
     if (errCode)
-        printf("[ %s ] Got error: %s setting speed to: 0x%02x\n", __func__, e_ride_err_to_str(errCode), speed);
+        printf("[ %s ] Got error: %s setting speed to: 0x%02x\n", __func__, esk8_err_to_str(errCode), speed);
     else
         printf("[ %s ] Set speed to 0x%02x.\n", __func__, speed);
 

@@ -1,12 +1,12 @@
-#include <e_ride_err.h>
-#include <e_ride_pwm.h>
+#include <esk8_err.h>
+#include <esk8_pwm.h>
 
 #include <driver/ledc.h>
 
 
-e_ride_err_t e_ride_pwm_sgnl_set(
+esk8_err_t esk8_pwm_sgnl_set(
 
-    e_ride_pwm_config_t* pwm_Config,
+    esk8_pwm_config_t* pwm_Config,
     uint8_t pwm_Val
 
 )
@@ -14,11 +14,11 @@ e_ride_err_t e_ride_pwm_sgnl_set(
     esp_err_t errCode;
     errCode = ledc_set_duty(pwm_Config->t_Config.speed_mode, pwm_Config->c_Config.channel, pwm_Val);
     if (errCode != ESP_OK)
-        return E_RIDE_ERR_INVALID_PARAM;
+        return ESK8_ERR_INVALID_PARAM;
 
     errCode = ledc_update_duty(pwm_Config->t_Config.speed_mode, pwm_Config->c_Config.channel);
     if (errCode != ESP_OK)
-        return E_RIDE_ERR_INVALID_PARAM;
+        return ESK8_ERR_INVALID_PARAM;
 
-    return E_RIDE_SUCCESS;
+    return ESK8_SUCCESS;
 }

@@ -1,7 +1,7 @@
-#include <e_ride_err.h>
-#include <e_ride_config.h>
-#include <e_ride_ps2.h>
-#include <e_ride_ps2_utils.h>
+#include <esk8_err.h>
+#include <esk8_config.h>
+#include <esk8_ps2.h>
+#include <esk8_ps2_utils.h>
 
 #include <esp_intr_alloc.h>
 #include <driver/gpio.h>
@@ -10,14 +10,14 @@
 #include <math.h>
 
 
-void e_ride_ps2_isr(
+void esk8_ps2_isr(
 
     void* param
 
 )
 {
-    e_ride_ps2_handle_t*   ps2Handle = (e_ride_ps2_handle_t*) param;
-    e_ride_ps2_config_t*   ps2Config = &( ps2Handle->ps2Config );
+    esk8_ps2_handle_t*   ps2Handle = (esk8_ps2_handle_t*) param;
+    esk8_ps2_config_t*   ps2Config = &( ps2Handle->ps2Config );
 
     timer_group_t tg = ps2Config->timerConfig.timerGroup;
     timer_idx_t   ti = ps2Config->timerConfig.timerIdx;
@@ -26,7 +26,7 @@ void e_ride_ps2_isr(
 
     if (ps2Config->dataDrctn == PS2_DIRCN_RECV)
     {
-        e_ride_ps2_bit_t newBit;
+        esk8_ps2_bit_t newBit;
         newBit.bit = gpio_get_level(d_pin);                             /* NOTE (b.covas): Measure the data pin right away  */
         timer_get_counter_time_sec(tg, ti, &newBit.bitInterval_s);      /* NOTE (b.covas): Get the time since the last bit  */
         timer_set_counter_value(tg, ti, (uint64_t) 0);                  /* NOTE (b.covas): Reset Timer                      */
@@ -40,10 +40,10 @@ void e_ride_ps2_isr(
             return;
 
         bool bitVal;
-        e_ride_err_t errCode = e_ride_ps2_take_bit(&ps2Handle->txPkt, &bitVal);
+        esk8_err_t errCode = esk8_ps2_take_bit(&ps2Handle->txPkt, &bitVal);
         gpio_set_level(d_pin, (uint32_t) bitVal);
 
-        if (errCode == E_RIDE_PS2_ERR_VALUE_READY && ps2Handle->txPkt.frameIndex++ >= 12)
+        if (errCode == ESK8_PS2_ERR_VALUE_READY && ps2Handle->txPkt.frameIndex++ >= 12)
         {
             ps2Config->dataDrctn = PS2_DIRCN_RECV;
 
@@ -63,34 +63,34 @@ void ps2_rx_consumer_task(
 
 ) 
 {
-    e_ride_ps2_handle_t*   ps2Handle = (e_ride_ps2_handle_t*) param;
-    e_ride_ps2_pkt_t*      ps2Pkt    = &ps2Handle->rxPkt;
-    e_ride_ps2_bit_t       newData;
+    esk8_ps2_handle_t*   ps2Handle = (esk8_ps2_handle_t*) param;
+    esk8_ps2_pkt_t*      ps2Pkt    = &ps2Handle->rxPkt;
+    esk8_ps2_bit_t       newData;
 
     while(true)
     {
         if(!xQueueReceive(ps2Handle->rxBitQueueHandle, &newData, portMAX_DELAY)) {
-            e_ride_ps2_reset_pkt(ps2Pkt);
+            esk8_ps2_reset_pkt(ps2Pkt);
             continue; }
 
-        if (newData.bitInterval_s > (double) E_RIDE_PS2_PACKET_TIMEOUT_MS / 1000)
-            e_ride_ps2_reset_pkt(ps2Pkt);
+        if (newData.bitInterval_s > (double) ESK8_PS2_PACKET_TIMEOUT_MS / 1000)
+            esk8_ps2_reset_pkt(ps2Pkt);
 
-        if (e_ride_ps2_add_bit(ps2Pkt, newData.bit) == E_RIDE_PS2_ERR_VALUE_READY) {
-            if (e_ride_ps2_check_pkt(ps2Pkt) == E_RIDE_SUCCESS) // NOTE (b.covas): If this is not true, we lost a packet.
+        if (esk8_ps2_add_bit(ps2Pkt, newData.bit) == ESK8_PS2_ERR_VALUE_READY) {
+            if (esk8_ps2_check_pkt(ps2Pkt) == ESK8_SUCCESS) // NOTE (b.covas): If this is not true, we lost a packet.
                 xQueueSend(ps2Handle->rxByteQueueHandle, &ps2Pkt->newByte, 0);
             else
                 printf("[Lost packet: %d %d %d %d]\n", ps2Pkt->newStart, ps2Pkt->newByte, ps2Pkt->newParity, ps2Pkt->newStop);
 
-            e_ride_ps2_reset_pkt(ps2Pkt); }
+            esk8_ps2_reset_pkt(ps2Pkt); }
     }
 }
 
 
-e_ride_err_t e_ride_ps2_init(
+esk8_err_t esk8_ps2_init(
 
-    e_ride_ps2_handle_t* ps2Handle,
-    e_ride_ps2_config_t* ps2Config
+    esk8_ps2_handle_t* ps2Handle,
+    esk8_ps2_config_t* ps2Config
 
 )
 {
@@ -105,15 +105,15 @@ e_ride_err_t e_ride_ps2_init(
         .auto_reload    = false
     };
 
-    ps2Handle->rxBitQueueHandle  = xQueueCreate(E_RIDE_PS2_BIT_QUEUE_LENGTH , sizeof(e_ride_ps2_bit_t));
-    ps2Handle->rxByteQueueHandle = xQueueCreate(E_RIDE_PS2_BYTE_QUEUE_LENGTH, 1);
+    ps2Handle->rxBitQueueHandle  = xQueueCreate(ESK8_PS2_BIT_QUEUE_LENGTH , sizeof(esk8_ps2_bit_t));
+    ps2Handle->rxByteQueueHandle = xQueueCreate(ESK8_PS2_BYTE_QUEUE_LENGTH, 1);
     ps2Handle->rxTaskHandle = NULL;
 
     xTaskCreate(
         ps2_rx_consumer_task,
         "ps2_rx_consumer_task",
         2048, ps2Handle,
-        E_RIDE_PS2_RX_TASK_PRIORITY,
+        ESK8_PS2_RX_TASK_PRIORITY,
         &ps2Handle->rxTaskHandle);
 
     if  (
@@ -122,8 +122,8 @@ e_ride_err_t e_ride_ps2_init(
             ps2Handle->rxTaskHandle      == NULL
         )
     {
-        e_ride_ps2_deinit(ps2Handle, false);
-        return E_RIDE_ERR_OOM;
+        esk8_ps2_deinit(ps2Handle, false);
+        return ESK8_ERR_OOM;
     }
 
 
@@ -148,7 +148,7 @@ e_ride_err_t e_ride_ps2_init(
     if  (isrErrCode != ESP_OK && isrErrCode != ESP_ERR_INVALID_STATE)
         ESP_ERROR_CHECK(isrErrCode);
 
-    ESP_ERROR_CHECK(gpio_isr_handler_add(c_pin, e_ride_ps2_isr, ps2Handle));
+    ESP_ERROR_CHECK(gpio_isr_handler_add(c_pin, esk8_ps2_isr, ps2Handle));
 
     /* NOTE (b.covas): Timer Init */
     ESP_ERROR_CHECK(timer_init(
@@ -156,8 +156,8 @@ e_ride_err_t e_ride_ps2_init(
         ps2Config->timerConfig.timerIdx,
         &espTimerConf));
 
-    e_ride_ps2_reset_pkt(&ps2Handle->rxPkt);
-    e_ride_ps2_reset_pkt(&ps2Handle->txPkt);
+    esk8_ps2_reset_pkt(&ps2Handle->rxPkt);
+    esk8_ps2_reset_pkt(&ps2Handle->txPkt);
 
-    return E_RIDE_SUCCESS;
+    return ESK8_SUCCESS;
 }

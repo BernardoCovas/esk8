@@ -1,17 +1,17 @@
-#include <e_ride_uart.h>
-#include <e_ride_err.h>
+#include <esk8_uart.h>
+#include <esk8_err.h>
 
 
-e_ride_err_t e_ride_uart_regread_msg_new(
+esk8_err_t esk8_uart_regread_msg_new(
 
-    e_ride_uart_addr_t dstAddr,
-    e_ride_uart_reg_t reg,
+    esk8_uart_addr_t dstAddr,
+    esk8_uart_reg_t reg,
     uint8_t readLen,
-    e_ride_uart_msg_t *outMsg
+    esk8_uart_msg_t *outMsg
 
 )
 {
-    e_ride_uart_msg_t newMsg = {
+    esk8_uart_msg_t newMsg = {
         .pld_length = 1,
         .src_address = 0x3e,
         .dst_address = dstAddr,
@@ -21,7 +21,7 @@ e_ride_err_t e_ride_uart_regread_msg_new(
     };
 
     newMsg.payload[0] = readLen;
-    e_ride_uart_msg_set_chk(&newMsg);
+    esk8_uart_msg_set_chk(&newMsg);
 
     (*outMsg) = newMsg;
 

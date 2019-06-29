@@ -8,17 +8,17 @@
 #include <nvs_flash.h>
 
 
-#define E_RIDE_BLE_RMT_NAME "Esk8 Remote"
+#define ESK8_BLE_RMT_NAME "Esk8 Remote"
 
-e_ride_err_t app_ctrl_init();
-e_ride_err_t app_ctrl_update_speed(e_ride_ps2_mvmnt_t mvmtPacket);
-e_ride_err_t app_ctrl_update_pwr(bool pwr);
+esk8_err_t app_ctrl_init();
+esk8_err_t app_ctrl_update_speed(esk8_ps2_mvmnt_t mvmtPacket);
+esk8_err_t app_ctrl_update_pwr(bool pwr);
 
 static void  app_ctrl_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 static void  app_ctrl_gattc_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
 
 
-e_ride_err_t app_ctrl_init(
+esk8_err_t app_ctrl_init(
 
     void
 
@@ -49,16 +49,16 @@ e_ride_err_t app_ctrl_init(
     ESP_ERROR_CHECK(    esp_bluedroid_enable()                                      );
 
     ESP_ERROR_CHECK(    esp_ble_gap_register_callback(app_ctrl_gap_cb)              );
-    ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(E_RIDE_BLE_RMT_NAME)            );
+    ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(ESK8_BLE_RMT_NAME)            );
     ESP_ERROR_CHECK(    esp_ble_gattc_register_callback(app_ctrl_gattc_cb)          );
 
-    return E_RIDE_SUCCESS;
+    return ESK8_SUCCESS;
 }
 
 
-e_ride_err_t app_ctrl_update_speed(
+esk8_err_t app_ctrl_update_speed(
 
-    e_ride_ps2_mvmnt_t mvmtPacket
+    esk8_ps2_mvmnt_t mvmtPacket
 
 )
 {
@@ -67,17 +67,17 @@ e_ride_err_t app_ctrl_update_speed(
     speed += mvmtPacket.x;
     printf("UPDATE_SPEED Updated to: 0x%02x\n", speed);
 
-    return E_RIDE_SUCCESS;
+    return ESK8_SUCCESS;
 }
 
 
-e_ride_err_t app_ctrl_update_pwr(
+esk8_err_t app_ctrl_update_pwr(
 
     bool pwr
 
 )
 {
-    return E_RIDE_SUCCESS;
+    return ESK8_SUCCESS;
 }
 
 
