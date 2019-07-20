@@ -7,6 +7,7 @@ option(ESK8_BUILD_REMOTE "Build remote control firmware instead of base" OFF)
 set(_esk8_include
     "lib/ble"
     "lib/bms"
+    "lib/btn"
     "lib/config"
     "lib/error"
     "lib/nvs"

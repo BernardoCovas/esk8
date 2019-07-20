@@ -4,6 +4,7 @@
 #include <esk8_bms.h>
 #include <esk8_ps2.h>
 #include <esk8_pwm.h>
+#include <esk8_btn.h>
 
 #include <app_ble_srvc.h>
 
@@ -63,14 +64,9 @@ void ps2_task()
     printf("Listening to PS2 with PWM... \n");
     printf("-----------------------------\n");
 
-    esk8_err_t errCode = esk8_ps2_send_cmd(&ps2Handle, ESK8_PS2_CMD_DATA_ENABLE, 1000);
-    if (errCode)
-    {
-        printf("[ PS2 ] Got err: %d at init.\n", errCode);
-        return;
-    }
-
+    esk8_err_t errCode;
     esk8_ps2_mvmnt_t trckMvmnt;
+
     int speed = 0;
     while(1)
     {
@@ -106,6 +102,41 @@ void ps2_task()
 }
 
 
+void btn_task()
+{
+    esk8_btn_cnfg_t btnCnfg = {
+        .btn_debounce_ms  = 10,
+        .btn_gpio         = GPIO_NUM_0,
+        .btn_longPress_ms = 2000,
+        .btn_tmrGrp       = 0,
+        .btn_tmrIdx       = 1
+    };
+
+    esk8_err_t err_code;
+    err_code = esk8_btn_init(&btnCnfg);
+    if (err_code)
+    {
+        printf("[ BTN ] Error %d on init\n", err_code);
+        return;
+    }
+
+    esk8_btn_press_t btn_press;
+    while(1)
+    {
+        err_code = esk8_btn_await_press(&btnCnfg, &btn_press, 5000);
+        if (err_code)
+        {
+            printf("[ BTN ] got err: %d \n", err_code);
+        }
+        else
+        {
+            printf("[ BTN ] got press: %d \n", btn_press);
+        }
+        
+    }
+}
+
+
 void app_main()
 {
     esk8_ble_config_t         bleCnfg;
@@ -114,6 +145,10 @@ void app_main()
     esk8_ble_init(&bleCnfg);
     esk8_ble_register_apps((uint16_t) sizeof(appSrvcList_p) / sizeof(appSrvcList_p[0]), appSrvcList_p);
 
-    // xTaskCreate(ps2_task   , "ps2_task"   , 2048, NULL, 1, NULL);
+
+    xTaskCreate(ps2_task   , "ps2_task"   , 2048, NULL, 1, NULL);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
     xTaskCreate(status_task, "status_task", 2048, NULL, 1, NULL);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    xTaskCreate(btn_task   , "btn_task"   , 2048, NULL, 1, NULL);
 }

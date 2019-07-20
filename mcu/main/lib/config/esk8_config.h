@@ -6,15 +6,15 @@
 #define ESK8_UART_BMS_UPDATE_MS                   50
 #define ESK8_UART_BMS_MSG_UPDATE_RETRIES          3
 #define ESK8_UART_BMS_NUM                         UART_NUM_1
-#define ESK8_UART_BMS_TX_PINS                     { GPIO_NUM_25, GPIO_NUM_25, GPIO_NUM_25, GPIO_NUM_25 }
-#define ESK8_UART_BMS_RX_PINS                     { GPIO_NUM_26, GPIO_NUM_12, GPIO_NUM_16, GPIO_NUM_18 }
+#define ESK8_UART_BMS_TX_PINS                     { GPIO_NUM_14, GPIO_NUM_14, GPIO_NUM_14, GPIO_NUM_14 }
+#define ESK8_UART_BMS_RX_PINS                     { GPIO_NUM_27, GPIO_NUM_26, GPIO_NUM_25, GPIO_NUM_33 }
 #define ESK8_UART_BMS_CONF_NUM                    4               /* Number of BMS configured                                                 */
 #define ESK8_UART_BMS_BUFF_SIZE                   1000
 
 
 /* ========================================== PS2 Trackpad Configrations ================================= */
-#define ESK8_PS2_DATA_PIN                         GPIO_NUM_27
-#define ESK8_PS2_CLOCK_PIN                        GPIO_NUM_14
+#define ESK8_PS2_DATA_PIN                         GPIO_NUM_22
+#define ESK8_PS2_CLOCK_PIN                        GPIO_NUM_23
 #define ESK8_PS2_MOVEMENT_BYTE_TIMEOUT_MS         20              /* Ms between two movement packets to be considered a lost pkt sequence.    */
 #define ESK8_PS2_MOVEMENT_TIMEOUT_MS              5000            /* Timeout, in mS, between movement pkt seequences.                         */
 #define ESK8_PS2_PACKET_TIMEOUT_MS                1               /* Ms between clock cycles to be considered a lost packet.                  */
@@ -36,6 +36,13 @@
 
 /* ========================================== BLE Configurations ========================================= */
 #define ESK8_BLE_DEV_NAME                         "Esk8"          /* Advertized device name                                                                                               */
+
+/* ========================================== BTN Configurations ========================================= */
+#define ESK8_BTN_TIMER_GROUP                      TIMER_GROUP_0
+#define ESK8_BTN_TIMER_IDX                        TIMER_1
+#define ESK8_BTN_GPIO                             GPIO_NUM_0
+#define ESK8_BTN_LONGPRESS_ms                     3000
+#define ESK8_BTN_DEBOUNCE_ms                      10
 
 
 #endif  /* _ESK8_CONTROLLER_CONFIG_H */

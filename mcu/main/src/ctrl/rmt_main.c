@@ -2,6 +2,7 @@
 #include <esk8_ps2.h>
 #include <esk8_pwm.h>
 #include <esk8_ble.h>
+#include <esk8_btn.h>
 
 #include <rmt_ble.h>
 
@@ -13,7 +14,10 @@ void ps2_task()
 {
     esk8_err_t        errCode;
     esk8_ps2_handle_t ps2Handle;
+    esk8_pwm_config_t pwmCnfg;
+
     esk8_ps2_init_from_config_h(&ps2Handle);
+    esk8_pwm_sgnl_init(&pwmCnfg);
 
     printf("-----------------------------\n");
     printf("Listening to PS2 with PWM... \n");
@@ -27,6 +31,7 @@ void ps2_task()
     }
 
     esk8_ps2_mvmnt_t trckMvmnt = {0};
+    int speed = 0;
 
     while(1)
     {
@@ -49,7 +54,13 @@ void ps2_task()
         /**
          * Write speed to BLE Ctrl
          */
+       
+        speed += trckMvmnt.x;
+       if (speed < 0) speed = 0;
+       if (speed > 255) speed = 255;
+
         app_ctrl_update_speed(trckMvmnt);
+        esk8_pwm_sgnl_set(&pwmCnfg, (uint8_t)speed);
     }
 }
 

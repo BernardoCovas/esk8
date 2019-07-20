@@ -22,7 +22,7 @@ static esp_ble_adv_params_t adv_params = {
 //  .peer_addr          = {0},
 //  .peer_addr_type     = 0,
     .channel_map        = ADV_CHNL_ALL,
-    .adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_WLST,
+    .adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
 
 
@@ -112,9 +112,9 @@ esk8_err_t esk8_ble_init(
     ESP_ERROR_CHECK(    esp_bluedroid_init()                                        );
     ESP_ERROR_CHECK(    esp_bluedroid_enable()                                      );
 
-    ESP_ERROR_CHECK(    esp_ble_gap_register_callback(esk8_gap_event_hndlr)       );
-    ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(ESK8_BLE_DEV_NAME)            );
-    ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(esk8_gatts_event_hndlr)   );
+    ESP_ERROR_CHECK(    esp_ble_gap_register_callback(esk8_gap_event_hndlr)         );
+    ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(ESK8_BLE_DEV_NAME)              );
+    ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(esk8_gatts_event_hndlr)     );
     ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&adv_data)                      );
 
     esk8_err_t err_code;

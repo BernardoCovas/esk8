@@ -1,6 +1,7 @@
 #ifndef _ESK8_ERR_H
 #define _ESK8_ERR_H
 
+#define ESK8_ERRCHECK_DO(X, _do_what) do { esk8_err_t __err_c = (X); if (__err_c) { _do_what; } } while(0)
 #define ESK8_ERRCHECK_THROW(X) do { esk8_err_t __err_c = (X); if (__err_c) return __err_c; } while(0)
 
 typedef enum esk8_err_t
@@ -41,7 +42,11 @@ typedef enum esk8_err_t
     ESK8_NVS_NOT_AVAILABLE,               /* Could not be initialized in any way. Probably broken */
     ESK8_NVS_FULL,                        /* No space left on NVS */
     ESK8_NVS_NO_SETTINGS,                 /* No settigs stored */
-    ESK8_NVS_WRONG_SIZE                   /* Stored value returned an unexpected size. Might also mean non existent value */
+    ESK8_NVS_WRONG_SIZE,                  /* Stored value returned an unexpected size. Might also mean non existent value */
+
+    /* Esk8 Button */
+    ESK8_BTN_ERR_NOINIT,
+    ESK8_BTN_ERR_TIMEOUT,
 } esk8_err_t;
 
 
