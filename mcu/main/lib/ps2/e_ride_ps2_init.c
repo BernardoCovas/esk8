@@ -49,7 +49,6 @@ void esk8_ps2_isr(
 
             gpio_set_direction(d_pin, GPIO_MODE_INPUT);
             gpio_set_intr_type(c_pin, GPIO_INTR_NEGEDGE);
-
             vTaskNotifyGiveFromISR(ps2Handle->txTaskToNotift, NULL);
         }
     }
@@ -73,7 +72,7 @@ void ps2_rx_consumer_task(
             esk8_ps2_reset_pkt(ps2Pkt);
             continue; }
 
-        if (newData.bitInterval_s > (double) ESK8_PS2_PACKET_TIMEOUT_MS / 1000)
+        if (newData.bitInterval_s > (double) ESK8_PS2_PACKET_TIMEOUT_uS / 1000000)
             esk8_ps2_reset_pkt(ps2Pkt);
 
         if (esk8_ps2_add_bit(ps2Pkt, newData.bit) == ESK8_PS2_ERR_VALUE_READY) {

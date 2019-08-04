@@ -121,13 +121,12 @@ esk8_err_t esk8_ble_init(
     esp_err_t _err_code;
 
     ESK8_ERRCHECK_THROW(esk8_ble_conn_clear());
-
-    err_code = esk8_nvs_init();
-    if (err_code == ESK8_NVS_NO_SETTINGS) return ESK8_SUCCESS;
-    ESK8_ERRCHECK_THROW(err_code);
+    ESK8_ERRCHECK_THROW(esk8_nvs_init());
 
     esk8_nvs_settings_t sttgs;
-    ESK8_ERRCHECK_THROW(esk8_nvs_settings_get(&sttgs));
+    err_code = esk8_nvs_settings_get(&sttgs);
+    if (err_code == ESK8_NVS_NO_SETTINGS) return ESK8_SUCCESS;
+    ESK8_ERRCHECK_THROW(err_code);
 
     _err_code = esp_ble_gap_update_whitelist(
         true, sttgs.esk8_ble_peer_addr, BLE_WL_ADDR_TYPE_RANDOM);
@@ -355,7 +354,7 @@ esk8_err_t esk8_ble_conn_clear()
 
         if (!bond_dev_l) return ESK8_ERR_OOM;
         _err_code = esp_ble_get_bond_device_list(&dev_num, bond_dev_l);
-        if (_err_code) return ESK8_BLE_FAILED_WL;
+        if (_err_code) { free(bond_dev_l); return ESK8_BLE_FAILED_WL; }
 
         for (int i = 0; i < dev_num; i++)
             esp_ble_remove_bond_device(bond_dev_l[i].bd_addr);

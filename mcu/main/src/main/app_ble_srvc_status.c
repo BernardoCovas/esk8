@@ -227,8 +227,8 @@ esk8_err_t app_srvc_status_update_bms_shallow(
      * After copying, we update the BLE attr
      * and notify.
      */
-    size_t bms_idx_sz = sizeof(bmsIndex);
-    size_t bms_err_sz = sizeof(bmsErrCode);
+    const size_t bms_idx_sz = sizeof(bmsIndex);
+    const size_t bms_err_sz = sizeof(bmsErrCode);
     uint8_t notif_val[bms_idx_sz + bms_err_sz];
 
     memcpy(notif_val,               &bmsErrCode , bms_err_sz);

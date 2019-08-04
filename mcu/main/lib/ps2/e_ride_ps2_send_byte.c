@@ -28,7 +28,11 @@ void signal_b_start(
 }
 
 
-void clear_handle(esk8_ps2_handle_t* ps2Handle)
+void clear_handle(
+
+    esk8_ps2_handle_t* ps2Handle
+
+)
 {
     uint8_t c_pin = ps2Handle->ps2Config.gpioConfig.clockPin;
     uint8_t d_pin = ps2Handle->ps2Config.gpioConfig.dataPin;
@@ -39,6 +43,7 @@ void clear_handle(esk8_ps2_handle_t* ps2Handle)
     gpio_set_direction(d_pin, GPIO_MODE_INPUT);
     gpio_set_intr_type(c_pin, GPIO_INTR_NEGEDGE);
 }
+
 
 esk8_err_t esk8_ps2_send_byte(
 
@@ -56,13 +61,15 @@ esk8_err_t esk8_ps2_send_byte(
 
     signal_b_start(ps2Handle);
 
+    esk8_err_t err = ESK8_SUCCESS;
+
     if (!ulTaskNotifyTake(
             pdTRUE,
-            ESK8_PS2_PACKET_TIMEOUT_MS * 20 / portTICK_PERIOD_MS))
+            ESK8_PS2_BYTE_SEND_TIMEOUT_MS / portTICK_PERIOD_MS))
         {
-            clear_handle(ps2Handle);
-            return ESK8_PS2_ERR_TIMEOUT;
+            err = ESK8_PS2_ERR_TIMEOUT;
         }
 
-    return ESK8_SUCCESS;
+    clear_handle(ps2Handle);
+    return err;
 }
