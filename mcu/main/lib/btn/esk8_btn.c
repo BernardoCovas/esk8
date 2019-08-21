@@ -119,10 +119,8 @@ void _esk8_tmr_isr(void* param)
     esk8_btn_cnfg_t*   btnCnfg = (esk8_btn_cnfg_t*)param;
 
     if (btnCnfg->_que_hndlr)
-    {
         /* TODO: Issues if this fails */
         xQueueSendFromISR(btnCnfg->_que_hndlr, &out_pres, NULL);
-    }
 
     TIMERG0.int_clr_timers.t1 = 1;
 }

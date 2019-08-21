@@ -43,8 +43,8 @@ void status_task(void* param)
                 printf(LOG_TAG_BLE "Got error: %s reading BMS deep status at index: %d.\n",
                     esk8_err_to_str(errCodeDS), i);
 
-            // app_srvc_status_update_bms_shallow(errCodeS, i, &bmsStatus);
-            // app_srvc_status_update_bms_deep(errCodeDS, i, &bmsDeepStatus);
+            app_srvc_status_update_bms_shallow(errCodeS, i, &bmsStatus);
+            app_srvc_status_update_bms_deep(errCodeDS, i, &bmsDeepStatus);
 
             /* We might wait quite a long time here */
             vTaskDelay(10000 / portTICK_PERIOD_MS);
@@ -170,7 +170,7 @@ void app_main()
      * Also it seems to have to start in a different task.
      * What the absolute F*ck
      */
-    xTaskCreate(ps2_task   , "ps2_task"   , 2048, &ps2Handle, 1, NULL);
+    xTaskCreate(ps2_task, "ps2_task", 2048, &ps2Handle, 1, NULL);
 
     err_code = esk8_ble_init(&bleCnfg);
     if (err_code)

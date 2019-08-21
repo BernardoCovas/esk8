@@ -289,26 +289,22 @@ void esk8_gatts_event_hndlr(
             break;
 
         case ESP_GATTS_CONNECT_EVT:
-
             if (bleApp)
                 bleApp->_app_connId = param->connect.conn_id;
-
         {
-            esp_ble_gap_update_whitelist(true, param->connect.remote_bda, BLE_WL_ADDR_TYPE_RANDOM);
-            adv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_WLST;
-            esp_ble_gap_start_advertising(&adv_params);
-
-            /* Update settings */
-            esk8_nvs_settings_t sttgs;
+            esk8_nvs_setting_t sttgs;
             esk8_err_t err_code;
             err_code = esk8_nvs_settings_get(&sttgs);
             if (err_code)
                 break;
+            
+            if (sttgs.esk8_ble_peer_addr == NULL)
+                memcpy(sttgs.esk8_ble_peer_addr, param->connect.remote_bda, ESP_BD_ADDR_LEN);
 
-            memcpy(sttgs.esk8_ble_peer_addr, param->connect.remote_bda, sizeof(sttgs.esk8_ble_peer_addr));
             esk8_nvs_settings_set(&sttgs);
         }
             break;
+
         default:
             break;
     }
