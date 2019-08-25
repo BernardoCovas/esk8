@@ -3,29 +3,22 @@
 #include <nvs.h>
 #include <nvs_flash.h>
 
+#include <string.h>
 #include <stdbool.h>
 
 
 esk8_nvs_setting_t  esk8_nvs_setting_list[ESK8_NVS_IDX_MAX] = {
-    [ESK8_NVS_CONN_KEY]     = { .len = 32,  .data = NULL, .data_default = "", .name = "BLE Auth key" },
-    [ESK8_NVS_CONN_ADDR]    = { .len = 6,   .data = NULL, .data_default = "", .name = "BLE Conn addr"}
+    [ESK8_NVS_CONN_KEY]     = { .nvs_len = 32,  .nvs_key = "ble_auth_key",      .nvs_val = NULL, .__nvs_mem = NULL  },
+    [ESK8_NVS_CONN_COOKIE]  = { .nvs_len = 32,  .nvs_key = "ble_auth_cookie",   .nvs_val = NULL, .__nvs_mem = NULL  },
+    [ESK8_NVS_CONN_ADDR]    = { .nvs_len = 6,   .nvs_key = "ble_conn_address",  .nvs_val = NULL, .__nvs_mem = NULL  }
 };
-        uint16_t        esk8_nvs_setting_list_len   = sizeof(esk8_nvs_setting_list) / sizeof(esk8_nvs_setting_list[0]);
-static  nvs_handle_t    esk8_nvs_handle             = 0;
-static  size_t          esk8_nvs_data_len           = 0;
-static  uint8_t*        esk8_nvs_data               = NULL;
+static  nvs_handle_t    esk8_nvs_handle = 0;
 
 
 esk8_err_t esk8_nvs_init()
 {
     if (esk8_nvs_handle > 0)
         return ESK8_SUCCESS;
-
-    if (esk8_nvs_data)
-    {
-        free(esk8_nvs_data);
-        esk8_nvs_data_len = 0;
-    }
 
     esp_err_t errCode = nvs_flash_init();
     if (errCode == ESP_ERR_NVS_NO_FREE_PAGES || errCode == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -43,142 +36,137 @@ esk8_err_t esk8_nvs_init()
     if (errCode)
         return ESK8_NVS_NOT_AVAILABLE;
 
-    errCode = nvs_get_blob(esk8_nvs_handle,
-        ESK8_NVS_STORAGE_KEY_SETTINGS, NULL, &esk8_nvs_data_len);
-    
-    if (errCode == ESP_ERR_NVS_NOT_FOUND)
-        return ESK8_NVS_NO_SETTINGS;
-    else if(errCode)
-        return ESK8_NVS_NOT_AVAILABLE;
-
-    if (esk8_nvs_data_len == 0)
-        return ESK8_NVS_NOT_AVAILABLE;
-    
-    size_t expected_data_len = 0;
-    for (int i = 0; i < ESK8_NVS_IDX_MAX; i++)
-        expected_data_len += esk8_nvs_setting_list[i].len;
-
-    if (expected_data_len != esk8_nvs_data_len)
-        return ESK8_NVS_WRONG_SIZE;
-
-    esk8_nvs_data = (uint8_t*)malloc(esk8_nvs_data_len);
-    if (!esk8_nvs_data)
-        return ESK8_ERR_OOM;
-
-/* Memory is now allocated. Needs to be cleared before return. */
-esk8_err_t return_err_code = ESK8_SUCCESS;
-#define RETURN(X) do { return_err_code = (X); goto __nvs_err_return; } while(0)
-
-    errCode = nvs_get_blob(esk8_nvs_handle,
-        ESK8_NVS_STORAGE_KEY_SETTINGS, (void*)esk8_nvs_data, &esk8_nvs_data_len);
-
-    if (errCode)
-        RETURN(ESK8_NVS_NOT_AVAILABLE);
-
-    size_t expected_size = 0;
-    for (int i = 0; i < ESK8_NVS_IDX_MAX; i++)
-        expected_size += esk8_nvs_setting_list[i].len;
-
-    if (expected_size != esk8_nvs_data_len)
-        RETURN(ESK8_NVS_WRONG_SIZE);
-
-#undef RETURN
-
-    size_t curr_idx = 0;
     for (int i = 0; i < ESK8_NVS_IDX_MAX; i++)
     {
-        esk8_nvs_setting_list[i].data = &esk8_nvs_data[i];
-        i += esk8_nvs_setting_list[i].len;
+        size_t data_len = 0;
+        esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[i];
+        errCode = nvs_get_blob(esk8_nvs_handle,
+            sttg->nvs_key, NULL, &data_len);
+
+        if (errCode)
+            continue;
+
+        sttg->__nvs_mem = malloc(sttg->nvs_len);
+        if (!sttg->__nvs_mem)
+            return ESK8_ERR_OOM;
+
+        if (data_len != sttg->nvs_len)
+            continue;
+
+        sttg->nvs_val = sttg->__nvs_mem;
+        errCode = nvs_get_blob(esk8_nvs_handle,
+            sttg->nvs_key, sttg->nvs_val, &data_len);
+
+        if (errCode)
+        {
+            free(sttg->nvs_val);
+            sttg->nvs_val   = NULL;
+            sttg->__nvs_mem = NULL;
+        }
     }
 
     return ESK8_SUCCESS;
-
-
-__nvs_err_return:
-
-    if (esk8_nvs_data) free(esk8_nvs_data);
-    esk8_nvs_data_len = 0;
-
-    return return_err_code;
-}
-
-
-esk8_err_t esk8_nvs_write_defaults()
-{
-
 }
 
 
 esk8_err_t esk8_nvs_settings_get(
 
     esk8_nvs_val_idx_t  sttg_idx,
-    esk8_nvs_setting_t* out_setting
+    esk8_nvs_val_t*     out_val
 
 )
 {
-    esp_err_t errCode;
-
     if (esk8_nvs_handle == 0)
         return ESK8_NVS_NOT_INIT;
 
-    if (esk8_nvs_loaded)
-    {
-        (*out_settings) = esk8_nvs_settings;
-        return ESK8_SUCCESS;
-    }
+    if (sttg_idx >= ESK8_NVS_IDX_MAX || sttg_idx < 0)
+        return ESK8_NVS_NO_IDX;
 
-    size_t sttgs_size   = sizeof(esk8_nvs_settings_t);
-    size_t sttgs_size_r = 0;
+    esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[sttg_idx];
 
-    errCode = nvs_get_blob(esk8_nvs_handle,
-        ESK8_NVS_STORAGE_KEY_SETTINGS, NULL, &sttgs_size_r);
-    
-    if (errCode == ESP_ERR_NVS_NOT_FOUND)
-        return ESK8_NVS_NO_SETTINGS;
+    if (!sttg->nvs_val)
+        return ESK8_NVS_NO_VAL;
 
-    if (sttgs_size != sttgs_size_r)
-        return ESK8_NVS_WRONG_SIZE;
-
-    errCode = nvs_get_blob(esk8_nvs_handle,
-        ESK8_NVS_STORAGE_KEY_SETTINGS, (void*)out_settings, &sttgs_size_r);
-
-    if (errCode)
-        return ESK8_NVS_NOT_AVAILABLE;
-
-    esk8_nvs_loaded = true;
+    memcpy(out_val, sttg->nvs_val, sttg->nvs_len);
     return ESK8_SUCCESS;
 }
 
 
 esk8_err_t esk8_nvs_settings_set(
 
-    esk8_nvs_settings_t* settings
+    esk8_nvs_val_idx_t  sttg_idx,
+    esk8_nvs_setting_t* setting
 
 )
 {
     if (esk8_nvs_handle == 0)
         return ESK8_NVS_NOT_INIT;
 
-    esp_err_t errCode;
-    size_t sttgs_size = sizeof(esk8_nvs_settings_t);
+    if (sttg_idx >= ESK8_NVS_IDX_MAX || sttg_idx < 0)
+        return ESK8_NVS_NO_IDX;
 
-    errCode = nvs_set_blob(esk8_nvs_handle,
-        ESK8_NVS_STORAGE_KEY_SETTINGS, (void*)settings, sttgs_size);
+    esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[sttg_idx];
 
-    if (!errCode)
-    {
-        esk8_nvs_settings = (*settings);
-        esk8_nvs_loaded   = true;
-        return ESK8_SUCCESS;
+    if (sttg->nvs_len != setting->nvs_len)
+        return ESK8_NVS_WRONG_SIZE;
+
+    if (!sttg->nvs_val)
+        sttg->nvs_val = sttg->__nvs_mem;
+
+    memcpy(sttg->nvs_val, setting->nvs_val, sttg->nvs_len);
+    return ESK8_SUCCESS;
+}
+
+
+esk8_err_t esk8_nvs_settings_commit(
+
+    esk8_nvs_val_idx_t  sttg_idx
+
+)
+{
+    if (esk8_nvs_handle == 0)
+        return ESK8_NVS_NOT_INIT;
+
+    if (sttg_idx > ESK8_NVS_IDX_MAX || sttg_idx < 0)
+        return ESK8_NVS_NO_IDX;
+
+    if (sttg_idx == ESK8_NVS_IDX_MAX)
+    { 
+        for (int i = 0; i < ESK8_NVS_IDX_MAX; i++)
+        {
+            esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[i];
+
+            if (!nvs_set_blob(esk8_nvs_handle, sttg->nvs_key, sttg->nvs_val, sttg->nvs_len));
+                return ESK8_NVS_ERR_WRITE;
+        }
+
+        goto __nvs_commit;
     }
 
-    switch (errCode)
+    esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[sttg_idx];
+    if (!nvs_set_blob(esk8_nvs_handle, sttg->nvs_key, sttg->nvs_val, sttg->nvs_len));
+        return ESK8_NVS_ERR_WRITE;
+
+__nvs_commit:
+
+    if (!nvs_commit(esk8_nvs_handle))
+        return ESK8_NVS_ERR_WRITE;
+
+    return ESK8_SUCCESS;
+}
+
+
+esk8_err_t esk8_nvs_settings_deinit()
+{
+    for (int i = 0; i < ESK8_NVS_IDX_MAX; i++)
     {
-        case ESP_ERR_NVS_INVALID_HANDLE:
-            return ESK8_NVS_NOT_INIT;
-        case ESP_ERR_NVS_NOT_ENOUGH_SPACE:
-            return ESK8_NVS_FULL;
-        default:
-            return ESK8_NVS_NOT_AVAILABLE;
+        esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[i];
+        if (sttg->__nvs_mem)
+        {
+            free(sttg->__nvs_mem);
+            sttg->__nvs_mem = NULL;
+        }
+
+        sttg->nvs_val = NULL;
     }
 }

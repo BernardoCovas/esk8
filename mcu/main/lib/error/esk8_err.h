@@ -27,6 +27,7 @@ typedef enum esk8_err_t
     ESK8_PS2_ERR_VALUE_READY,
     ESK8_PS2_ERR_INVALID_STATE,
     ESK8_PS2_ERR_TIMEOUT,
+    ESK8_PS2_ERR_PCK_TIMEOUT,
     ESK8_PS2_ERR_NO_ACK,                  /* Device has not ack the received command */
 
     /* E_Skate Ble*/
@@ -42,7 +43,10 @@ typedef enum esk8_err_t
     ESK8_NVS_NOT_AVAILABLE,               /* Could not be initialized in any way. Probably broken */
     ESK8_NVS_FULL,                        /* No space left on NVS */
     ESK8_NVS_NO_SETTINGS,                 /* No settigs stored */
+    ESK8_NVS_NO_IDX,                      /* NVS index out of range */
+    ESK8_NVS_NO_VAL,                      /* Value not stored */
     ESK8_NVS_WRONG_SIZE,                  /* Stored value returned an unexpected size. Might also mean non existent value */
+    ESK8_NVS_ERR_WRITE,                   /* An NVS write opperatin failed. */
 
     /* Esk8 Button */
     ESK8_BTN_ERR_NOINIT,

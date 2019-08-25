@@ -116,7 +116,6 @@ void ps2_task(void* param)
 
 void btn_task()
 {
-
     esk8_err_t err_code;
     esk8_btn_cnfg_t btnCnfg = {
         .btn_debounce_ms  = 10,
@@ -162,16 +161,6 @@ void app_main()
         .btn_tmrIdx       = 1
     };
 
-    /**
-     * PS2 Has to start first, only then BLE can start.
-     * Somehow the BLE interrupts destroy ours.
-     * ISR priority has to do with their register order,
-     * so if we do not init ps2 first, we lose 50% of the packets.
-     * Also it seems to have to start in a different task.
-     * What the absolute F*ck
-     */
-    xTaskCreate(ps2_task, "ps2_task", 2048, &ps2Handle, 1, NULL);
-
     err_code = esk8_ble_init(&bleCnfg);
     if (err_code)
     {
@@ -198,8 +187,9 @@ void app_main()
         return;
     }
 
+    xTaskCreate(ps2_task   , "ps2_task"   , 2048, &ps2Handle, 2, NULL);
     xTaskCreate(status_task, "status_task", 2048, &bmsConfig, 1, NULL);
-    xTaskCreate(btn_task   , "btn_task"   , 2048, &btnCnfg, 1, NULL);
+    xTaskCreate(btn_task   , "btn_task"   , 2048, &btnCnfg  , 1, NULL);
 
     return;
 }
