@@ -16,8 +16,9 @@ void esk8_ps2_isr(
 
 )
 {
-    esk8_ps2_handle_t*   ps2Handle = (esk8_ps2_handle_t*) param;
-    esk8_ps2_config_t*   ps2Config = &( ps2Handle->ps2Config );
+    esk8_ps2_handle_t*      ps2Handle   = (esk8_ps2_handle_t*) param;
+    esk8_ps2_config_t*      ps2Config   = &(ps2Handle->ps2Config);
+    esk8_ps2_pkt_t*         ps2Pkt      = &ps2Handle->rxPkt;
 
     timer_group_t tg = ps2Config->timerConfig.timerGroup;
     timer_idx_t   ti = ps2Config->timerConfig.timerIdx;
@@ -26,11 +27,25 @@ void esk8_ps2_isr(
 
     if (ps2Config->dataDrctn == PS2_DIRCN_RECV)
     {
-        esk8_ps2_bit_t newBit;
-        newBit.bit = gpio_get_level(d_pin);                             /* NOTE (b.covas): Measure the data pin right away  */
-        timer_get_counter_time_sec(tg, ti, &newBit.bitInterval_s);      /* NOTE (b.covas): Get the time since the last bit  */
+        int data;
+        double intSec;
+
+        data = gpio_get_level(d_pin);                                   /* NOTE (b.covas): Measure the data pin right away  */
+        timer_get_counter_time_sec(tg, ti, &intSec);                    /* NOTE (b.covas): Get the time since the last bit  */
         timer_set_counter_value(tg, ti, (uint64_t) 0);                  /* NOTE (b.covas): Reset Timer                      */
-        xQueueSendFromISR(ps2Handle->rxBitQueueHandle, &newBit, NULL);  /* NOTE (b.covas): Send to queue                    */
+
+        if (intSec > (double) (ESK8_PS2_PACKET_TIMEOUT_uS / (1E6)))     /* NOTE (b.covas): If the bit took too long, reset  */
+            esk8_ps2_reset_pkt(ps2Pkt);
+
+        if (esk8_ps2_add_bit(ps2Pkt, data) == ESK8_PS2_ERR_VALUE_READY)
+        {
+            if (esk8_ps2_check_pkt(ps2Pkt) == ESK8_SUCCESS)
+                // NOTE (b.covas): If this is not true, we lost a packet.
+                xQueueSendFromISR(ps2Handle->rxByteQueueHandle, &ps2Pkt->newByte, NULL); /* NOTE (b.covas): Send to queue */
+
+            esk8_ps2_reset_pkt(ps2Pkt);
+        }
+
         return;
     }
 
@@ -55,37 +70,6 @@ void esk8_ps2_isr(
 }
 
 
-/* NOTE (b.covas): Infinite Task */
-void ps2_rx_consumer_task(
-
-    void* param
-
-) 
-{
-    esk8_ps2_handle_t*   ps2Handle = (esk8_ps2_handle_t*) param;
-    esk8_ps2_pkt_t*      ps2Pkt    = &ps2Handle->rxPkt;
-    esk8_ps2_bit_t       newData;
-
-    while(true)
-    {
-        if(!xQueueReceive(ps2Handle->rxBitQueueHandle, &newData, portMAX_DELAY)) {
-            esk8_ps2_reset_pkt(ps2Pkt);
-            continue; }
-
-        if (newData.bitInterval_s > (double) ESK8_PS2_PACKET_TIMEOUT_uS / 1000000)
-            esk8_ps2_reset_pkt(ps2Pkt);
-
-        if (esk8_ps2_add_bit(ps2Pkt, newData.bit) == ESK8_PS2_ERR_VALUE_READY) {
-            if (esk8_ps2_check_pkt(ps2Pkt) == ESK8_SUCCESS) // NOTE (b.covas): If this is not true, we lost a packet.
-                xQueueSend(ps2Handle->rxByteQueueHandle, &ps2Pkt->newByte, 0);
-            else
-                printf("[Lost packet: %d %d %d %d]\n", ps2Pkt->newStart, ps2Pkt->newByte, ps2Pkt->newParity, ps2Pkt->newStop);
-
-            esk8_ps2_reset_pkt(ps2Pkt); }
-    }
-}
-
-
 esk8_err_t esk8_ps2_init(
 
     esk8_ps2_handle_t* ps2Handle,
@@ -104,33 +88,19 @@ esk8_err_t esk8_ps2_init(
         .auto_reload    = false
     };
 
-    ps2Handle->rxBitQueueHandle  = xQueueCreate(ESK8_PS2_BIT_QUEUE_LENGTH , sizeof(esk8_ps2_bit_t));
-    ps2Handle->rxByteQueueHandle = xQueueCreate(ESK8_PS2_BYTE_QUEUE_LENGTH, 1);
-    ps2Handle->rxTaskHandle = NULL;
+    ps2Handle->rxByteQueueHandle  = xQueueCreate(ESK8_PS2_BYTE_QUEUE_LENGTH , sizeof(uint8_t));
 
-    xTaskCreate(
-        ps2_rx_consumer_task,
-        "ps2_rx_consumer_task",
-        2048, ps2Handle,
-        ESK8_PS2_RX_TASK_PRIORITY,
-        &ps2Handle->rxTaskHandle);
-
-    if  (
-            ps2Handle->rxBitQueueHandle  == NULL ||
-            ps2Handle->rxByteQueueHandle == NULL ||
-            ps2Handle->rxTaskHandle      == NULL
-        )
+    if  (ps2Handle->rxByteQueueHandle == NULL)
     {
         esk8_ps2_deinit(ps2Handle, false);
         return ESK8_ERR_OOM;
     }
 
-
     /* NOTE (b.covas): GPIO Interrupt Init */
     gpio_num_t d_pin, c_pin;
     d_pin = ps2Config->gpioConfig.dataPin;
     c_pin = ps2Config->gpioConfig.clockPin;
-    
+
     ESP_ERROR_CHECK(gpio_set_pull_mode(c_pin, GPIO_PULLUP_ONLY));
     ESP_ERROR_CHECK(gpio_set_pull_mode(d_pin, GPIO_PULLUP_ONLY));
     ESP_ERROR_CHECK(gpio_set_drive_capability(c_pin, GPIO_DRIVE_CAP_0));

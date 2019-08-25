@@ -13,19 +13,13 @@
 
 esk8_err_t esk8_ps2_deinit(
 
-    esk8_ps2_handle_t* ps2Handle,
-    bool                  withIsr
+    esk8_ps2_handle_t*  ps2Handle,
+    bool                withIsr
 
 )
 {
-    if (ps2Handle->rxBitQueueHandle != NULL)
-        vQueueDelete(ps2Handle->rxBitQueueHandle);
-
     if (ps2Handle->rxByteQueueHandle != NULL)
         vQueueDelete(ps2Handle->rxByteQueueHandle);
-    
-    if (ps2Handle->rxTaskHandle != NULL)
-        vTaskDelete(ps2Handle->rxTaskHandle);
 
     timer_pause(
         ps2Handle->ps2Config.timerConfig.timerGroup,

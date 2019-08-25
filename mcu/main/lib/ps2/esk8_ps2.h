@@ -77,7 +77,6 @@ typedef struct
 {
     TaskHandle_t                txTaskToNotift;
     TaskHandle_t                rxTaskHandle;
-    QueueHandle_t               rxBitQueueHandle;
     QueueHandle_t               rxByteQueueHandle;
 
     esk8_ps2_pkt_t           rxPkt;

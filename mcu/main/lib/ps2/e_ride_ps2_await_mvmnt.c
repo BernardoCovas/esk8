@@ -24,7 +24,6 @@ esk8_err_t esk8_ps2_await_mvmnt(
     }
 
     bool sX, sY;
-
     sX = frame[0] & (1 << 4);
     sY = frame[0] & (1 << 5);
 
