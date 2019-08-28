@@ -1,8 +1,7 @@
 #ifndef _ESK8_NVS_H
 #define _ESK8_NVS_H
 
-#define ESK8_NVS_STORAGE_NAME           "_esk8_sttng"
-#define ESK8_NVS_STORAGE_KEY_SETTINGS   "_esk8_sttng"
+#define ESK8_NVS_STORAGE_NAME "esk8"
 
 #include <esk8_err.h>
 
@@ -69,7 +68,7 @@ esk8_err_t esk8_nvs_settings_get(
 esk8_err_t esk8_nvs_settings_set(
 
     esk8_nvs_val_idx_t  sttg_idx,
-    esk8_nvs_setting_t* setting
+    esk8_nvs_val_t*     sttg_val
 
 );
 
@@ -85,6 +84,14 @@ esk8_err_t esk8_nvs_settings_commit(
     esk8_nvs_val_idx_t  sttg_idx
 
 );
+
+
+/**
+ * Frees alll allocated memory and sets
+ * internal values to NULL.
+ */
+esk8_err_t esk8_nvs_settings_deinit();
+
 
 
 #endif /* _ESK8_NVS_H */

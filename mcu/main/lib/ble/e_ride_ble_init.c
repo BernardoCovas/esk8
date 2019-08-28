@@ -117,22 +117,8 @@ esk8_err_t esk8_ble_init(
     ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(esk8_gatts_event_hndlr)     );
     ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&adv_data)                      );
 
-    esk8_err_t err_code;
-    esp_err_t _err_code;
-
     ESK8_ERRCHECK_THROW(esk8_ble_conn_clear());
     ESK8_ERRCHECK_THROW(esk8_nvs_init());
-
-    esk8_nvs_settings_t sttgs;
-    err_code = esk8_nvs_settings_get(&sttgs);
-    if (err_code == ESK8_NVS_NO_SETTINGS) return ESK8_SUCCESS;
-    ESK8_ERRCHECK_THROW(err_code);
-
-    _err_code = esp_ble_gap_update_whitelist(
-        true, sttgs.esk8_ble_peer_addr, BLE_WL_ADDR_TYPE_RANDOM);
-
-    if (_err_code)
-        return ESK8_BLE_FAILED_WL;
 
     return ESK8_SUCCESS;
 }
@@ -292,16 +278,16 @@ void esk8_gatts_event_hndlr(
             if (bleApp)
                 bleApp->_app_connId = param->connect.conn_id;
         {
-            esk8_nvs_setting_t sttgs;
+            esk8_nvs_val_t sttg_val;
             esk8_err_t err_code;
-            err_code = esk8_nvs_settings_get(&sttgs);
-            if (err_code)
-                break;
-            
-            if (sttgs.esk8_ble_peer_addr == NULL)
-                memcpy(sttgs.esk8_ble_peer_addr, param->connect.remote_bda, ESP_BD_ADDR_LEN);
 
-            esk8_nvs_settings_set(&sttgs);
+            memcpy(sttg_val.conn_addr, param->connect.remote_bda, ESP_BD_ADDR_LEN);
+            err_code = esk8_nvs_settings_set(ESK8_NVS_CONN_ADDR, &sttg_val);
+            if (err_code)
+                printf("[ BLE ]: Got err: %s\n", esk8_err_to_str(err_code));
+            err_code = esk8_nvs_settings_commit(ESK8_NVS_CONN_ADDR);
+            if (err_code)
+                printf("[ BLE ]: Got err: %s\n", esk8_err_to_str(err_code));
         }
             break;
 

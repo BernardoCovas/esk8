@@ -5,6 +5,7 @@ file(GLOB_RECURSE _esk8_rmt     "src/ctrl/*.c" "src/ctrl/*.h")
 option(ESK8_BUILD_REMOTE "Build remote control firmware instead of base" OFF)
 
 set(_esk8_include
+    "lib/auth"
     "lib/ble"
     "lib/bms"
     "lib/btn"

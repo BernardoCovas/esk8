@@ -8,9 +8,9 @@
 
 
 esk8_nvs_setting_t  esk8_nvs_setting_list[ESK8_NVS_IDX_MAX] = {
-    [ESK8_NVS_CONN_KEY]     = { .nvs_len = 32,  .nvs_key = "ble_auth_key",      .nvs_val = NULL, .__nvs_mem = NULL  },
-    [ESK8_NVS_CONN_COOKIE]  = { .nvs_len = 32,  .nvs_key = "ble_auth_cookie",   .nvs_val = NULL, .__nvs_mem = NULL  },
-    [ESK8_NVS_CONN_ADDR]    = { .nvs_len = 6,   .nvs_key = "ble_conn_address",  .nvs_val = NULL, .__nvs_mem = NULL  }
+    [ESK8_NVS_CONN_KEY]     = { .nvs_len = 32,  .nvs_key = "ble_auth_key",  .nvs_val = NULL, .__nvs_mem = NULL  },
+    [ESK8_NVS_CONN_COOKIE]  = { .nvs_len = 32,  .nvs_key = "ble_auth",      .nvs_val = NULL, .__nvs_mem = NULL  },
+    [ESK8_NVS_CONN_ADDR]    = { .nvs_len = 6,   .nvs_key = "ble_conn_add",  .nvs_val = NULL, .__nvs_mem = NULL  }
 };
 static  nvs_handle_t    esk8_nvs_handle = 0;
 
@@ -40,29 +40,40 @@ esk8_err_t esk8_nvs_init()
     {
         size_t data_len = 0;
         esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[i];
+
+        sttg->__nvs_mem = malloc(sttg->nvs_len);
+        if (!sttg->__nvs_mem)
+        {
+            esk8_nvs_settings_deinit();
+            return ESK8_ERR_OOM;
+        }
+
         errCode = nvs_get_blob(esk8_nvs_handle,
             sttg->nvs_key, NULL, &data_len);
 
         if (errCode)
             continue;
 
-        sttg->__nvs_mem = malloc(sttg->nvs_len);
-        if (!sttg->__nvs_mem)
-            return ESK8_ERR_OOM;
-
         if (data_len != sttg->nvs_len)
             continue;
 
-        sttg->nvs_val = sttg->__nvs_mem;
         errCode = nvs_get_blob(esk8_nvs_handle,
-            sttg->nvs_key, sttg->nvs_val, &data_len);
+            sttg->nvs_key, sttg->__nvs_mem, &data_len);
 
         if (errCode)
         {
-            free(sttg->nvs_val);
             sttg->nvs_val   = NULL;
-            sttg->__nvs_mem = NULL;
+            continue;
         }
+
+        printf("Got value:");
+        for (int _i = 0; _i < sttg->nvs_len; _i++)
+        {
+            printf(" 0x%02x", ((uint8_t*)sttg->__nvs_mem)[_i]);
+        }
+        printf("\n");
+
+        sttg->nvs_val = sttg->__nvs_mem;
     }
 
     return ESK8_SUCCESS;
@@ -95,7 +106,7 @@ esk8_err_t esk8_nvs_settings_get(
 esk8_err_t esk8_nvs_settings_set(
 
     esk8_nvs_val_idx_t  sttg_idx,
-    esk8_nvs_setting_t* setting
+    esk8_nvs_val_t*     sttg_val
 
 )
 {
@@ -107,13 +118,10 @@ esk8_err_t esk8_nvs_settings_set(
 
     esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[sttg_idx];
 
-    if (sttg->nvs_len != setting->nvs_len)
-        return ESK8_NVS_WRONG_SIZE;
-
     if (!sttg->nvs_val)
         sttg->nvs_val = sttg->__nvs_mem;
 
-    memcpy(sttg->nvs_val, setting->nvs_val, sttg->nvs_len);
+    memcpy(sttg->nvs_val, sttg_val, sttg->nvs_len);
     return ESK8_SUCCESS;
 }
 
@@ -136,7 +144,7 @@ esk8_err_t esk8_nvs_settings_commit(
         {
             esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[i];
 
-            if (!nvs_set_blob(esk8_nvs_handle, sttg->nvs_key, sttg->nvs_val, sttg->nvs_len));
+            if (nvs_set_blob(esk8_nvs_handle, sttg->nvs_key, sttg->nvs_val, sttg->nvs_len))
                 return ESK8_NVS_ERR_WRITE;
         }
 
@@ -144,12 +152,17 @@ esk8_err_t esk8_nvs_settings_commit(
     }
 
     esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[sttg_idx];
-    if (!nvs_set_blob(esk8_nvs_handle, sttg->nvs_key, sttg->nvs_val, sttg->nvs_len));
+    esp_err_t errCode = nvs_set_blob(esk8_nvs_handle, sttg->nvs_key, sttg->nvs_val, sttg->nvs_len);
+
+    if (errCode)
+    {
+        printf("got err: %s\n", esp_err_to_name(errCode));
         return ESK8_NVS_ERR_WRITE;
+    }
 
 __nvs_commit:
 
-    if (!nvs_commit(esk8_nvs_handle))
+    if (nvs_commit(esk8_nvs_handle))
         return ESK8_NVS_ERR_WRITE;
 
     return ESK8_SUCCESS;
@@ -169,4 +182,6 @@ esk8_err_t esk8_nvs_settings_deinit()
 
         sttg->nvs_val = NULL;
     }
+
+    return ESK8_SUCCESS;
 }

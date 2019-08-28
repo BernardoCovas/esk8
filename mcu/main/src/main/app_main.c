@@ -69,10 +69,7 @@ void ps2_task(void* param)
 
     errCode = esk8_pwm_sgnl_init(&pwmCnfg);
     if (errCode)
-    {
         printf(LOG_TAG_MAIN "Error '%s' on pwm init\n", esk8_err_to_str(errCode));
-        return;
-    }
 
     esk8_ps2_send_cmd(&ps2Handle, ESK8_PS2_CMD_DATA_ENABLE, 100);
 

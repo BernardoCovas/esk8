@@ -137,13 +137,6 @@ esk8_ble_app_t app_srvc_ctrl =
 
 void srvc_ctrl_evt_cb(esk8_ble_notif_t* bleNotif)
 {
-    /**
-     * TODO:
-     * - Make this the APP MAIN default.
-     * - Move the PS2 to the remote control.
-     * - Add some basic security.
-     */
-
     switch (bleNotif->event)
     {
         /**

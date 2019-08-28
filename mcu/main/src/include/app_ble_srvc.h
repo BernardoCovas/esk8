@@ -14,12 +14,15 @@ extern uint16_t SRVC_CTRL_UUID;
 extern uint16_t SRVC_CTRL_SPEED_UUID;
 extern uint16_t SRVC_CTRL_PWR_UUID;
 
+extern uint16_t SRVC_AUTH_UUID;
+extern uint16_t SRVC_AUTH_KEY_UUID;
+extern uint16_t SRVC_AUTH_CHANGE_UUID;
 
 extern esk8_ble_app_t app_srvc_status;
 extern esk8_ble_app_t app_srvc_ctrl;
+extern esk8_ble_app_t app_srvc_auth;
 
-
-#define APP_ALL_SRVC_LIST_P() { &app_srvc_status, &app_srvc_ctrl }
+#define APP_ALL_SRVC_LIST_P() { &app_srvc_status, &app_srvc_ctrl, &app_srvc_auth }
 
 
 /**
