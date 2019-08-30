@@ -3,20 +3,22 @@
 
 #define ESK8_ERRCHECK_DO(X, _do_what) do { esk8_err_t __err_c = (X); if (__err_c) { _do_what; } } while(0)
 #define ESK8_ERRCHECK_THROW(X) do { esk8_err_t __err_c = (X); if (__err_c) return __err_c; } while(0)
+#define ESK8_ERRCHECK_LOG(tag, X) do { esk8_err_t __err_c = (X); if (__err_c) printf(tag "Got error: %s\n", esk8_err_to_str(__err_c)); } while(0)
+
 
 typedef enum esk8_err_t
 {
     ESK8_SUCCESS,
     ESK8_ERR_INVALID_PARAM,
     ESK8_ERR_OOM,
-    
+
     /* E_Skate BMS */
     ESK8_BMS_ERR_INVALID_DATA,
     ESK8_BMS_ERR_INVALID_LEN,
     ESK8_BMS_ERR_WRONG_ADDRESS,           /* Address was not what was expected */
     ESK8_BMS_ERR_WRONG_RESPONSE,          /* Response was not what was expected */
     ESK8_BMS_ERR_NO_RESPONSE,
-    
+
     /* E_Skate Uart */
     ESK8_UART_MSG_ERR_NO_HEADER,
     ESK8_UART_MSG_ERR_INVALID_PLDLEN,     /* Payload was either bigger or smaller than advertized in header */
@@ -51,6 +53,10 @@ typedef enum esk8_err_t
     /* Esk8 Button */
     ESK8_BTN_ERR_NOINIT,
     ESK8_BTN_ERR_TIMEOUT,
+
+    /* Esk8 Auth */
+    ESK8_AUTH_ERR_HASH,                   /* An error occured in the tls module. */
+    ESK8_AUTH_ERR_AUTH,                   /* Wrong key supplied.                 */
 } esk8_err_t;
 
 

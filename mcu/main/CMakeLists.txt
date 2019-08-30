@@ -11,6 +11,7 @@ set(_esk8_include
     "lib/btn"
     "lib/config"
     "lib/error"
+    "lib/log"
     "lib/nvs"
     "lib/ps2"
     "lib/pwm"

@@ -1,4 +1,5 @@
 #include <esk8_config.h>
+#include <esk8_log.h>
 #include <esk8_err.h>
 #include <esk8_ble.h>
 #include <esk8_nvs.h>
@@ -19,8 +20,6 @@ static esp_ble_adv_params_t adv_params = {
     .adv_int_max        = 0x40,
     .adv_type           = ADV_TYPE_IND,
     .own_addr_type      = BLE_ADDR_TYPE_PUBLIC,
-//  .peer_addr          = {0},
-//  .peer_addr_type     = 0,
     .channel_map        = ADV_CHNL_ALL,
     .adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
@@ -85,7 +84,7 @@ esk8_ble_app_t* esk8_ble_get_app_from_if(
 
 esk8_err_t esk8_ble_init(
 
-    esk8_ble_config_t*    bleCnfg
+    esk8_ble_config_t* bleCnfg
 
 )
 {
@@ -219,7 +218,7 @@ void esk8_gatts_event_hndlr(
              */
             if (appId > bleHandler.appNum)
             {
-                ESP_LOGE("APP_REGISTER", "App id was %d, but there are %d apps.", appId, bleHandler.appNum);
+                printf(ESK8_TAG_BLE "App id was %d, but there are %d apps.\n", appId, bleHandler.appNum);
                 return;
             }
 
@@ -236,7 +235,6 @@ void esk8_gatts_event_hndlr(
                 bleApp->attr_numAttr,
                 bleApp->app_srvcId
             ));
-
             break;
         }
 
@@ -244,20 +242,20 @@ void esk8_gatts_event_hndlr(
         {
             if (param->add_attr_tab.status != ESP_OK)
             {
-                ESP_LOGE("CREATE_TABLE", "Error creating table: %d", param->add_attr_tab.status);
+                printf(ESK8_TAG_BLE "Error creating table: %d\n", param->add_attr_tab.status);
                 break;
             }
 
             if (!bleApp)
             {
-                ESP_LOGE("CREATE_TABLE", "Table created but no app associated with gatts if: %d", gatts_if);
+                printf(ESK8_TAG_BLE "Table created but no app associated with gatts if: %d\n", gatts_if);
                 break;
             }
 
             if (param->add_attr_tab.num_handle != bleApp->attr_numAttr)
             {
-                ESP_LOGE("CREATE_TABLE",
-                    "Table created but the returned number of handles is %d. Expected %d instead.",
+                printf(ESK8_TAG_BLE
+                    "Table created but the returned number of handles is %d. Expected %d instead.\n",
                     param->add_attr_tab.num_handle,
                     bleApp->attr_numAttr
                 );
@@ -284,10 +282,10 @@ void esk8_gatts_event_hndlr(
             memcpy(sttg_val.conn_addr, param->connect.remote_bda, ESP_BD_ADDR_LEN);
             err_code = esk8_nvs_settings_set(ESK8_NVS_CONN_ADDR, &sttg_val);
             if (err_code)
-                printf("[ BLE ]: Got err: %s\n", esk8_err_to_str(err_code));
-            err_code = esk8_nvs_settings_commit(ESK8_NVS_CONN_ADDR);
+                printf(ESK8_TAG_BLE "Got err: %s\n", esk8_err_to_str(err_code));
+            err_code = esk8_nvs_commit(ESK8_NVS_CONN_ADDR);
             if (err_code)
-                printf("[ BLE ]: Got err: %s\n", esk8_err_to_str(err_code));
+                printf(ESK8_TAG_BLE "Got err: %s\n", esk8_err_to_str(err_code));
         }
             break;
 
@@ -315,9 +313,10 @@ void esk8_gap_event_hndlr(
     switch (event)
     {
         case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
-            ESP_LOGI(__func__, "Staring advertizing.");
+            printf(ESK8_TAG_BLE "Staring advertizing.\n");
             ESP_ERROR_CHECK(esp_ble_gap_start_advertising(&adv_params));
             break;
+
         default:
             break;
     }
@@ -344,25 +343,5 @@ esk8_err_t esk8_ble_conn_clear()
         free(bond_dev_l);
     }
 
-    return ESK8_SUCCESS;
-}
-
-
-esk8_err_t esk8_ble_conn_allow(
-
-    uint32_t timeout_ms
-
-)
-{
-    esp_ble_gap_stop_advertising();
-    adv_params.adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
-    esp_ble_gap_start_advertising(&adv_params);
-
-    return ESK8_SUCCESS;
-}
-
-
-esk8_err_t esk8_ble_conn_block()
-{
     return ESK8_SUCCESS;
 }

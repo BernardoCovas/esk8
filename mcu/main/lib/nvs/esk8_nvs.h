@@ -12,7 +12,7 @@
 
 typedef enum
 {
-    ESK8_NVS_CONN_KEY,
+    ESK8_NVS_CONN_HASH,
     ESK8_NVS_CONN_COOKIE,
     ESK8_NVS_CONN_ADDR,
     ESK8_NVS_IDX_MAX,
@@ -21,8 +21,7 @@ esk8_nvs_val_idx_t;
 
 typedef union
 {
-    uint8_t   conn_key[32];
-    uint8_t   conn_cookie[32];
+    uint8_t   conn_hash[32];
     uint8_t   conn_addr[6];
 }
 esk8_nvs_val_t;
@@ -79,7 +78,7 @@ esk8_err_t esk8_nvs_settings_set(
  * if `sttg_idx` is `ESK8_NVS_IDX_MAX`,
  * saves all settings.
  */
-esk8_err_t esk8_nvs_settings_commit(
+esk8_err_t esk8_nvs_commit(
 
     esk8_nvs_val_idx_t  sttg_idx
 

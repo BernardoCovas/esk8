@@ -1,4 +1,5 @@
 #include <esk8_nvs.h>
+#include <esk8_log.h>
 
 #include <nvs.h>
 #include <nvs_flash.h>
@@ -8,7 +9,7 @@
 
 
 esk8_nvs_setting_t  esk8_nvs_setting_list[ESK8_NVS_IDX_MAX] = {
-    [ESK8_NVS_CONN_KEY]     = { .nvs_len = 32,  .nvs_key = "ble_auth_key",  .nvs_val = NULL, .__nvs_mem = NULL  },
+    [ESK8_NVS_CONN_HASH]    = { .nvs_len = 32,  .nvs_key = "ble_auth_hash", .nvs_val = NULL, .__nvs_mem = NULL  },
     [ESK8_NVS_CONN_COOKIE]  = { .nvs_len = 32,  .nvs_key = "ble_auth",      .nvs_val = NULL, .__nvs_mem = NULL  },
     [ESK8_NVS_CONN_ADDR]    = { .nvs_len = 6,   .nvs_key = "ble_conn_add",  .nvs_val = NULL, .__nvs_mem = NULL  }
 };
@@ -62,14 +63,14 @@ esk8_err_t esk8_nvs_init()
 
         if (errCode)
         {
-            sttg->nvs_val   = NULL;
+            sttg->nvs_val = NULL;
             continue;
         }
 
-        printf("Got value:");
+        printf(ESK8_TAG_NVS "Got value: %s -> ", sttg->nvs_key);
         for (int _i = 0; _i < sttg->nvs_len; _i++)
         {
-            printf(" 0x%02x", ((uint8_t*)sttg->__nvs_mem)[_i]);
+            printf("%02x", ((uint8_t*)sttg->__nvs_mem)[_i]);
         }
         printf("\n");
 
@@ -126,7 +127,7 @@ esk8_err_t esk8_nvs_settings_set(
 }
 
 
-esk8_err_t esk8_nvs_settings_commit(
+esk8_err_t esk8_nvs_commit(
 
     esk8_nvs_val_idx_t  sttg_idx
 
@@ -139,7 +140,7 @@ esk8_err_t esk8_nvs_settings_commit(
         return ESK8_NVS_NO_IDX;
 
     if (sttg_idx == ESK8_NVS_IDX_MAX)
-    { 
+    {
         for (int i = 0; i < ESK8_NVS_IDX_MAX; i++)
         {
             esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[i];
@@ -155,10 +156,7 @@ esk8_err_t esk8_nvs_settings_commit(
     esp_err_t errCode = nvs_set_blob(esk8_nvs_handle, sttg->nvs_key, sttg->nvs_val, sttg->nvs_len);
 
     if (errCode)
-    {
-        printf("got err: %s\n", esp_err_to_name(errCode));
         return ESK8_NVS_ERR_WRITE;
-    }
 
 __nvs_commit:
 

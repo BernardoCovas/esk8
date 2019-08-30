@@ -1,3 +1,4 @@
+#include <esk8_log.h>
 #include <esk8_ble.h>
 #include <esk8_bms.h>
 
@@ -315,7 +316,7 @@ void srvc_status_evt_cb(esk8_ble_notif_t* bleNotif)
          * The service event came. This means we
          * are meant to use the BMS service.
          * We can init the BMS lib.
-         * 
+         *
          * If this event does not come, the lib is never started.
          * This is fine, because it means it is also never read.
          */
@@ -325,7 +326,7 @@ void srvc_status_evt_cb(esk8_ble_notif_t* bleNotif)
             /* TODO */
             break;
         default:
-            printf("[ %s ] Got event: %d\n", __func__ , bleNotif->event);
+            printf(ESK8_TAG_BLE "(srvc) Got event: %d\n", bleNotif->event);
             break;
     }
 

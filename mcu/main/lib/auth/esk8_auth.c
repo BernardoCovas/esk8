@@ -1,6 +1,13 @@
-#include <esk8_auth.h>
+#include <esk8_err.h>
+#include <esk8_log.h>
 #include <esk8_nvs.h>
+#include <esk8_auth.h>
+#include "esk8_auth_priv.h"
 
+#include <mbedtls/md.h>
+
+#include <stdio.h>
+#include <stddef.h>
 #include <string.h>
 
 
@@ -11,10 +18,63 @@ esk8_err_t esk8_auth_init(
 )
 {
     esk8_nvs_val_t sttg_val;
-    ESK8_ERRCHECK_THROW(esk8_nvs_init());
-    ESK8_ERRCHECK_THROW(esk8_nvs_settings_get(ESK8_NVS_CONN_KEY, &sttg_val));
+    esk8_err_t err_code;
 
-    memcpy(hndl->key, sttg_val.conn_key, sizeof(sttg_val.conn_key));
+    ESK8_ERRCHECK_THROW(esk8_nvs_init());
+    err_code = esk8_nvs_settings_get(ESK8_NVS_CONN_HASH, &sttg_val);
+    if (err_code && err_code != ESK8_NVS_NO_VAL)
+        return err_code;
+
+    esk8_auth_cntx_t* cntx = calloc(1, sizeof(esk8_auth_cntx_t));
+    if (!cntx) return ESK8_ERR_OOM;
+
+    mbedtls_md_init(&cntx->mbtls_cntx);
+    if(mbedtls_md_setup(&cntx->mbtls_cntx, mbedtls_md_info_from_type(MBEDTLS_MD_SHA256), 0))
+    {
+        esk8_auth_deinit(hndl);
+        mbedtls_md_free(&cntx->mbtls_cntx);
+        free(cntx);
+
+        return ESK8_ERR_OOM;
+    }
+
+    if (!err_code)
+        memcpy(cntx->hash, sttg_val.conn_hash, sizeof(esk8_auth_hash_t));
+
+    (*hndl) = cntx;
+
+    return ESK8_SUCCESS;
+}
+
+
+esk8_err_t esk8_auth_register(
+
+    esk8_auth_hndl_t* hndl,
+    esk8_auth_key_t   key
+
+)
+{
+    esk8_auth_cntx_t* cntx = *hndl;
+    esk8_nvs_val_t sttg_val;
+
+    if (mbedtls_md_starts(&cntx->mbtls_cntx))
+        return ESK8_AUTH_ERR_HASH;
+
+    if (mbedtls_md_update(&cntx->mbtls_cntx, key, sizeof(esk8_auth_key_t)))
+        return ESK8_AUTH_ERR_HASH;
+
+    if (mbedtls_md_finish(&cntx->mbtls_cntx, cntx->hash))
+        return ESK8_AUTH_ERR_HASH;
+
+    printf(ESK8_TAG_ATH "Registered hash: ");
+    for (int i = 0; i < sizeof(esk8_auth_hash_t); i++)
+        printf("%02x", cntx->hash[i]);
+    printf("\n");
+
+    memcpy(sttg_val.conn_hash, cntx->hash, sizeof(esk8_auth_hash_t));
+
+    ESK8_ERRCHECK_THROW(esk8_nvs_settings_set(ESK8_NVS_CONN_HASH, &sttg_val));
+    ESK8_ERRCHECK_THROW(esk8_nvs_commit(ESK8_NVS_CONN_HASH));
 
     return ESK8_SUCCESS;
 }
@@ -27,17 +87,22 @@ esk8_err_t esk8_auth_auth(
 
 )
 {
-    return ESK8_SUCCESS;
-}
+    esk8_auth_key_t   hash;
+    esk8_auth_cntx_t* cntx = *hndl;
 
+    if (mbedtls_md_starts(&cntx->mbtls_cntx))
+        return ESK8_AUTH_ERR_HASH;
 
-esk8_err_t esk8_auth_deauth(
+    if (mbedtls_md_update(&cntx->mbtls_cntx, key, sizeof(esk8_auth_key_t)))
+        return ESK8_AUTH_ERR_HASH;
 
-    esk8_auth_hndl_t* hndl
+    if (mbedtls_md_finish(&cntx->mbtls_cntx, hash))
+        return ESK8_AUTH_ERR_HASH;
 
-)
-{
-    return ESK8_SUCCESS;
+    if (memcmp(cntx->hash, hash, sizeof(esk8_auth_key_t)) == 0)
+        return ESK8_SUCCESS;
+
+    return ESK8_AUTH_ERR_AUTH;
 }
 
 
@@ -47,5 +112,14 @@ esk8_err_t esk8_auth_deinit(
 
 )
 {
+    if (!*hndl)
+        return ESK8_SUCCESS;
+
+    esk8_auth_cntx_t* cntx = *hndl;
+    mbedtls_md_free(&cntx->mbtls_cntx);
+
+    free(*hndl);
+    (*hndl) = NULL;
+
     return ESK8_SUCCESS;
 }

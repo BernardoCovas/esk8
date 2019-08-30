@@ -6,6 +6,7 @@
 
 
 #define SRVC_AUTH_NAME  "Auth Service"
+#define LOG_TAG         "BLE_SRVC"
 
 
        uint16_t SRVC_AUTH_UUID              = 0xE8A0;
@@ -111,6 +112,7 @@ static esp_gatts_attr_db_t srvc_auth_attr_list[] =
 };
 
 static void srvc_auth_evt_cb(esk8_ble_notif_t* bleNotif);
+static esk8_auth_hndl_t auth_hndl = NULL;
 
 /* Declared in service header, defined here */
 esk8_ble_app_t app_srvc_auth =
@@ -124,8 +126,21 @@ esk8_ble_app_t app_srvc_auth =
 
 static void srvc_auth_evt_cb(esk8_ble_notif_t* bleNotif)
 {
-    switch(bleNotif->event)
+    switch (bleNotif->event)
     {
+    case ESP_GATTS_CONNECT_EVT:
+        if (auth_hndl)
+            break;
 
+        ESK8_ERRCHECK_LOG(LOG_TAG, esk8_auth_init(&auth_hndl));
+        break;
+
+    case ESP_GATTS_DISCONNECT_EVT:
+        if (auth_hndl)
+            ESK8_ERRCHECK_LOG(LOG_TAG, esk8_auth_deinit(&auth_hndl));
+        break;
+
+    default:
+        break;
     }
 }

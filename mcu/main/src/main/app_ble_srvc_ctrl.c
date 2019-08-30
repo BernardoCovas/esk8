@@ -1,5 +1,6 @@
 #include <esk8_pwm.h>
 #include <esk8_ble.h>
+#include <esk8_log.h>
 
 #include <app_ble_srvc.h>
 
@@ -46,7 +47,6 @@ esk8_app_attr_idx_t;
 
 static esk8_pwm_config_t pwm_Config = {0};
 static void srvc_ctrl_evt_cb(esk8_ble_notif_t* bleNotif);
-static esk8_err_t srvc_ctrl_get_idx_from_handle(uint16_t handle, esk8_app_attr_idx_t* out_idx);
 
 static void srvc_ctrl_update_speed(uint8_t speed);
 static void srvc_ctrl_update_pwr(bool pwr);
@@ -150,8 +150,12 @@ void srvc_ctrl_evt_cb(esk8_ble_notif_t* bleNotif)
 
         case ESP_GATTS_WRITE_EVT:
         {
-            esk8_app_attr_idx_t srvcIdx;
-            esk8_err_t errCode = srvc_ctrl_get_idx_from_handle(bleNotif->param->write.handle, &srvcIdx);
+            int srvcIdx;
+            esk8_err_t errCode = esk8_ble_get_idx_from_handle(
+                &app_srvc_ctrl,
+                bleNotif->param->write.handle,
+                &srvcIdx);
+
             if (errCode)
                 break;
 
@@ -173,27 +177,8 @@ void srvc_ctrl_evt_cb(esk8_ble_notif_t* bleNotif)
         }
             break;
         default:
-            printf("[ %s ] Got event: %d\n", __func__ , bleNotif->event);
             break;
     }
-}
-
-
-static esk8_err_t srvc_ctrl_get_idx_from_handle(
-
-    uint16_t handle,
-    esk8_app_attr_idx_t* out_idx
-
-)
-{
-    for (int i=0; i<SRVC_CTRL_NUM_ATTR; i++)
-        if (srvc_ctrl_attr_hndl_list[i] == handle)
-        {
-            (*out_idx) = (esk8_app_attr_idx_t) i;
-            return ESK8_SUCCESS;
-        }
-
-    return ESK8_ERR_INVALID_PARAM;
 }
 
 
@@ -201,14 +186,14 @@ void srvc_ctrl_update_speed(uint8_t speed)
 {
     esk8_err_t errCode = esk8_pwm_sgnl_set(&pwm_Config, speed);
     if (errCode)
-        printf("[ %s ] Got error: %s setting speed to: 0x%02x\n", __func__, esk8_err_to_str(errCode), speed);
+        printf(ESK8_TAG_BLE "Got error: %s setting speed to: 0x%02x\n", esk8_err_to_str(errCode), speed);
     else
-        printf("[ %s ] Set speed to 0x%02x.\n", __func__, speed);
+        printf(ESK8_TAG_BLE "Set speed to 0x%02x.\n", speed);
 
 }
 
 
 void srvc_ctrl_update_pwr(bool pwr)
 {
-    printf("[ %s ] Would set power to %s.\n", __func__, pwr?"ON":"OFF");
+    printf(ESK8_TAG_BLE "Would set power to %s.\n", pwr?"ON":"OFF");
 }
