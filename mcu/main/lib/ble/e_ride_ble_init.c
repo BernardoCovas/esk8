@@ -229,6 +229,8 @@ void esk8_gatts_event_hndlr(
             bleApp = bleHandler.p_appList[appId];
             bleApp->_app_appHndl = gatts_if;
 
+            printf(ESK8_TAG_BLE "Registered app: '%s', on IF: %d\n", bleApp->app_serviceName, gatts_if);
+
             ESP_ERROR_CHECK(esp_ble_gatts_create_attr_tab(
                 bleApp->attr_list,
                 gatts_if,

@@ -40,6 +40,8 @@ const char* esk8_err_to_str(
         case ESK8_NVS_ERR_WRITE:                return "ESK8_NVS_ERR_WRITE";
         case ESK8_BTN_ERR_NOINIT:               return "ESK8_BTN_ERR_NOINIT";
         case ESK8_BTN_ERR_TIMEOUT:              return "ESK8_BTN_ERR_TIMEOUT";
+        case ESK8_AUTH_ERR_HASH:                return "ESK8_AUTH_ERR_HASH";
+        case ESK8_AUTH_ERR_AUTH:                return "ESK8_AUTH_ERR_AUTH";
 
         default:
             return "?";

@@ -130,9 +130,9 @@ void btn_task()
     {
         err_code = esk8_btn_await_press(&btnCnfg, &btn_press, 5000);
         if (err_code)
-            printf(ESK8_TAG_BTN "got err: %d \n", err_code);
+            printf(ESK8_TAG_BTN "Got err: %d \n", err_code);
         else
-            printf(ESK8_TAG_BTN "got press: %d \n", btn_press);
+            printf(ESK8_TAG_BTN "Got press: %d \n", btn_press);
     }
 }
 
@@ -164,12 +164,6 @@ void app_main()
         return;
     }
 
-    err_code = esk8_ble_register_apps((uint16_t) sizeof(appSrvcList_p) / sizeof(appSrvcList_p[0]), appSrvcList_p);
-    if (err_code)
-    {
-        printf(ESK8_TAG_MAIN "Error '%s' on ble app register\n", esk8_err_to_str(err_code));
-        return;
-    }
     err_code = esk8_ble_register_apps((uint16_t) sizeof(appSrvcList_p) / sizeof(appSrvcList_p[0]), appSrvcList_p);
     if (err_code)
     {

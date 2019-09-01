@@ -9,6 +9,7 @@
 
 
 #define SRVC_CTRL_NAME  "Ctrl Service"
+#define LOG_TAG         ESK8_TAG_BLE "(ctrl) "
 
 
        uint16_t SRVC_CTRL_UUID                 = 0x5AC0;
@@ -177,6 +178,7 @@ void srvc_ctrl_evt_cb(esk8_ble_notif_t* bleNotif)
         }
             break;
         default:
+            printf(LOG_TAG "Got event: %d\n", bleNotif->event);
             break;
     }
 }
@@ -186,14 +188,14 @@ void srvc_ctrl_update_speed(uint8_t speed)
 {
     esk8_err_t errCode = esk8_pwm_sgnl_set(&pwm_Config, speed);
     if (errCode)
-        printf(ESK8_TAG_BLE "Got error: %s setting speed to: 0x%02x\n", esk8_err_to_str(errCode), speed);
+        printf(LOG_TAG "Got error: %s setting speed to: 0x%02x\n", esk8_err_to_str(errCode), speed);
     else
-        printf(ESK8_TAG_BLE "Set speed to 0x%02x.\n", speed);
+        printf(LOG_TAG "Set speed to 0x%02x.\n", speed);
 
 }
 
 
 void srvc_ctrl_update_pwr(bool pwr)
 {
-    printf(ESK8_TAG_BLE "Would set power to %s.\n", pwr?"ON":"OFF");
+    printf(LOG_TAG "Would set power to %s.\n", pwr?"ON":"OFF");
 }

@@ -1,4 +1,5 @@
 #include <esk8_ble.h>
+#include <esk8_log.h>
 #include <esk8_auth.h>
 #include <app_ble_srvc.h>
 
@@ -6,7 +7,7 @@
 
 
 #define SRVC_AUTH_NAME  "Auth Service"
-#define LOG_TAG         "BLE_SRVC"
+#define LOG_TAG         ESK8_TAG_BLE "(auth) "
 
 
        uint16_t SRVC_AUTH_UUID              = 0xE8A0;
@@ -129,6 +130,7 @@ static void srvc_auth_evt_cb(esk8_ble_notif_t* bleNotif)
     switch (bleNotif->event)
     {
     case ESP_GATTS_CONNECT_EVT:
+        // If it is initialized we ignore
         if (auth_hndl)
             break;
 
@@ -140,7 +142,48 @@ static void srvc_auth_evt_cb(esk8_ble_notif_t* bleNotif)
             ESK8_ERRCHECK_LOG(LOG_TAG, esk8_auth_deinit(&auth_hndl));
         break;
 
+    case ESP_GATTS_WRITE_EVT:
+    {
+        esk8_err_t err_code;
+        int idx;
+        err_code = esk8_ble_get_idx_from_handle(
+            &app_srvc_auth,
+            bleNotif->param->write.handle,
+            &idx);
+
+        if (err_code)
+        {
+            printf(LOG_TAG "Got err: %s on write evt, get_idx_from_hndl.\n", esk8_err_to_str(err_code));
+            break;
+        } else
+        {
+            printf(LOG_TAG "Write evt to idx: %d\n", idx);
+        }
+
+        switch (idx)
+        {
+        case SRVC_IDX_AUTH_KEY_CHAR_VAL:
+
+            if (bleNotif->param->write.len < sizeof(esk8_auth_key_t))
+            {
+                printf(LOG_TAG "Wrong key len: %d\n", bleNotif->param->write.len);
+                break;
+            }
+
+            printf(LOG_TAG "Wring key len: %d\n", bleNotif->param->write.len);
+            err_code = esk8_auth_auth(&auth_hndl, bleNotif->param->write.value);
+            printf(LOG_TAG "Auth result: %s\n", esk8_err_to_str(err_code));
+            break;
+
+        default:
+            break;
+        }
+
+        break;
+    }
+
     default:
+        printf(LOG_TAG "Got event: %d\n", bleNotif->event);
         break;
     }
 }

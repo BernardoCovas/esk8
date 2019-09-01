@@ -7,6 +7,7 @@
 #include <esp_gatts_api.h>
 
 #define SRVC_STATUS_NAME    "Status Service"
+#define LOG_TAG         ESK8_TAG_BLE "(stat) "
 
 
        uint16_t SRVC_STATUS_UUID                = 0x5AA5;
@@ -326,7 +327,7 @@ void srvc_status_evt_cb(esk8_ble_notif_t* bleNotif)
             /* TODO */
             break;
         default:
-            printf(ESK8_TAG_BLE "(srvc) Got event: %d\n", bleNotif->event);
+            printf(LOG_TAG "Got event: %d\n", bleNotif->event);
             break;
     }
 
