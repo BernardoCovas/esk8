@@ -34,6 +34,15 @@ esk8_auth_register(
  *
  */
 esk8_err_t
+esk8_auth_chunk_auth(
+    esk8_auth_hndl_t* hndl,
+    uint8_t*          key_chk,
+    size_t            chk_len);
+
+/**
+ *
+ */
+esk8_err_t
 esk8_auth_auth(
     esk8_auth_hndl_t* hndl,
     esk8_auth_key_t   key);

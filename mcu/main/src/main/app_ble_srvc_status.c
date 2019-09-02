@@ -7,7 +7,7 @@
 #include <esp_gatts_api.h>
 
 #define SRVC_STATUS_NAME    "Status Service"
-#define LOG_TAG         ESK8_TAG_BLE "(stat) "
+#define LOG_TAG         ESK8_TAG_BLE "(STAT):"
 
 
        uint16_t SRVC_STATUS_UUID                = 0x5AA5;

@@ -21,6 +21,7 @@ esk8_err_t esk8_auth_init(
     esk8_err_t err_code;
 
     ESK8_ERRCHECK_THROW(esk8_nvs_init());
+
     err_code = esk8_nvs_settings_get(ESK8_NVS_CONN_HASH, &sttg_val);
     if (err_code && err_code != ESK8_NVS_NO_VAL)
         return err_code;
@@ -31,8 +32,8 @@ esk8_err_t esk8_auth_init(
     mbedtls_md_init(&cntx->mbtls_cntx);
     if(mbedtls_md_setup(&cntx->mbtls_cntx, mbedtls_md_info_from_type(MBEDTLS_MD_SHA256), 0))
     {
-        esk8_auth_deinit(hndl);
         mbedtls_md_free(&cntx->mbtls_cntx);
+        esk8_auth_deinit(hndl);
         free(cntx);
 
         return ESK8_ERR_OOM;
@@ -105,6 +106,18 @@ esk8_err_t esk8_auth_auth(
     return ESK8_AUTH_ERR_AUTH;
 }
 
+esk8_err_t esk8_auth_chunk_auth(
+
+    esk8_auth_hndl_t* hndl,
+    uint8_t*          key_chk,
+    size_t            chk_len
+
+)
+{
+    esk8_auth_cntx_t* auth_cntx = (*hndl);
+
+    return ESK8_SUCCESS;
+}
 
 esk8_err_t esk8_auth_deinit(
 

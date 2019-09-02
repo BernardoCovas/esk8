@@ -57,6 +57,7 @@ typedef enum esk8_err_t
     /* Esk8 Auth */
     ESK8_AUTH_ERR_HASH,                   /* An error occured in the tls module. */
     ESK8_AUTH_ERR_AUTH,                   /* Wrong key supplied.                 */
+    ESK8_AUTH_ERR_CONN,                   /* Wrong connection authenticating.    */
 } esk8_err_t;
 
 

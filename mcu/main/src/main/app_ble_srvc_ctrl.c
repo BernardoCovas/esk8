@@ -9,7 +9,7 @@
 
 
 #define SRVC_CTRL_NAME  "Ctrl Service"
-#define LOG_TAG         ESK8_TAG_BLE "(ctrl) "
+#define LOG_TAG         ESK8_TAG_BLE "(CTRL):"
 
 
        uint16_t SRVC_CTRL_UUID                 = 0x5AC0;

@@ -7,7 +7,7 @@
 
 
 #define SRVC_AUTH_NAME  "Auth Service"
-#define LOG_TAG         ESK8_TAG_BLE "(auth) "
+#define LOG_TAG         ESK8_TAG_BLE "(AUTH):"
 
 
        uint16_t SRVC_AUTH_UUID              = 0xE8A0;
@@ -98,7 +98,7 @@ static esp_gatts_attr_db_t srvc_auth_attr_list[] =
     [SRVC_IDX_AUTH_CHANGE_CHAR_VAL] = {
         {ESP_GATT_AUTO_RSP},
         {
-            ESP_UUID_LEN_16, (uint8_t*)&SRVC_CTRL_PWR_UUID, ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
+            ESP_UUID_LEN_16, (uint8_t*)&SRVC_AUTH_CHANGE_UUID, ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
             sizeof(SRVC_AUTH_CHANGE_VAL), sizeof(SRVC_AUTH_CHANGE_VAL), SRVC_AUTH_CHANGE_VAL
         },
     },
@@ -153,7 +153,8 @@ static void srvc_auth_evt_cb(esk8_ble_notif_t* bleNotif)
 
         if (err_code)
         {
-            printf(LOG_TAG "Got err: %s on write evt, get_idx_from_hndl.\n", esk8_err_to_str(err_code));
+            printf(LOG_TAG "Got err: %s on write evt, get_idx_from_hndl.\n",
+                esk8_err_to_str(err_code));
             break;
         } else
         {
@@ -181,6 +182,9 @@ static void srvc_auth_evt_cb(esk8_ble_notif_t* bleNotif)
 
         break;
     }
+
+    case ESP_GATTS_EXEC_WRITE_EVT:
+        break;
 
     default:
         printf(LOG_TAG "Got event: %d\n", bleNotif->event);
