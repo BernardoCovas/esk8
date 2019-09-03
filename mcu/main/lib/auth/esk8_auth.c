@@ -116,6 +116,12 @@ esk8_err_t esk8_auth_chunk_auth(
 {
     esk8_auth_cntx_t* auth_cntx = (*hndl);
 
+    if ((auth_cntx->chunk_idx + chk_len) > sizeof(esk8_auth_key_t))
+    {
+        return ESK8_AUTH_ERR_AUTH;
+    }
+
+
     return ESK8_SUCCESS;
 }
 

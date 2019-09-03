@@ -9,6 +9,9 @@
 typedef struct
 {
     esk8_auth_key_t hash;
+    esk8_auth_key_t chunk_hash;
+    int             chunk_idx;
+
     uint16_t        conn;
 
     mbedtls_md_context_t mbtls_cntx;
