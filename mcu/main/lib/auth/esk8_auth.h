@@ -3,8 +3,9 @@
 
 #include <esk8_err.h>
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 
 typedef uint8_t esk8_auth_key_t [32];

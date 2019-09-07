@@ -1,24 +1,21 @@
-#include <esk8_pwm.h>
-#include <esk8_ble.h>
 #include <esk8_log.h>
-
-#include <app_ble_srvc.h>
+#include <esk8_ble_apps.h>
 
 #include <stdint.h>
 #include <stdbool.h>
 
 
-#define SRVC_CTRL_NAME  "Ctrl Service"
-#define LOG_TAG         ESK8_TAG_BLE "(CTRL):"
+#define SRVC_CTRL_NAME  "SRVC_CTRL"
+#define LOG_TAG         ESK8_TAG_BLE "(SRVC_CTRL):"
 
 
-       uint16_t SRVC_CTRL_UUID                 = 0x5AC0;
+static uint16_t SRVC_CTRL_UUID                 = 0xE8C0;
 
-       uint16_t SRVC_CTRL_SPEED_UUID           = 0x5AC1;
+static uint16_t SRVC_CTRL_SPEED_UUID           = 0xE8C1;
 static uint8_t  SRVC_CTRL_SPEED_VAL[1]         = {0};
 static uint16_t SRVC_CTRL_SPEED_DESC           = 0x0000;
 
-       uint16_t SRVC_CTRL_PWR_UUID             = 0x5AC2;
+static uint16_t SRVC_CTRL_PWR_UUID             = 0xE8C2;
 static uint8_t  SRVC_CTRL_PWR_VAL[1]           = {0};
 static uint16_t SRVC_CTRL_PWR_DESC             = 0x0000;
 
@@ -31,7 +28,7 @@ static uint8_t  CHAR_PROP_READ_WRITE           = ESP_GATT_CHAR_PROP_BIT_READ | E
  * Indexes for the
  * control service attributes.
  */
-typedef enum
+enum
 {
     SRVC_IDX_CTRL_SRVC,
     SRVC_IDX_CTRL_SPEED_CHAR,
@@ -42,18 +39,9 @@ typedef enum
     SRVC_IDX_CTRL_PWR_DESC,     /* CCCD */
 
     SRVC_CTRL_NUM_ATTR
-}
-esk8_app_attr_idx_t;
+};
 
 
-static esk8_pwm_config_t pwm_Config = {0};
-static void srvc_ctrl_evt_cb(esk8_ble_notif_t* bleNotif);
-
-static void srvc_ctrl_update_speed(uint8_t speed);
-static void srvc_ctrl_update_pwr(bool pwr);
-
-
-static uint16_t srvc_ctrl_attr_hndl_list[SRVC_CTRL_NUM_ATTR];
 static esp_gatts_attr_db_t srvc_ctrl_attr_list[] =
 {
     /**
@@ -122,80 +110,95 @@ static esp_gatts_attr_db_t srvc_ctrl_attr_list[] =
     }
 };
 
+static void app_init(
+    );
 
-/* Declared in service header, defined here */
-esk8_ble_app_t app_srvc_ctrl =
+static void app_deinit(
+    );
+
+static void app_conn_add(
+    esk8_ble_conn_ctx_t* conn_ctx);
+
+static void app_conn_del(
+    esk8_ble_conn_ctx_t* conn_ctx);
+
+static void app_conn_write(
+    esk8_ble_conn_ctx_t* conn_ctx,
+    int                  attr_idx,
+    size_t               len,
+    uint8_t*             val);
+
+static void app_evt_cb(
+    esp_gatts_cb_event_t event,
+    esp_ble_gatts_cb_param_t *param);
+
+esk8_ble_app_t esk8_app_srvc_ctrl =
 {
-    .app_serviceName = SRVC_CTRL_NAME,
-    .attr_list       = srvc_ctrl_attr_list,
-    .attr_hndlList   = srvc_ctrl_attr_hndl_list,
-    .attr_numAttr    = SRVC_CTRL_NUM_ATTR,
-    .app_evtFunc     = &srvc_ctrl_evt_cb,
+    .app_name = SRVC_CTRL_NAME,
+
+    .app_init   = app_init,
+    .app_deinit = app_deinit,
+    .app_conn_add = app_conn_add,
+    .app_conn_del = app_conn_del,
+    .app_conn_write = app_conn_write,
+    .app_evt_cb = app_evt_cb,
+
+    .attr_db = srvc_ctrl_attr_list,
+    .attr_num = SRVC_CTRL_NUM_ATTR
 };
 
-
-
-
-void srvc_ctrl_evt_cb(esk8_ble_notif_t* bleNotif)
+static void app_init()
 {
-    switch (bleNotif->event)
+    printf(LOG_TAG "app_init()\n");
+}
+
+static void app_deinit()
+{
+    printf(LOG_TAG  "app_deinit()\n");
+}
+
+static void app_conn_add(
+    esk8_ble_conn_ctx_t* conn_ctx
+)
+{
+    printf(LOG_TAG  "app_conn_add()\n");
+}
+
+static void app_conn_del(
+    esk8_ble_conn_ctx_t* conn_ctx
+)
+{
+    printf(LOG_TAG  "app_conn_del()\n");
+}
+
+static void app_conn_write(
+    esk8_ble_conn_ctx_t* conn_ctx,
+    int                  attr_idx,
+    size_t               len,
+    uint8_t*             val)
+{
+    printf(LOG_TAG  "app_conn_write() on idx: %d\n", attr_idx);
+
+    switch (attr_idx)
     {
-        /**
-         * The tab event came. We can init.
-         * If this event does not come, the lib is never started.
-         * This is fine, because it means it is also never read.
-         */
-        case ESP_GATTS_CREAT_ATTR_TAB_EVT:
-            esk8_pwm_sgnl_init(&pwm_Config);
-            break;
+    case SRVC_IDX_CTRL_SPEED_CHAR_VAL:
+        if (len != 1)
+            return;
 
-        case ESP_GATTS_WRITE_EVT:
-        {
-            int srvcIdx;
-            esk8_err_t errCode = esk8_ble_get_idx_from_handle(
-                &app_srvc_ctrl,
-                bleNotif->param->write.handle,
-                &srvcIdx);
+        SRVC_CTRL_SPEED_VAL[0] = val[0];
+        printf(LOG_TAG "Updated speed: %d\n", val[0]);
+        break;
 
-            if (errCode)
-                break;
-
-            switch (srvcIdx)
-            {
-            case SRVC_IDX_CTRL_PWR_CHAR_VAL:
-                if (bleNotif->param->write.len != 1)
-                    break;
-                srvc_ctrl_update_pwr((bool)bleNotif->param->write.value[0]);
-                break;
-            case SRVC_IDX_CTRL_SPEED_CHAR_VAL:
-                if (bleNotif->param->write.len != 1)
-                    break;
-                srvc_ctrl_update_speed(bleNotif->param->write.value[0]);
-                break;
-            default:
-                break;
-            }
-        }
-            break;
-        default:
-            printf(LOG_TAG "Got event: %d\n", bleNotif->event);
-            break;
+    default:
+        break;
     }
 }
 
-
-void srvc_ctrl_update_speed(uint8_t speed)
+static void
+app_evt_cb(
+    esp_gatts_cb_event_t event,
+    esp_ble_gatts_cb_param_t *param
+)
 {
-    esk8_err_t errCode = esk8_pwm_sgnl_set(&pwm_Config, speed);
-    if (errCode)
-        printf(LOG_TAG "Got error: %s setting speed to: 0x%02x\n", esk8_err_to_str(errCode), speed);
-    else
-        printf(LOG_TAG "Set speed to 0x%02x.\n", speed);
-
-}
-
-
-void srvc_ctrl_update_pwr(bool pwr)
-{
-    printf(LOG_TAG "Would set power to %s.\n", pwr?"ON":"OFF");
+    printf(LOG_TAG  "app_evt_cb() \n");
 }

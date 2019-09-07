@@ -1,14 +1,12 @@
 #include <esk8_config.h>
 #include <esk8_log.h>
 #include <esk8_err.h>
-#include <esk8_ble.h>
+#include <esk8_ble_apps.h>
 #include <esk8_bms.h>
 #include <esk8_ps2.h>
 #include <esk8_pwm.h>
 #include <esk8_btn.h>
 #include <esk8_auth.h>
-
-#include <app_ble_srvc.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -39,8 +37,8 @@ void status_task(void* param)
                 printf(ESK8_TAG_BLE "Got error: %s reading BMS deep status at index: %d.\n",
                     esk8_err_to_str(errCodeDS), i);
 
-            app_srvc_status_update_bms_shallow(errCodeS, i, &bmsStatus);
-            app_srvc_status_update_bms_deep(errCodeDS, i, &bmsDeepStatus);
+            // app_srvc_status_update_bms_shallow(errCodeS, i, &bmsStatus);
+            // app_srvc_status_update_bms_deep(errCodeDS, i, &bmsDeepStatus);
 
             /* We might wait quite a long time here */
             vTaskDelay(10000 / portTICK_PERIOD_MS);
@@ -102,7 +100,7 @@ void ps2_task(void* param)
         printf(ESK8_TAG_PS2 "Speed: %03d, X: %d %40s\n", speed, trckMvmnt.x, "");
 
         esk8_pwm_sgnl_set(&pwmCnfg, (uint8_t)speed);
-        app_srvc_status_update_speed((uint8_t)speed);
+        // app_srvc_status_update_speed((uint8_t)speed);
     }
 }
 
@@ -146,8 +144,6 @@ void app_main()
 
     static esk8_ps2_handle_t   ps2Handle;
     static esk8_bms_config_t   bmsConfig;
-    static esk8_ble_config_t   bleCnfg;
-    static esk8_ble_app_t*     appSrvcList_p[] = APP_ALL_SRVC_LIST_P();
 
     static esk8_btn_cnfg_t btnCnfg = {
         .btn_debounce_ms  = 10,
@@ -157,19 +153,12 @@ void app_main()
         .btn_tmrIdx       = 1
     };
 
-    err_code = esk8_ble_init(&bleCnfg);
-    if (err_code)
-    {
-        printf(ESK8_TAG_MAIN "Error '%s' on ble init\n", esk8_err_to_str(err_code));
-        return;
-    }
-
-    err_code = esk8_ble_register_apps((uint16_t) sizeof(appSrvcList_p) / sizeof(appSrvcList_p[0]), appSrvcList_p);
-    if (err_code)
-    {
-        printf(ESK8_TAG_MAIN "Error '%s' on ble app register\n", esk8_err_to_str(err_code));
-        return;
-    }
+    err_code = esk8_ble_apps_init(3, 10);
+    printf(ESK8_TAG_MAIN "Got err %s on ble init\n", esk8_err_to_str(err_code));
+    err_code = esk8_ble_app_register(&esk8_app_srvc_auth);
+    err_code = esk8_ble_app_register(&esk8_app_srvc_status);
+    err_code = esk8_ble_app_register(&esk8_app_srvc_ctrl);
+    printf(ESK8_TAG_MAIN "Got err %s on ble app reg\n", esk8_err_to_str(err_code));
 
     /**
      * The BMS is another. It has to start before the button
