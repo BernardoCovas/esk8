@@ -27,6 +27,7 @@ void status_task(void* param)
     {
         for (int i=0; i<ESK8_UART_BMS_CONF_NUM; i++)
         {
+
             esk8_bms_set_rx(bmsConfig, i);
             esk8_err_t errCodeS = esk8_bms_get_status(bmsConfig, &bmsStatus);
             esk8_err_t errCodeDS = esk8_bms_get_deep_status(bmsConfig, &bmsDeepStatus);
@@ -39,9 +40,13 @@ void status_task(void* param)
                     esk8_err_to_str(errCodeDS), i);
 
             errCodeS = esk8_ble_app_status_bms_shallow(&bmsStatus, errCodeS, i);
-            printf(ESK8_TAG_BLE "Got error: %s updating BMS.\n",
+            printf(ESK8_TAG_BLE "Got: %s updating shallow BMS.\n",
                 esk8_err_to_str(errCodeS));
             // app_srvc_status_update_bms_deep(errCodeDS, i, &bmsDeepStatus);
+
+            errCodeDS = esk8_ble_app_status_bms_deep(&bmsDeepStatus, errCodeDS, i);
+            printf(ESK8_TAG_BLE "Got: %s updating deep BMS.\n",
+                esk8_err_to_str(errCodeS));
 
             /* We might wait quite a long time here */
             vTaskDelay(10000 / portTICK_PERIOD_MS);

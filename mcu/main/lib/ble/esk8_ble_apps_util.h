@@ -20,6 +20,14 @@ esk8_ble_apps_get_attr_idx(
 );
 
 esk8_err_t
+esk8_ble_apps_update(
+    esk8_ble_app_t* app,
+    int             attr_idx,
+    size_t          val_len,
+    uint8_t*        val
+);
+
+esk8_err_t
 esk8_ble_apps_notify_all(
     esk8_ble_app_t* app,
     int             attr_idx,

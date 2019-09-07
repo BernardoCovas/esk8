@@ -11,4 +11,11 @@ esk8_ble_app_status_bms_shallow(
     int                bms_idx
 );
 
+esk8_err_t
+esk8_ble_app_status_bms_deep(
+    esk8_bms_deep_status_t* stat,
+    esk8_err_t              bms_err_code,
+    int                     bms_idx
+);
+
 #endif /* _ESK8_BLE_APP_STATUS_H */

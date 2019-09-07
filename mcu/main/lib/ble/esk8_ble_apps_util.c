@@ -41,7 +41,7 @@ esk8_ble_apps_get_attr_idx(
 }
 
 esk8_err_t
-esk8_ble_apps_notify_all(
+esk8_ble_apps_update(
     esk8_ble_app_t* app,
     int             attr_idx,
     size_t          val_len,
@@ -54,6 +54,22 @@ esk8_ble_apps_notify_all(
     if (!app->_conn_ctx_list)
         return ESK8_BLE_APP_NOREG;
 
+    esp_ble_gatts_set_attr_value(
+        app->_attr_hndl_list[attr_idx],
+        val_len, val
+    );
+
+    return ESK8_SUCCESS;
+}
+
+esk8_err_t
+esk8_ble_apps_notify_all(
+    esk8_ble_app_t* app,
+    int             attr_idx,
+    size_t          val_len,
+    uint8_t*        val
+)
+{
     for (int i = 0; i < esk8_ble_apps.conn_num_max; i++)
     {
         int conn_id = app->_conn_ctx_list[i].conn_id;

@@ -123,7 +123,7 @@ esk8_ble_app_t esk8_app_srvc_auth =
 {
     .app_name = SRVC_AUTH_NAME,
 
-    .app_init   = app_init,
+    .app_init = app_init,
     .app_deinit = app_deinit,
     .app_conn_add = app_conn_add,
     .app_conn_del = app_conn_del,

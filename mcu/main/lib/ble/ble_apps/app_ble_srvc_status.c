@@ -175,6 +175,14 @@ esk8_ble_app_status_bms_shallow(
     int                bms_idx
 )
 {
+    SRVC_STATUS_BMS_SHALLOW_VAL[bms_idx] = (*stat);
+
+    if (esk8_app_srvc_status._attr_hndl_list)
+    esp_ble_gatts_set_attr_value(
+        esk8_app_srvc_status._attr_hndl_list[SRVC_IDX_STATUS_BMS_SHALLOW_CHAR_VAL],
+        sizeof(SRVC_STATUS_BMS_SHALLOW_VAL), (uint8_t*)SRVC_STATUS_BMS_SHALLOW_VAL
+    );
+
     size_t msg_size = sizeof(esk8_err_t) + sizeof(int);
     uint8_t* msg = malloc(msg_size);
 
@@ -187,6 +195,41 @@ esk8_ble_app_status_bms_shallow(
     esk8_err_t err_code = esk8_ble_apps_notify_all(
         &esk8_app_srvc_status,
         SRVC_IDX_STATUS_BMS_SHALLOW_CHAR_VAL,
+        msg_size, msg
+        );
+
+    free(msg);
+    return err_code;
+}
+
+esk8_err_t
+esk8_ble_app_status_bms_deep(
+    esk8_bms_deep_status_t* stat,
+    esk8_err_t              bms_err_code,
+    int                     bms_idx
+)
+{
+    SRVC_STATUS_BMS_DEEP_VAL[bms_idx] = (*stat);
+
+    esk8_ble_apps_update(
+        &esk8_app_srvc_status,
+        SRVC_IDX_STATUS_BMS_DEEP_CHAR_VAL,
+        sizeof(SRVC_STATUS_BMS_DEEP_VAL),
+        (uint8_t*)SRVC_STATUS_BMS_DEEP_VAL
+    );
+
+    size_t msg_size = sizeof(esk8_err_t) + sizeof(int);
+    uint8_t* msg = malloc(msg_size);
+
+    if (!msg)
+        return ESK8_ERR_OOM;
+
+    *((esk8_err_t*)msg) = bms_err_code;
+    *((int*)&msg[sizeof(esk8_err_t)]) = bms_idx;
+
+    esk8_err_t err_code = esk8_ble_apps_notify_all(
+        &esk8_app_srvc_status,
+        SRVC_IDX_STATUS_BMS_DEEP_CHAR_VAL,
         msg_size, msg
         );
 
