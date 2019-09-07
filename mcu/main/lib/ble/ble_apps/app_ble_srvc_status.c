@@ -1,8 +1,11 @@
 #include <esk8_log.h>
 #include <esk8_bms.h>
 #include <esk8_ble_apps.h>
+#include <esk8_ble_apps_util.h>
 
 #include <esp_gatts_api.h>
+#include <esp_bt.h>
+
 
 #define SRVC_STATUS_NAME    "SRVC_STAT"
 #define LOG_TAG             ESK8_TAG_BLE "(SRVC_STAT):"
@@ -93,7 +96,7 @@ static esp_gatts_attr_db_t srvc_status_attr_list[] =
         {ESP_GATT_AUTO_RSP},
         {
             ESP_UUID_LEN_16, (uint8_t*)&SRVC_STATUS_BMS_SHALLOW_UUID, ESP_GATT_PERM_READ,
-            sizeof(SRVC_STATUS_BMS_SHALLOW_VAL), sizeof(SRVC_STATUS_BMS_SHALLOW_VAL), SRVC_STATUS_BMS_SHALLOW_VAL
+            sizeof(SRVC_STATUS_BMS_SHALLOW_VAL), sizeof(SRVC_STATUS_BMS_SHALLOW_VAL), (uint8_t*)SRVC_STATUS_BMS_SHALLOW_VAL
         },
     },
 
@@ -117,7 +120,7 @@ static esp_gatts_attr_db_t srvc_status_attr_list[] =
         {ESP_GATT_AUTO_RSP},
         {
             ESP_UUID_LEN_16, (uint8_t*)&SRVC_STATUS_BMS_DEEP_UUID, ESP_GATT_PERM_READ,
-            sizeof(SRVC_STATUS_BMS_DEEP_VAL), sizeof(SRVC_STATUS_BMS_DEEP_VAL), SRVC_STATUS_BMS_DEEP_VAL
+            sizeof(SRVC_STATUS_BMS_DEEP_VAL), sizeof(SRVC_STATUS_BMS_DEEP_VAL), (uint8_t*)SRVC_STATUS_BMS_DEEP_VAL
         },
     },
 
@@ -165,10 +168,38 @@ esk8_ble_app_t esk8_app_srvc_status =
     .attr_num       = SRVC_STATUS_NUM_ATTR
 };
 
+esk8_err_t
+esk8_ble_app_status_bms_shallow(
+    esk8_bms_status_t* stat,
+    esk8_err_t         bms_err_code,
+    int                bms_idx
+)
+{
+    size_t msg_size = sizeof(esk8_err_t) + sizeof(int);
+    uint8_t* msg = malloc(msg_size);
+
+    if (!msg)
+        return ESK8_ERR_OOM;
+
+    *((esk8_err_t*)msg) = bms_err_code;
+    *((int*)&msg[sizeof(esk8_err_t)]) = bms_idx;
+
+    esk8_err_t err_code = esk8_ble_apps_notify_all(
+        &esk8_app_srvc_status,
+        SRVC_IDX_STATUS_BMS_SHALLOW_CHAR_VAL,
+        msg_size, msg
+        );
+
+    free(msg);
+    return err_code;
+}
+
 static void
 app_init()
 {
     printf(LOG_TAG "app_init()\n");
+    memset(SRVC_STATUS_BMS_SHALLOW_VAL, 0, sizeof(SRVC_STATUS_BMS_SHALLOW_VAL));
+    memset(SRVC_STATUS_BMS_DEEP_VAL   , 0, sizeof(SRVC_STATUS_BMS_DEEP_VAL   ));
 }
 
 static void

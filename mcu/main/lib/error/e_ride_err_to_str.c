@@ -29,7 +29,7 @@ const char* esk8_err_to_str(
         case ESK8_BLE_INIT_FAILED:              return "ESK8_BLE_INIT_FAILED";
         case ESK8_BLE_INIT_MAXREG:              return "ESK8_BLE_INIT_MAXREG";
         case ESK8_BLE_NOTF_TIMEOUT:             return "ESK8_BLE_NOTF_TIMEOUT";
-        case ESK8_BLE_FAILED_WL:                return "ESK8_BLE_FAILED_WL";
+        case ESK8_BLE_APP_NOREG:                return "ESK8_BLE_APP_NOREG";
         case ESK8_NVS_NOT_INIT:                 return "ESK8_NVS_NOT_INIT";
         case ESK8_NVS_NOT_AVAILABLE:            return "ESK8_NVS_NOT_AVAILABLE";
         case ESK8_NVS_FULL:                     return "ESK8_NVS_FULL";

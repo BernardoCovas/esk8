@@ -38,7 +38,8 @@ typedef enum esk8_err_t
     ESK8_BLE_INIT_FAILED,
     ESK8_BLE_INIT_MAXREG,                 /* Maximum number of registed apps reached */
     ESK8_BLE_NOTF_TIMEOUT,
-    ESK8_BLE_FAILED_WL,
+
+    ESK8_BLE_APP_NOREG,                   /* App not registered */
 
     /* Esk8 NVS */
     ESK8_NVS_NOT_INIT,                    /* NVS was not initialized */

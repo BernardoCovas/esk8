@@ -97,7 +97,7 @@ esk8_err_t esk8_ble_apps_init(
     esk8_ble_apps.apps_num_max = n_apps_max;
     esk8_ble_apps.conn_num_max = n_conn_max;
 
-    esk8_ble_apps.apps_list = calloc(n_apps_max, sizeof(esk8_ble_app_t));
+    esk8_ble_apps.apps_list = calloc(n_apps_max, sizeof(esk8_ble_app_t*));
     if (!esk8_ble_apps.apps_list)
         return ESK8_ERR_OOM;
 
@@ -114,29 +114,32 @@ esk8_ble_app_register(
 
     for (int i = 0; i < esk8_ble_apps.apps_num_max; i++)
     {
-        esk8_ble_app_t* _app = &esk8_ble_apps.apps_list[i];
-        if (_app->_conn_ctx_list)
+        esk8_ble_app_t** _app = &esk8_ble_apps.apps_list[i];
+        if (*_app)
             continue;
 
-        (*_app) = (*app);
+        (*_app) = app;
 
-        _app->_attr_hndl_list = calloc(
+        app->_attr_hndl_list = calloc(
             app->attr_num, sizeof(*app->_attr_hndl_list));
 
-        if (!_app->_attr_hndl_list)
+        if (!app->_attr_hndl_list)
             return ESK8_ERR_OOM;
 
-        _app->_conn_ctx_list = calloc(
+        app->_conn_ctx_list = calloc(
             esk8_ble_apps.conn_num_max, sizeof(esk8_ble_conn_ctx_t));
 
-        if (!_app->_conn_ctx_list)
+        if (!app->_conn_ctx_list)
         {
-            free(_app->_attr_hndl_list);
+            free(app->_attr_hndl_list);
             return ESK8_ERR_OOM;
         }
 
+        for (int i = 0; i < esk8_ble_apps.conn_num_max; i++)
+            app->_conn_ctx_list[i].conn_id = -1;
+
         ESP_ERROR_CHECK(esp_ble_gatts_app_register(esk8_ble_apps.curr_app_id++));
-        printf(ESK8_TAG_BLE "Registered app: '%s'\n", _app->app_name);
+        printf(ESK8_TAG_BLE "Registered app: '%s'\n", app->app_name);
 
         return ESK8_SUCCESS;
     }
@@ -151,15 +154,15 @@ esk8_err_t esk8_ble_apps_deinit()
 
     for (int i = 0; i < esk8_ble_apps.apps_num_max; i++)
     {
-        esk8_ble_app_t* app = &esk8_ble_apps.apps_list[i];
+        esk8_ble_app_t* app = esk8_ble_apps.apps_list[i];
 
-        if (!app->_conn_ctx_list)
+        if (!app)
             continue;
 
         for (int j = 0; j < esk8_ble_apps.conn_num_max; j++)
         {
             int conn_id = app->_conn_ctx_list[j].conn_id;
-            if(!conn_id)
+            if(conn_id < 0)
                 continue;
 
             app->app_conn_del(&app->_conn_ctx_list[j]);
@@ -168,6 +171,8 @@ esk8_err_t esk8_ble_apps_deinit()
         app->app_deinit();
         free(app->_attr_hndl_list);
         free(app->_conn_ctx_list);
+
+        esk8_ble_apps.apps_list[i] = NULL;
     }
 
     free(esk8_ble_apps.apps_list);
@@ -209,7 +214,10 @@ esk8_ble_apps_gatts_evt_hndl(
             if (param->reg.app_id >= esk8_ble_apps.apps_num_max)
                 return;
 
-            esk8_ble_app_t* app = &esk8_ble_apps.apps_list[param->reg.app_id];
+            esk8_ble_app_t* app = esk8_ble_apps.apps_list[param->reg.app_id];
+            if (!app)
+                return;
+
             app->_ble_if = gatts_if;
 
             ESP_ERROR_CHECK(esp_ble_gatts_create_attr_tab(
@@ -227,9 +235,12 @@ esk8_ble_apps_gatts_evt_hndl(
     }
 
     esk8_ble_app_t* app = NULL;
-    for (int i=0; i<esk8_ble_apps.apps_num_max; i++)
+    for (int i = 0; i < esk8_ble_apps.apps_num_max; i++)
     {
-        esk8_ble_app_t* _app = &esk8_ble_apps.apps_list[i];
+        esk8_ble_app_t* _app = esk8_ble_apps.apps_list[i];
+        if (!_app)
+            continue;
+
         if (_app->_conn_ctx_list && _app->_ble_if == gatts_if)
         {
             app = _app;
@@ -281,7 +292,7 @@ esk8_ble_apps_gatts_evt_hndl(
             esk8_ble_conn_ctx_t* ctx = NULL;
             for (int i = 0; i < esk8_ble_apps.conn_num_max; i++)
             {
-                if (!app->_conn_ctx_list[i].conn_id)
+                if (app->_conn_ctx_list[i].conn_id < 0)
                 {
                     ctx = &app->_conn_ctx_list[i];
                     app->_conn_ctx_list[i].conn_id = param->connect.conn_id;
@@ -300,6 +311,9 @@ esk8_ble_apps_gatts_evt_hndl(
                 break;
             }
 
+            printf(ESK8_TAG_BLE "Adding conn id: %d\n",
+                param->connect.conn_id);
+
             app->app_conn_add(ctx);
             break;
         }
@@ -309,8 +323,11 @@ esk8_ble_apps_gatts_evt_hndl(
             for (int i = 0; i < esk8_ble_apps.conn_num_max; i++)
                 if (param->disconnect.conn_id == app->_conn_ctx_list[i].conn_id)
                 {
+                    printf(ESK8_TAG_BLE "Removing conn id: %d\n",
+                        param->disconnect.conn_id);
+
                     app->app_conn_del(app->_conn_ctx_list[i].ctx);
-                    app->_conn_ctx_list[i].conn_id = 0;
+                    app->_conn_ctx_list[i].conn_id = -1;
                     break;
                 }
 

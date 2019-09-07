@@ -39,10 +39,10 @@ esk8_ble_app_t;
 
 typedef struct
 {
-    esk8_ble_app_t* apps_list;
-    unsigned int    apps_num_max;
-    unsigned int    conn_num_max;
-    unsigned int    curr_app_id;
+    esk8_ble_app_t** apps_list;
+    unsigned int     apps_num_max;
+    unsigned int     conn_num_max;
+    unsigned int     curr_app_id;
 }
 esk8_ble_apps_t;
 
@@ -67,7 +67,6 @@ esk8_err_t
 esk8_ble_app_register(
     esk8_ble_app_t* app
 );
-
 
 /**
  *
