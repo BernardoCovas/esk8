@@ -13,6 +13,7 @@ set(_esk8_include
     "lib/error"
     "lib/log"
     "lib/nvs"
+    "lib/onboard"
     "lib/ps2"
     "lib/pwm"
     "lib/uart"

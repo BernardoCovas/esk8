@@ -9,8 +9,8 @@
 
 
 esk8_nvs_setting_t  esk8_nvs_setting_list[ESK8_NVS_IDX_MAX] = {
-    [ESK8_NVS_CONN_HASH]    = { .nvs_len = 32,  .nvs_key = "ble_auth_hash", .nvs_val = NULL, .__nvs_mem = NULL  },
-    [ESK8_NVS_CONN_COOKIE]  = { .nvs_len = 32,  .nvs_key = "ble_auth",      .nvs_val = NULL, .__nvs_mem = NULL  },
+    [ESK8_NVS_AUTH_HASH]    = { .nvs_len = 32,  .nvs_key = "ble_auth_hash", .nvs_val = NULL, .__nvs_mem = NULL  },
+    [ESK8_NVS_AUTH_HASH_N]  = { .nvs_len = 4,   .nvs_key = "ble_auth_n",    .nvs_val = NULL, .__nvs_mem = NULL  },
     [ESK8_NVS_CONN_ADDR]    = { .nvs_len = 6,   .nvs_key = "ble_conn_add",  .nvs_val = NULL, .__nvs_mem = NULL  }
 };
 static  nvs_handle_t    esk8_nvs_handle = 0;

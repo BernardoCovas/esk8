@@ -20,23 +20,23 @@ typedef struct
  * current config.
  **/
 esk8_err_t esk8_pwm_sgnl_init(
-
     esk8_pwm_config_t* out_cnfg
-
 );
-
 
 /**
- * 
+ *
  **/
 esk8_err_t esk8_pwm_sgnl_set(
-
     esk8_pwm_config_t *t_Condig,
     uint8_t pwm_Val
-
 );
 
-
+/**
+ *
+ */
+esk8_err_t esk8_pwm_sgnl_stop(
+    esk8_pwm_config_t* cnfg
+);
 
 
 #endif /* _ESK8_PWM_H */

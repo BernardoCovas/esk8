@@ -1,5 +1,6 @@
 #include <esk8_log.h>
 #include <esk8_ble_apps.h>
+#include <esk8_onboard.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -177,7 +178,8 @@ static void app_conn_write(
     size_t               len,
     uint8_t*             val)
 {
-    printf(LOG_TAG  "app_conn_write() on idx: %d\n", attr_idx);
+    esk8_err_t err;
+
 
     switch (attr_idx)
     {
@@ -185,8 +187,10 @@ static void app_conn_write(
         if (len != 1)
             return;
 
-        SRVC_CTRL_SPEED_VAL[0] = val[0];
-        printf(LOG_TAG "Updated speed: %d\n", val[0]);
+        err = esk8_onboard_update_speed(*val);
+        printf(LOG_TAG "Got '%s' updating ble status to speed: %d\n",
+            esk8_err_to_str(err), val[0]);
+
         break;
 
     default:
@@ -200,5 +204,4 @@ app_evt_cb(
     esp_ble_gatts_cb_param_t *param
 )
 {
-    printf(LOG_TAG  "app_evt_cb() \n");
 }

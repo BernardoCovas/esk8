@@ -169,6 +169,24 @@ esk8_ble_app_t esk8_app_srvc_status =
 };
 
 esk8_err_t
+esk8_ble_app_status_speed(
+    uint8_t speed_val
+)
+{
+    ESK8_ERRCHECK_THROW(esk8_ble_apps_update(
+        &esk8_app_srvc_status,
+        SRVC_IDX_STATUS_SPEED_CHAR_VAL,
+        1, &speed_val));
+
+    ESK8_ERRCHECK_THROW(esk8_ble_apps_notify_all(
+        &esk8_app_srvc_status,
+        SRVC_IDX_STATUS_SPEED_CHAR_VAL,
+        1, &speed_val));
+
+    return ESK8_SUCCESS;
+}
+
+esk8_err_t
 esk8_ble_app_status_bms_shallow(
     esk8_bms_status_t* stat,
     esk8_err_t         bms_err_code,
@@ -282,5 +300,4 @@ app_evt_cb(
     esp_ble_gatts_cb_param_t *param
 )
 {
-    printf(LOG_TAG  "app_evt_cb(). Evt: %d\n", (int)event);
 }

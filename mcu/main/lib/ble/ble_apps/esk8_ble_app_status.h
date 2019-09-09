@@ -5,6 +5,11 @@
 
 
 esk8_err_t
+esk8_ble_app_status_speed(
+    uint8_t speed_val
+);
+
+esk8_err_t
 esk8_ble_app_status_bms_shallow(
     esk8_bms_status_t* stat,
     esk8_err_t         bms_err_code,

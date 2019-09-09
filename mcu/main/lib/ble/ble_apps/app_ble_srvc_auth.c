@@ -148,7 +148,19 @@ static void app_conn_add(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
-    printf(LOG_TAG  "app_conn_add() \n");
+    esk8_auth_hndl_t hndl;
+    esk8_err_t err;
+
+    err = esk8_auth_init(&hndl);
+    if (err)
+    {
+        printf(LOG_TAG "Got '%s' on auth init.\n",
+            esk8_err_to_str(err));
+        conn_ctx->ctx = NULL;
+        return;
+    }
+
+    conn_ctx->ctx = (void*)hndl;
 }
 
 static void app_conn_del(
@@ -173,5 +185,5 @@ app_evt_cb(
     esp_ble_gatts_cb_param_t *param
 )
 {
-    printf(LOG_TAG  "app_evt_cb() \n");
+    // printf(LOG_TAG  "app_evt_cb() \n");
 }

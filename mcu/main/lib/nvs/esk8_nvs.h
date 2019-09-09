@@ -12,8 +12,8 @@
 
 typedef enum
 {
-    ESK8_NVS_CONN_HASH,
-    ESK8_NVS_CONN_COOKIE,
+    ESK8_NVS_AUTH_HASH,
+    ESK8_NVS_AUTH_HASH_N,
     ESK8_NVS_CONN_ADDR,
     ESK8_NVS_IDX_MAX,
 }
@@ -21,7 +21,8 @@ esk8_nvs_val_idx_t;
 
 typedef union
 {
-    uint8_t   conn_hash[32];
+    uint32_t  auth_hash_n;
+    uint8_t   auth_hash[32];
     uint8_t   conn_addr[6];
 }
 esk8_nvs_val_t;

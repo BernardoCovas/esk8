@@ -9,6 +9,7 @@
 #define ESK8_TAG_BLE     ESK8_TAG("BLE")
 #define ESK8_TAG_NVS     ESK8_TAG("NVS")
 #define ESK8_TAG_ATH     ESK8_TAG("ATH")
+#define ESK8_TAG_ONB     ESK8_TAG("ONB")
 
 
 #endif /* _ESK8_LOG_H */

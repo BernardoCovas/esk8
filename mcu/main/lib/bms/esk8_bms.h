@@ -36,9 +36,7 @@ typedef struct __attribute__((__packed__))
     uint8_t  isOverHeat;
 } esk8_bms_deep_status_t;
 
-
 typedef void (*esk8_bms_cb_t)(esk8_bms_status_t* status, uint8_t nStatus);
-
 
 typedef struct
 {
@@ -50,7 +48,6 @@ typedef struct
     uint32_t            bmsUpdateMs;
     uart_config_t       uartConfig;
 } esk8_bms_config_t;
-
 
 esk8_err_t esk8_bms_init(
 
@@ -75,7 +72,6 @@ esk8_err_t esk8_bms_init_from_config_h(
 
 );
 
-
 /**
  * Asks the active BMS for all the useful
  * registers, and updates `outStatus`.
@@ -91,7 +87,6 @@ esk8_err_t esk8_bms_get_status(
 
 );
 
-
 /**
  * Reads the pack's deep status.
  * Takes a while, and the result is stored
@@ -103,18 +98,5 @@ esk8_err_t esk8_bms_get_deep_status(
     esk8_bms_deep_status_t *outStatus
 
 );
-
-
-/**
- * Sends to the current active uart
- * the messages to read all the registers
- * with battery info.
- **/
-esk8_err_t esk8_bms_get_all_status(
-
-    esk8_bms_config_t* bmsConfig
-
-);
-
 
 #endif /* _ESK8_BMS_H */
