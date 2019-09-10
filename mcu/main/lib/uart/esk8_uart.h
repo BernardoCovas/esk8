@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 
-#define ESK8_UART_CONFIG_DEFAULT_ESP32()      \
+#define ESK8_UART_CONFIG_DEFAULT_ESP32()        \
 {                                               \
     .baud_rate = 115200,                        \
     .data_bits = UART_DATA_8_BITS,              \
@@ -61,7 +61,7 @@ typedef enum esk8_uart_reg_t
     ESK8_REG_BMS_FACTORY_CAPACITY    = 0x18,
     ESK8_REG_BMS_ACTUAL_CAPACITY     = 0x19,
     ESK8_REG_BMS_CHARGE_FULL_CYCLES  = 0x1B,
-    ESK8_REG_BMS_CHARGE_COUNT       = 0x1C,
+    ESK8_REG_BMS_CHARGE_COUNT        = 0x1C,
     ESK8_REG_BMS_CAPACITY_mAh        = 0x31,
 } esk8_uart_reg_t;
 
@@ -80,7 +80,7 @@ typedef enum esk8_uart_addr_t
  * If no header is found, returns -1.
  **/
 int esk8_uart_msg_find_header(
-    
+
     uint8_t* buffer,
     int buf_length
 

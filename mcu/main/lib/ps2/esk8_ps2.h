@@ -36,15 +36,15 @@ typedef enum
 
 typedef struct
 {
-    uint8_t         clockPin;
-    uint8_t         dataPin;
+    uint8_t clockPin;
+    uint8_t dataPin;
 } esk8_ps2_gpio_config_t;
 
 
 typedef struct
 {
-    timer_idx_t     timerIdx;
-    timer_group_t   timerGroup;
+    timer_idx_t   timerIdx;
+    timer_group_t timerGroup;
 } esk8_ps2_timer_config_t;
 
 
@@ -65,24 +65,24 @@ typedef struct
 
 typedef struct
 {
-    uint8_t                     newStart;
-    uint8_t                     newByte;
-    uint8_t                     newParity;
-    uint8_t                     newStop;
-    uint8_t                     frameIndex:5; /* A frame is 11 bits */
+    uint8_t newStart;
+    uint8_t newByte;
+    uint8_t newParity;
+    uint8_t newStop;
+    uint8_t frameIndex:5; /* A frame is 11 bits */
 } esk8_ps2_pkt_t;
 
 
 typedef struct
 {
-    TaskHandle_t                txTaskToNotift;
-    TaskHandle_t                rxTaskHandle;
-    QueueHandle_t               rxByteQueueHandle;
+    TaskHandle_t      txTaskToNotift;
+    TaskHandle_t      rxTaskHandle;
+    QueueHandle_t     rxByteQueueHandle;
 
-    esk8_ps2_pkt_t           rxPkt;
-    esk8_ps2_pkt_t           txPkt;
+    esk8_ps2_pkt_t    rxPkt;
+    esk8_ps2_pkt_t    txPkt;
 
-    esk8_ps2_config_t        ps2Config;
+    esk8_ps2_config_t ps2Config;
 } esk8_ps2_handle_t;
 
 
@@ -101,11 +101,10 @@ typedef struct
  * If something fails internally,
  * it panics.
  **/
-esk8_err_t esk8_ps2_init(
-
+esk8_err_t
+esk8_ps2_init(
     esk8_ps2_handle_t* ps2Handle,
     esk8_ps2_config_t* ps2Config
-
 );
 
 
@@ -113,10 +112,9 @@ esk8_err_t esk8_ps2_init(
  * Same as `esk8_ps2_init` but with
  * values from esk8_config.h.
  **/
-esk8_err_t esk8_ps2_init_from_config_h(
-
+esk8_err_t
+esk8_ps2_init_from_config_h(
     esk8_ps2_handle_t* ps2Handle
-
 );
 
 
@@ -126,11 +124,10 @@ esk8_err_t esk8_ps2_init_from_config_h(
  * This does NOT uninstall the isr
  * service, unless `withIsr` is true.
  **/
-esk8_err_t esk8_ps2_deinit(
-
+esk8_err_t
+esk8_ps2_deinit(
     esk8_ps2_handle_t* ps2Handle,
-    bool                  withIsr
-
+    bool               withIsr
 );
 
 
@@ -139,12 +136,11 @@ esk8_err_t esk8_ps2_deinit(
  * received.
  * Ps2 must be initialized.
  **/
-esk8_err_t esk8_ps2_await_byte(
-
+esk8_err_t
+esk8_ps2_await_byte(
     esk8_ps2_handle_t*   ps2Handle,
-    uint8_t*                outByte,
-    int                     timeOut_ms
-
+    uint8_t*             outByte,
+    int                  timeOut_ms
 );
 
 
@@ -153,11 +149,10 @@ esk8_err_t esk8_ps2_await_byte(
  * to be received.
  * Ps2 must be initialized.
  **/
-esk8_err_t esk8_ps2_await_mvmnt(
-
+esk8_err_t
+esk8_ps2_await_mvmnt(
     esk8_ps2_handle_t* ps2Handle,
     esk8_ps2_mvmnt_t * outMvmnt
-
 );
 
 
@@ -165,11 +160,10 @@ esk8_err_t esk8_ps2_await_mvmnt(
  * Sends one byte of data to the
  * device.
  **/
-esk8_err_t esk8_ps2_send_byte(
-
+esk8_err_t
+esk8_ps2_send_byte(
     esk8_ps2_handle_t* ps2Handle,
-    uint8_t               byte
-
+    uint8_t            byte
 );
 
 
@@ -180,12 +174,11 @@ esk8_err_t esk8_ps2_send_byte(
  * function returns when we receive
  * a valid ack response.
  **/
-esk8_err_t esk8_ps2_send_cmd(
-
+esk8_err_t
+esk8_ps2_send_cmd(
     esk8_ps2_handle_t* ps2Handle,
     esk8_ps2_cmd_t     cmd,
-    int                  timeOut_ms
-
+    int                timeOut_ms
 );
 
 
