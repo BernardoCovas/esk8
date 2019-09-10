@@ -75,6 +75,9 @@ esk8_err_t esk8_ble_apps_init(
         ret = nvs_flash_init();
     }
 
+    if (ret)
+        return ESK8_NVS_NOT_AVAILABLE;
+
     esp_bt_controller_config_t bt_Cnfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     bt_Cnfg.scan_duplicate_mode = 1;
     bt_Cnfg.scan_duplicate_type = 1;
@@ -289,6 +292,8 @@ esk8_ble_apps_gatts_evt_hndl(
 
         case ESP_GATTS_CONNECT_EVT:
         {
+            ESP_ERROR_CHECK(esp_ble_gap_start_advertising(&adv_params));
+
             esk8_ble_conn_ctx_t* ctx = NULL;
             for (int i = 0; i < esk8_ble_apps.conn_num_max; i++)
             {
@@ -311,8 +316,9 @@ esk8_ble_apps_gatts_evt_hndl(
                 break;
             }
 
-            printf(ESK8_TAG_BLE "Adding conn id: %d\n",
-                param->connect.conn_id);
+            printf(ESK8_TAG_BLE "Adding conn id %d to app %s.\n",
+                param->connect.conn_id,
+                app->app_name);
 
             app->app_conn_add(ctx);
             break;
@@ -320,18 +326,19 @@ esk8_ble_apps_gatts_evt_hndl(
 
         case ESP_GATTS_DISCONNECT_EVT:
         {
+            ESP_ERROR_CHECK(esp_ble_gap_start_advertising(&adv_params));
+
             for (int i = 0; i < esk8_ble_apps.conn_num_max; i++)
                 if (param->disconnect.conn_id == app->_conn_ctx_list[i].conn_id)
                 {
                     printf(ESK8_TAG_BLE "Removing conn id: %d\n",
                         param->disconnect.conn_id);
 
-                    app->app_conn_del(app->_conn_ctx_list[i].ctx);
+                    app->app_conn_del(&app->_conn_ctx_list[i]);
                     app->_conn_ctx_list[i].conn_id = -1;
                     break;
                 }
 
-            ESP_ERROR_CHECK(esp_ble_gap_start_advertising(&adv_params));
             break;
         }
 

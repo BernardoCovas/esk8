@@ -111,6 +111,8 @@ static esp_gatts_attr_db_t srvc_ctrl_attr_list[] =
     }
 };
 
+int conn_id = -1;
+
 static void app_init(
     );
 
@@ -151,6 +153,7 @@ esk8_ble_app_t esk8_app_srvc_ctrl =
 static void app_init()
 {
     printf(LOG_TAG "app_init()\n");
+    conn_id = -1;
 }
 
 static void app_deinit()
@@ -162,14 +165,27 @@ static void app_conn_add(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
-    printf(LOG_TAG  "app_conn_add()\n");
+    if (conn_id > 0)
+        return;
+
+    conn_id = conn_ctx->conn_id;
+    printf(LOG_TAG
+        "Registering conn id %d as controller.\n",
+        conn_id
+    );
 }
 
 static void app_conn_del(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
-    printf(LOG_TAG  "app_conn_del()\n");
+    if (conn_ctx->conn_id != conn_id)
+        return;
+
+    conn_id = -1;
+
+    printf(LOG_TAG "Controller disconnected. Resetting speed.\n");
+    esk8_onboard_update_speed(0);
 }
 
 static void app_conn_write(
@@ -186,6 +202,18 @@ static void app_conn_write(
     case SRVC_IDX_CTRL_SPEED_CHAR_VAL:
         if (len != 1)
             return;
+
+        if (conn_id != conn_ctx->conn_id)
+        {
+            printf(LOG_TAG
+                "Connection id %d tried to write."
+                "Write allowed to %d only.\n",
+                conn_ctx->conn_id,
+                conn_id
+            );
+
+            break;
+        }
 
         err = esk8_onboard_update_speed(*val);
         printf(LOG_TAG "Got '%s' updating ble status to speed: %d\n",

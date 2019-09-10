@@ -15,7 +15,7 @@ esk8_onboard_task_bms(
         return;
 
     esk8_onboard_cnfg_t* cnfg = &esk8_onboard.cnfg;
-    esk8_bms_config_t*        bms_cnfg = &esk8_onboard.bms_cnfg;
+    esk8_bms_config_t*   bms_cnfg = &esk8_onboard.bms_cnfg;
 
     esk8_err_t err;
 

@@ -174,7 +174,8 @@ static void app_conn_write(
     esk8_ble_conn_ctx_t* conn_ctx,
     int                  attr_idx,
     size_t               len,
-    uint8_t*             val)
+    uint8_t*             val
+)
 {
     printf(LOG_TAG  "app_conn_write() on idx: %d\n", attr_idx);
 }

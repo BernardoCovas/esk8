@@ -21,20 +21,21 @@ esk8_err_t esk8_nvs_init()
     if (esk8_nvs_handle > 0)
         return ESK8_SUCCESS;
 
-    esp_err_t errCode = nvs_flash_init();
-    if (errCode == ESP_ERR_NVS_NO_FREE_PAGES || errCode == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    esp_err_t esp_err;
+    esp_err = nvs_flash_init();
+    if (esp_err == ESP_ERR_NVS_NO_FREE_PAGES || esp_err == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
-        errCode = nvs_flash_erase();
-        if (errCode)
+        esp_err = nvs_flash_erase();
+        if (esp_err)
             return ESK8_NVS_NOT_AVAILABLE;
 
-        errCode = nvs_flash_init();
-        if (errCode)
+        esp_err = nvs_flash_init();
+        if (esp_err)
             return ESK8_NVS_NOT_AVAILABLE;
     }
 
-    errCode = nvs_open(ESK8_NVS_STORAGE_NAME, NVS_READWRITE, &esk8_nvs_handle);
-    if (errCode)
+    esp_err = nvs_open(ESK8_NVS_STORAGE_NAME, NVS_READWRITE, &esk8_nvs_handle);
+    if (esp_err)
         return ESK8_NVS_NOT_AVAILABLE;
 
     for (int i = 0; i < ESK8_NVS_IDX_MAX; i++)
@@ -49,19 +50,19 @@ esk8_err_t esk8_nvs_init()
             return ESK8_ERR_OOM;
         }
 
-        errCode = nvs_get_blob(esk8_nvs_handle,
+        esp_err = nvs_get_blob(esk8_nvs_handle,
             sttg->nvs_key, NULL, &data_len);
 
-        if (errCode)
+        if (esp_err)
             continue;
 
         if (data_len != sttg->nvs_len)
             continue;
 
-        errCode = nvs_get_blob(esk8_nvs_handle,
+        esp_err = nvs_get_blob(esk8_nvs_handle,
             sttg->nvs_key, sttg->__nvs_mem, &data_len);
 
-        if (errCode)
+        if (esp_err)
         {
             sttg->nvs_val = NULL;
             continue;
