@@ -86,12 +86,12 @@ esk8_onboard_start(
 }
 
 esk8_err_t
-esk8_onboard_update_speed(
+esk8_onboard_set_speed(
     uint8_t speed
 )
 {
     if (!esk8_onboard.state)
-        return ESK8_ERR_RIDE_NOINIT;
+        return ESK8_ERR_OBRD_NOINIT;
 
     esk8_onboard.speed = speed;
 

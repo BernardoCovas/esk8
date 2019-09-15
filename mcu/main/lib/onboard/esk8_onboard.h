@@ -1,5 +1,5 @@
-#ifndef _ESK8_RIDE_STAT_H
-#define _ESK8_RIDE_STAT_H
+#ifndef _ESK8_ONBOARD_H
+#define _ESK8_ONBOARD_H
 
 #include <esk8_config.h>
 #include <esk8_err.h>
@@ -71,8 +71,8 @@ esk8_onboard_task_btn(
 );
 
 esk8_err_t
-esk8_onboard_update_speed(
+esk8_onboard_set_speed(
     uint8_t speed
 );
 
-#endif /* _ESK8_RIDE_STAT_H */
+#endif /* _ESK8_ONBOARD_H */

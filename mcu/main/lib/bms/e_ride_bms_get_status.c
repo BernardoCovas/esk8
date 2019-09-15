@@ -14,7 +14,7 @@ esk8_err_t esk8_bms_get_status(
 )
 {
     esk8_err_t errorCode = ESK8_SUCCESS;
-    
+
     esk8_uart_reg_t  readReg[] = {
         ESK8_REG_BMS_CAPACITY,
         ESK8_REG_BMS_VOLTAGE,

@@ -185,7 +185,7 @@ static void app_conn_del(
     conn_id = -1;
 
     printf(LOG_TAG "Controller disconnected. Resetting speed.\n");
-    esk8_onboard_update_speed(0);
+    esk8_onboard_set_speed(0);
 }
 
 static void app_conn_write(
@@ -215,7 +215,7 @@ static void app_conn_write(
             break;
         }
 
-        err = esk8_onboard_update_speed(*val);
+        err = esk8_onboard_set_speed(*val);
         printf(LOG_TAG "Got '%s' updating ble status to speed: %d\n",
             esk8_err_to_str(err), val[0]);
 

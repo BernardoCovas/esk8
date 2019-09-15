@@ -60,18 +60,21 @@ typedef enum esk8_err_t
     ESK8_AUTH_ERR_AUTH,                   /* Wrong key supplied.                 */
     ESK8_AUTH_ERR_CONN,                   /* Wrong connection authenticating.    */
 
-    ESK8_ERR_RIDE_NOINIT,
+    ESK8_ERR_OBRD_NOINIT,
+
+    ESK8_ERR_REMT_NOINIT,
+    ESK8_ERR_REMT_REINIT,
 } esk8_err_t;
 
 
 /**
- * String representation of `errCode`.
+ * String representation of `err`.
  * If the error code is unkown,
  * returns "?".
  */
 const char* esk8_err_to_str(
 
-    esk8_err_t errCode
+    esk8_err_t err
 
 );
 

@@ -54,7 +54,8 @@ static esp_ble_adv_data_t adv_data = {
 
 esk8_ble_apps_t esk8_ble_apps = {0};
 
-esk8_err_t esk8_ble_apps_init(
+esk8_err_t
+esk8_ble_apps_init(
     unsigned int        n_apps_max,
     unsigned int        n_conn_max
 )
@@ -150,7 +151,8 @@ esk8_ble_app_register(
     return ESK8_BLE_INIT_MAXREG;
 }
 
-esk8_err_t esk8_ble_apps_deinit()
+esk8_err_t
+esk8_ble_apps_deinit()
 {
     if (!esk8_ble_apps.apps_list)
         return ESK8_BLE_INIT_NOINIT;
