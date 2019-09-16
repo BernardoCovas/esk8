@@ -44,11 +44,11 @@ esk8_remote_start()
     if (ret)
         return ESK8_NVS_NOT_AVAILABLE;
 
-    esp_bt_controller_config_t bt_Cnfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+    esp_bt_controller_config_t bt_cnfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
 
     ESP_ERROR_CHECK(    ret                                                             );
     ESP_ERROR_CHECK(    esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)           );
-    ESP_ERROR_CHECK(    esp_bt_controller_init(&bt_Cnfg)                                );
+    ESP_ERROR_CHECK(    esp_bt_controller_init(&bt_cnfg)                                );
     ESP_ERROR_CHECK(    esp_bt_controller_enable(ESP_BT_MODE_BLE)                       );
 
     ESP_ERROR_CHECK(    esp_bluedroid_init()                                            );
@@ -57,6 +57,7 @@ esk8_remote_start()
     ESP_ERROR_CHECK(    esp_ble_gap_register_callback(esk8_remote_gap_cb)               );
     ESP_ERROR_CHECK(    esp_ble_gattc_register_callback(esk8_remote_gattc_cb)           );
 
+    esk8_remote.state = ESK8_REMOTE_STATE_SEARCHING;
     esp_ble_gap_start_scanning(10);
 
     return ESK8_SUCCESS;
@@ -88,6 +89,12 @@ esk8_remote_gap_cb(
     {
     case ESP_GAP_BLE_SCAN_RESULT_EVT:
     {
+        if (esk8_remote.state != ESK8_REMOTE_STATE_SEARCHING)
+        {
+            esp_ble_gap_stop_scanning();
+            break;
+        }
+
         if (param->scan_rst.search_evt != ESP_GAP_SEARCH_INQ_RES_EVT)
             break;
 
@@ -97,7 +104,8 @@ esk8_remote_gap_cb(
 
         printf(", RSSI: %d, evt: %d\n",
             param->scan_rst.rssi,
-            param->scan_rst.search_evt);
+            param->scan_rst.search_evt
+        );
 
         break;
     }

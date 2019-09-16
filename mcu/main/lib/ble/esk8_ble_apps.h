@@ -26,7 +26,6 @@ typedef struct
     void (*app_conn_write)(esk8_ble_conn_ctx_t* conn_ctx, int attr_idx, size_t  len, uint8_t* val);
     void (*app_evt_cb    )(esp_gatts_cb_event_t event, esp_ble_gatts_cb_param_t *param);
 
-
     esp_gatts_attr_db_t*    attr_db;
     uint16_t                attr_num;
 
@@ -72,7 +71,8 @@ esk8_ble_app_register(
  *
  */
 esk8_err_t
-esk8_ble_apps_deinit();
+esk8_ble_apps_deinit(
+);
 
 
 #endif /*_ESK8_BLE_APPS_H */
