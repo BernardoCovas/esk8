@@ -10,6 +10,7 @@
 #include <math.h>
 
 
+
 void esk8_ps2_isr(
 
     void* param
@@ -56,9 +57,8 @@ void esk8_ps2_isr(
 
         bool bitVal;
         esk8_err_t errCode = esk8_ps2_take_bit(&ps2Handle->txPkt, &bitVal);
-        gpio_set_level(d_pin, (uint32_t) bitVal);
 
-        if (errCode == ESK8_PS2_ERR_VALUE_READY && ps2Handle->txPkt.frameIndex++ >= 12)
+        if (errCode == ESK8_PS2_ERR_VALUE_READY)
         {
             ps2Config->dataDrctn = PS2_DIRCN_RECV;
 
@@ -66,6 +66,10 @@ void esk8_ps2_isr(
             gpio_set_intr_type(c_pin, GPIO_INTR_NEGEDGE);
             vTaskNotifyGiveFromISR(ps2Handle->txTaskToNotift, NULL);
         }
+
+        // 5 us minimum before changing the data pin state
+        vTaskDelay(5 / portTICK_PERIOD_MS / 1000);
+        gpio_set_level(d_pin, (uint32_t) bitVal);
     }
 }
 

@@ -23,8 +23,11 @@ typedef struct
 
     void*               ble_task;
     void*               ps2_task;
+    void*               evt_smph;
 } esk8_remote_t;
 
+extern esk8_remote_t
+esk8_remote;
 
 esk8_err_t
 esk8_remote_start(
@@ -35,10 +38,28 @@ esk8_remote_stop(
 );
 
 esk8_err_t
-esk8_remote_set_speed(
-    uint8_t speed
+esk8_remote_incr_speed(
+    int incr
 );
 
+esk8_err_t
+esk8_remote_await_notif(
+);
+
+esk8_err_t
+esk8_remote_connect(
+    uint32_t sec
+);
+
+void
+esk8_remote_task_ps2(
+    void* param
+);
+
+void
+esk8_remote_task_ble(
+    void* param
+);
 
 
 #endif /* _ESK8_REMOTE_H */

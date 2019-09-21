@@ -67,7 +67,6 @@ esk8_err_t esk8_ps2_take_bit(
             break;
         case 10:
             (*outValue) = ps2Pkt->newStop;
-            errCode = ESK8_PS2_ERR_VALUE_READY;
             break;
         default:
             goto GET_BIT;
@@ -95,7 +94,7 @@ void esk8_ps2_reset_pkt(
 
 
 bool esk8_ps2_get_parity(uint8_t x)
-{    
+{
     x = (x & 0x0F)^(x >> 4);
     x = (x & 0x03)^(x >> 2);
     x = (x & 0x01)^(x >> 1);

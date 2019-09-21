@@ -9,8 +9,11 @@
 #include <esp_gattc_api.h>
 #include <esp_gap_ble_api.h>
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
-static esk8_remote_t esk8_remote = { 0 };
+
+esk8_remote_t esk8_remote = { 0 };
 
 void
 esk8_remote_gattc_cb(
@@ -35,7 +38,10 @@ esk8_remote_start()
 
     esp_err_t ret = nvs_flash_init();
 
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    if  (
+            ret == ESP_ERR_NVS_NO_FREE_PAGES ||
+            ret == ESP_ERR_NVS_NEW_VERSION_FOUND
+        )
     {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
@@ -57,8 +63,20 @@ esk8_remote_start()
     ESP_ERROR_CHECK(    esp_ble_gap_register_callback(esk8_remote_gap_cb)               );
     ESP_ERROR_CHECK(    esp_ble_gattc_register_callback(esk8_remote_gattc_cb)           );
 
-    esk8_remote.state = ESK8_REMOTE_STATE_SEARCHING;
-    esp_ble_gap_start_scanning(10);
+    if  (
+            xTaskCreate(
+                esk8_remote_task_ps2,
+                "esk8_remote_task_ps2",
+                2048, NULL, 2,
+                esk8_remote.ps2_task
+            ) != pdPASS
+        )
+    {
+        esk8_remote.state = ESK8_REMOTE_STATE_STOPPED;
+        return ESK8_ERR_OOM;
+    }
+
+    esk8_remote.state = ESK8_REMOTE_STATE_NOT_CONNECTED;
 
     return ESK8_SUCCESS;
 }
@@ -70,8 +88,8 @@ esk8_remote_stop()
 }
 
 esk8_err_t
-esk8_remote_set_speed(
-    uint8_t speed
+esk8_remote_incr_speed(
+    int incr
 )
 {
     return ESK8_SUCCESS;
@@ -123,4 +141,31 @@ esk8_remote_gattc_cb(
 )
 {
     printf("[ GATTC ] Got event: %d\n", event);
+
+    switch (event)
+    {
+    case ESP_GATTC_DISCONNECT_EVT:
+        break;
+
+    case ESP_GATTC_CONNECT_EVT:
+        break;
+
+    default:
+        break;
+    }
+}
+
+esk8_err_t
+esk8_remote_connect(
+    uint32_t sec
+)
+{
+    if (esk8_remote.state != ESK8_REMOTE_STATE_NOT_CONNECTED)
+        return ESK8_ERR_REMT_BAD_STATE;
+
+    esp_err_t err = esp_ble_gap_start_scanning(sec);
+    if (err)
+        return ESK8_ERR_REMT_BAD_STATE;
+
+    return ESK8_SUCCESS;
 }

@@ -15,7 +15,7 @@
 /* ========================================== PS2 Trackpad Configrations ================================= */
 #define ESK8_PS2_DATA_PIN                         GPIO_NUM_22
 #define ESK8_PS2_CLOCK_PIN                        GPIO_NUM_23
-#define ESK8_PS2_MOVEMENT_BYTE_TIMEOUT_MS         20              /* Ms between two movement packets to be considered a lost pkt sequence.  */
+#define ESK8_PS2_MOVEMENT_BYTE_TIMEOUT_MS         40              /* Ms between two movement packets to be considered a lost pkt sequence.  */
 #define ESK8_PS2_MOVEMENT_TIMEOUT_MS              5000            /* Timeout, in mS, between movement pkt seequences.                       */
 #define ESK8_PS2_PACKET_TIMEOUT_uS                200             /* us between clock cycles to be considered a lost packet.                */
 #define ESK8_PS2_BYTE_SEND_TIMEOUT_MS             20              /* ms to wait after signaling the isr to send a byte.                     */
@@ -38,12 +38,17 @@
 /* ========================================== BLE Configurations ========================================= */
 #define ESK8_BLE_DEV_NAME                         "Esk8"          /* Advertized device name                                                                                               */
 
+
 /* ========================================== BTN Configurations ========================================= */
 #define ESK8_BTN_TIMER_GROUP                      TIMER_GROUP_0
 #define ESK8_BTN_TIMER_IDX                        TIMER_1
 #define ESK8_BTN_GPIO                             GPIO_NUM_0
 #define ESK8_BTN_LONGPRESS_ms                     3000
 #define ESK8_BTN_DEBOUNCE_ms                      10
+
+
+/* ========================================== RMT Configurations ========================================= */
+#define ESK8_RMT_PS2_CMD_TIMEOUT_ms               200
 
 
 #endif  /* _ESK8_CONTROLLER_CONFIG_H */

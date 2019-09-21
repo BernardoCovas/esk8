@@ -30,7 +30,8 @@ typedef enum
     ESK8_PS2_CMD_SET_RESOLUTION           = 0xE8,
     ESK8_PS2_CMD_MODE_REMOTE_DATA_READ    = 0xEB,
 
-    ESK8_PS2_RES_ACK                      = 0xFA
+    ESK8_PS2_RES_ACK                      = 0xFA,
+    ESK8_PS2_RES_RESEND                   = 0xFE
 } esk8_ps2_cmd_t;
 
 
