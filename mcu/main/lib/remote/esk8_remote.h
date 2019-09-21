@@ -2,6 +2,7 @@
 #define _ESK8_REMOTE_H
 
 #include <esk8_err.h>
+#include <esk8_pwm.h>
 
 #include <stdint.h>
 
@@ -19,11 +20,11 @@ typedef enum
 typedef struct
 {
     esk8_remote_state_t state;
-    uint8_t             speed;
+    int                 speed;
 
+    esk8_pwm_config_t   pwm_cnfg;
     void*               ble_task;
     void*               ps2_task;
-    void*               evt_smph;
 } esk8_remote_t;
 
 extern esk8_remote_t

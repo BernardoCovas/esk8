@@ -1,4 +1,5 @@
 #include <esk8_err.h>
+#include <esk8_pwm.h>
 #include <esk8_remote.h>
 
 #include <esp_log.h>
@@ -76,6 +77,15 @@ esk8_remote_start()
         return ESK8_ERR_OOM;
     }
 
+    esk8_err_t err;
+
+    err = esk8_pwm_sgnl_init(&esk8_remote.pwm_cnfg);
+    if (err)
+    {
+        esk8_remote_stop();
+        return err;
+    }
+
     esk8_remote.state = ESK8_REMOTE_STATE_NOT_CONNECTED;
 
     return ESK8_SUCCESS;
@@ -92,6 +102,12 @@ esk8_remote_incr_speed(
     int incr
 )
 {
+    esk8_remote.speed += incr;
+    esk8_remote.speed = esk8_remote.speed > 255 ? 255 : esk8_remote.speed;
+    esk8_remote.speed = esk8_remote.speed < 0   ? 0   : esk8_remote.speed;
+
+    esk8_pwm_sgnl_set(&esk8_remote.pwm_cnfg, esk8_remote.speed);
+
     return ESK8_SUCCESS;
 }
 
