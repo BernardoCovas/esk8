@@ -2,6 +2,7 @@
 #define _ESK8_PS2_H
 
 #include <esk8_err.h>
+#include "esk8_ps2_v2.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>

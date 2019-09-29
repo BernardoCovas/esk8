@@ -7,9 +7,6 @@
 #include <driver/gpio.h>
 #include <driver/timer.h>
 
-#include <math.h>
-
-
 
 void esk8_ps2_isr(
 
@@ -42,9 +39,15 @@ void esk8_ps2_isr(
         {
             if (esk8_ps2_check_pkt(ps2Pkt) == ESK8_SUCCESS)
                 // NOTE (b.covas): If this is not true, we lost a packet.
-                xQueueSendFromISR(ps2Handle->rxByteQueueHandle, &ps2Pkt->newByte, NULL); /* NOTE (b.covas): Send to queue */
+                /* NOTE (b.covas): Send to queue */
+                xQueueSendFromISR(
+                    ps2Handle->rxByteQueueHandle,
+                    &ps2Pkt->newByte,
+                    NULL
+                );
 
-            esk8_ps2_reset_pkt(ps2Pkt);
+            esk8_ps2_reset_pkt(&ps2Handle->txPkt);
+            esk8_ps2_reset_pkt(&ps2Handle->rxPkt);
         }
 
         return;
@@ -65,6 +68,11 @@ void esk8_ps2_isr(
             gpio_set_direction(d_pin, GPIO_MODE_INPUT);
             gpio_set_intr_type(c_pin, GPIO_INTR_NEGEDGE);
             vTaskNotifyGiveFromISR(ps2Handle->txTaskToNotift, NULL);
+
+            esk8_ps2_reset_pkt(&ps2Handle->txPkt);
+            esk8_ps2_reset_pkt(&ps2Handle->rxPkt);
+
+            return;
         }
 
         // 5 us minimum before changing the data pin state

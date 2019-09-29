@@ -70,6 +70,27 @@ _start:
                     esk8_err_to_str(err)
                 );
 
+                if (err == ESK8_PS2_ERR_TIMEOUT)
+                {
+                    err = esk8_ps2_send_cmd(
+                        &ps2_hndl,
+                        ESK8_PS2_CMD_GET_STATUS,
+                        50
+                    );
+
+                    if (err)
+                    {
+                        printf(W ESK8_TAG_RMT
+                            "Could not get status. Err: %s\n",
+                            esk8_err_to_str(err)
+                        );
+
+                        break;
+                    }
+
+
+                }
+
                 break;
             }
 
