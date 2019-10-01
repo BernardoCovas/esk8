@@ -1,6 +1,8 @@
 #ifndef _ESK8_PS2_PRIV_H
 #define _ESK8_PS2_PRIV_H
 
+#include <stdint.h>
+
 
 typedef enum
 {

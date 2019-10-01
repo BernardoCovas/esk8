@@ -5,6 +5,7 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
+#include <freertos/semphr.h>
 
 #define RX_QUEUE_LEN 1024
 
@@ -25,7 +26,7 @@ esk8_ps2_isr(
 
         case ESK8_PS2_STATE_SEND:
         {
-
+            
         }
             break;
 
@@ -59,9 +60,12 @@ esk8_ps2_init(
         ps2_config->rx_queue_len, 1
     );
 
+    ps2_hndl_def->rx_tx_lock = xSemaphoreCreateBinary();
+
     if  (
             !ps2_hndl_def->rx_cmd_queue ||
-            !ps2_hndl_def->rx_mvt_queue
+            !ps2_hndl_def->rx_mvt_queue ||
+            !ps2_hndl_def->rx_tx_lock
         )
     {
         esk8_ps2_deinit(*ps2_hndl);
@@ -83,6 +87,9 @@ esk8_ps2_deinit(
 
     if (ps2_hndl_def->rx_mvt_queue)
         vQueueDelete(ps2_hndl_def->rx_mvt_queue);
+
+    if (ps2_hndl_def->rx_tx_lock)
+        vSemaphoreDelete(ps2_hndl_def->rx_tx_lock);
 
     free(ps2_hndl);
 
