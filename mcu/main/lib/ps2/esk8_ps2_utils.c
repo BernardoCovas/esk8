@@ -7,8 +7,24 @@ esk8_ps2_get_bit(
     int               idx
 )
 {
+    if (idx > 10)
+        return -1;
 
-    return -1;
+    switch (idx)
+    {
+    case 0:
+        return frame->start;
+    case 9:
+        return frame->parity;
+    case 10:
+        return frame->stop;
+
+    default:
+        break;
+    }
+
+    idx -= 1;
+    return frame->byte & (1 << idx);
 }
 
 
@@ -40,6 +56,7 @@ esk8_ps2_set_bit(
         break;
     }
 
+    idx -= 1;
     if (val)
         frame->byte |= (1 << idx);
     else
