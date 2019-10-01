@@ -1,5 +1,7 @@
 #include "esk8_ps2_utils.h"
 
+#include <memory.h>
+
 
 int
 esk8_ps2_get_bit(
@@ -61,6 +63,15 @@ esk8_ps2_set_bit(
         frame->byte |= (1 << idx);
     else
         frame->byte &= ~(1 << idx)
+}
+
+
+void
+esk8_ps2_reset_frame(
+    esk8_ps2_frame_t* frame,
+)
+{
+    memset(frame, 0, sizeof(esk8_ps2_frame_t));
 }
 
 

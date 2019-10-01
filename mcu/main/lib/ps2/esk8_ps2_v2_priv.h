@@ -43,10 +43,15 @@ esk8_ps2_set_bit(
     int               val
 );
 
+void
+esk8_ps2_reset_frame(
+    esk8_ps2_frame_t* frame,
+);
 
 int
 esk8_ps2_get_parity(
     uint8_t byte
 );
+
 
 #endif /* _ESK8_PS2_PRIV_H */
