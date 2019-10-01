@@ -15,6 +15,8 @@ esk8_ps2_isr(
 )
 {
     esk8_ps2_hndl_def_t* ps2_hndl = (esk8_ps2_hndl_def_t*)param;
+    esk8_ps2_frame_t* frame = &ps2_hndl->inflight;
+    int* idx = &frame->idx;
 
     switch(ps2_hndl->ps2_state)
     {
@@ -81,6 +83,8 @@ esk8_ps2_deinit(
 
     if (ps2_hndl_def->rx_mvt_queue)
         vQueueDelete(ps2_hndl_def->rx_mvt_queue);
+
+    free(ps2_hndl);
 
     return ESK8_SUCCESS;
 }

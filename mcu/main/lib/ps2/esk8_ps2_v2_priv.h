@@ -27,6 +27,7 @@ typedef struct
     esk8_ps2_frame_t inflight;
     void*            rx_cmd_queue;
     void*            rx_mvt_queue;
+    void*            rx_tx_lock;
 }
 esk8_ps2_hndl_def_t;
 
