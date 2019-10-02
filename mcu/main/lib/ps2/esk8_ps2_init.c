@@ -19,6 +19,9 @@ esk8_ps2_isr(
     esk8_ps2_frame_t* frame = &ps2_hndl->inflight;
     int* idx = &frame->idx;
 
+    if (*idx > 9)
+        esk8_ps2_reset_frame(frame);
+
     switch(ps2_hndl->ps2_state)
     {
         case ESK8_PS2_STATE_NONE:
@@ -26,7 +29,7 @@ esk8_ps2_isr(
 
         case ESK8_PS2_STATE_SEND:
         {
-            
+
         }
             break;
 
@@ -57,7 +60,7 @@ esk8_ps2_init(
     );
 
     ps2_hndl_def->rx_mvt_queue = xQueueCreate(
-        ps2_config->rx_queue_len, 1
+        ps2_config->rx_queue_len, sizeof(esk8_ps2_mvmt_t)
     );
 
     ps2_hndl_def->rx_tx_lock = xSemaphoreCreateBinary();

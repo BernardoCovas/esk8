@@ -68,7 +68,7 @@ esk8_ps2_set_bit(
 
 void
 esk8_ps2_reset_frame(
-    esk8_ps2_frame_t* frame,
+    esk8_ps2_frame_t* frame
 )
 {
     memset(frame, 0, sizeof(esk8_ps2_frame_t));
