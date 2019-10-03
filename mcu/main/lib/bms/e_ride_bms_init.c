@@ -28,5 +28,5 @@ esk8_err_t esk8_bms_init(
     if (errCode != ESP_OK && errCode != ESP_FAIL)
         ESP_ERROR_CHECK(errCode);
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }

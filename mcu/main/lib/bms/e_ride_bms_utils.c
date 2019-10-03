@@ -11,7 +11,7 @@ esk8_err_t get_data_with_response(
 
 )
 {
-    esk8_err_t errorCode = ESK8_SUCCESS;
+    esk8_err_t errorCode = ESK8_OK;
     esk8_uart_msg_t msg;
 
     size_t responseLen = ESK8_MSG_MIN_SIZE + readRegSize; // Payload size.
@@ -66,7 +66,7 @@ esk8_err_t get_data_with_response(
             responseLen,
             &rspMsg);
 
-        if (errorCode != ESK8_SUCCESS)
+        if (errorCode != ESK8_OK)
         {
             continue;
         }

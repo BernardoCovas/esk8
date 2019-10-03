@@ -26,7 +26,7 @@ set(COMPONENT_ADD_INCLUDEDIRS ${_esk8_include})
 
 # Build remote control firmware instead of base
 if(ESK8_REMOTE)
-    add_compile_definitions(ESK8_REMOTE)
+    add_definitions(ESK8_REMOTE)
 endif(ESK8_REMOTE)
 
 

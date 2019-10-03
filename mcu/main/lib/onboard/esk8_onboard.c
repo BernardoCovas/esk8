@@ -82,7 +82,7 @@ esk8_onboard_start(
     }
 
     esk8_onboard.state = ESK8_RIDE_STATE_RUNNING;
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 esk8_err_t
@@ -123,5 +123,5 @@ esk8_onboard_stop(
         free(esk8_onboard.bms_deep_stat);
 
     esk8_onboard = (esk8_onboard_t){ 0 };
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }

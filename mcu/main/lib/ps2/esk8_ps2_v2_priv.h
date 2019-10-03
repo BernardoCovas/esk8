@@ -15,21 +15,31 @@ esk8_ps2_state_t;
 
 typedef struct
 {
-    uint8_t start;
+    esk8_err_t err;
+
     uint8_t byte;
-    uint8_t parity;
-    uint8_t stop;
     int     idx;
 }
 esk8_ps2_frame_t;
 
 typedef struct
 {
-    esk8_ps2_state_t ps2_state;
-    esk8_ps2_frame_t inflight;
-    void*            rx_cmd_queue;
-    void*            rx_mvt_queue;
-    void*            rx_tx_lock;
+    esk8_err_t err;
+
+    uint8_t idx;
+    uint8_t mvmt[3];
+}
+esk8_ps2_mvmt_frame_t;
+
+typedef struct
+{
+    esk8_ps2_frame_t      inflight;
+    esk8_ps2_mvmt_frame_t mvmt_frame;
+    esk8_ps2_state_t      ps2_state;
+    esk8_ps2_cnfg_t       ps2_cnfg;
+    void*                 rx_cmd_queue;
+    void*                 rx_mvt_queue;
+    void*                 rx_tx_lock;
 }
 esk8_ps2_hndl_def_t;
 
@@ -41,9 +51,9 @@ esk8_ps2_get_bit(
 
 void
 esk8_ps2_set_bit(
-    esk8_ps2_frame_t* frame,
-    int               idx,
-    int               val
+    uint8_t* byte,
+    int      idx,
+    int      val
 );
 
 void

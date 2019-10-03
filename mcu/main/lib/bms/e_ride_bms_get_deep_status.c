@@ -69,10 +69,10 @@ esk8_err_t esk8_bms_get_deep_status(
             readSize,
             outRegP[i]);
 
-        if (errCode != ESK8_SUCCESS)
+        if (errCode != ESK8_OK)
             return errCode;
 
     }
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }

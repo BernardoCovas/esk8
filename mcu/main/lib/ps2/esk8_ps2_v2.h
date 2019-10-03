@@ -34,6 +34,8 @@ esk8_ps2_cmd_t;
 
 typedef struct
 {
+    esk8_err_t err;
+ 
     int x;
     int y;
     int lft_btn;
@@ -42,19 +44,20 @@ esk8_ps2_mvmt_t;
 
 typedef struct
 {
-    size_t  rx_queue_len;
-    uint8_t clock_pin;
-    uint8_t data_pin;
+    size_t   rx_queue_len;
+    uint32_t xr_timeout_ms;
+    uint8_t  clock_pin;
+    uint8_t  data_pin;
 }
-esk8_ps2_config_t;
+esk8_ps2_cnfg_t;
 
 typedef void*
 esk8_ps2_hndl_t;
 
 esk8_err_t
 esk8_ps2_init(
-    esk8_ps2_hndl_t*   out_hndl,
-    esk8_ps2_config_t* ps2_cnfg
+    esk8_ps2_hndl_t* out_hndl,
+    esk8_ps2_cnfg_t* ps2_cnfg
 );
 
 esk8_err_t
@@ -62,7 +65,7 @@ esk8_ps2_deinit(
     esk8_ps2_hndl_t hndl
 );
 
-esk8_err_t
+void
 esk8_ps2_send_byte(
     esk8_ps2_hndl_t hndl,
     uint8_t         byte
@@ -75,7 +78,7 @@ esk8_ps2_send_cmd(
 );
 
 esk8_err_t
-esk8_ps2_await_byte(
+esk8_ps2_await_rsp(
     esk8_ps2_hndl_t hndl,
     uint8_t*        out_byte
 );

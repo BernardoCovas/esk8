@@ -24,5 +24,5 @@ esk8_err_t esk8_bms_set_rx(
         UART_PIN_NO_CHANGE
         ));
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }

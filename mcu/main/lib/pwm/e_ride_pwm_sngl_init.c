@@ -16,7 +16,7 @@ esk8_err_t esk8_pwm_sgnl_init(
     t_Config.timer_num          = ESK8_PWM_TIMER_NUM;
     t_Config.speed_mode         = LEDC_HIGH_SPEED_MODE;
 
-    if(ledc_timer_config(&t_Config) != ESK8_SUCCESS)
+    if(ledc_timer_config(&t_Config) != ESK8_OK)
         return ESK8_ERR_INVALID_PARAM;
 
     ledc_channel_config_t c_Config;
@@ -37,7 +37,7 @@ esk8_err_t esk8_pwm_sgnl_init(
         out_cnfg->c_Config = c_Config;
     }
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 esk8_err_t esk8_pwm_sgnl_stop(
@@ -47,5 +47,5 @@ esk8_err_t esk8_pwm_sgnl_stop(
     ledc_timer_pause(cnfg->t_Config.speed_mode, cnfg->t_Config.timer_num);
     ledc_stop(cnfg->t_Config.speed_mode, cnfg->c_Config.channel, 0);
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }

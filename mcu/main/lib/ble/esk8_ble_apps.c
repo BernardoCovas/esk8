@@ -105,7 +105,7 @@ esk8_ble_apps_init(
     if (!esk8_ble_apps.apps_list)
         return ESK8_ERR_OOM;
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 esk8_err_t
@@ -145,7 +145,7 @@ esk8_ble_app_register(
         ESP_ERROR_CHECK(esp_ble_gatts_app_register(esk8_ble_apps.curr_app_id++));
         printf(ESK8_TAG_BLE "Registered app: '%s'\n", app->app_name);
 
-        return ESK8_SUCCESS;
+        return ESK8_OK;
     }
 
     return ESK8_BLE_INIT_MAXREG;
@@ -183,7 +183,7 @@ esk8_ble_apps_deinit()
     free(esk8_ble_apps.apps_list);
     memset(&esk8_ble_apps, 0, sizeof(esk8_ble_apps_t));
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 void

@@ -19,7 +19,7 @@ static  nvs_handle_t    esk8_nvs_handle = 0;
 esk8_err_t esk8_nvs_init()
 {
     if (esk8_nvs_handle > 0)
-        return ESK8_SUCCESS;
+        return ESK8_OK;
 
     esp_err_t esp_err;
     esp_err = nvs_flash_init();
@@ -78,7 +78,7 @@ esk8_err_t esk8_nvs_init()
         sttg->nvs_val = sttg->__nvs_mem;
     }
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 
@@ -101,7 +101,7 @@ esk8_err_t esk8_nvs_settings_get(
         return ESK8_NVS_NO_VAL;
 
     memcpy(out_val, sttg->nvs_val, sttg->nvs_len);
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 
@@ -124,7 +124,7 @@ esk8_err_t esk8_nvs_settings_set(
         sttg->nvs_val = sttg->__nvs_mem;
 
     memcpy(sttg->nvs_val, sttg_val, sttg->nvs_len);
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 
@@ -164,7 +164,7 @@ __nvs_commit:
     if (nvs_commit(esk8_nvs_handle))
         return ESK8_NVS_ERR_WRITE;
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 
@@ -182,5 +182,5 @@ esk8_err_t esk8_nvs_settings_deinit()
         sttg->nvs_val = NULL;
     }
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }

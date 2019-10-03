@@ -7,7 +7,7 @@ const char* esk8_err_to_str(
 {
     switch(errCode)
     {
-        case ESK8_SUCCESS: return "ESK8_SUCCESS";
+        case ESK8_OK: return "ESK8_OK";
         case ESK8_ERR_INVALID_PARAM: return "ESK8_ERR_INVALID_PARAM";
         case ESK8_ERR_OOM: return "ESK8_ERR_OOM";
         case ESK8_BMS_ERR_INVALID_DATA: return "ESK8_BMS_ERR_INVALID_DATA";
@@ -25,6 +25,8 @@ const char* esk8_err_to_str(
         case ESK8_PS2_ERR_BYTE_TIMEOUT: return "ESK8_PS2_ERR_BYTE_TIMEOUT";
         case ESK8_PS2_ERR_NOTIF_TIMEOUT: return "ESK8_PS2_ERR_NOTIF_TIMEOUT";
         case ESK8_PS2_ERR_PCK_TIMEOUT: return "ESK8_PS2_ERR_PCK_TIMEOUT";
+        case ESK8_PS2_ERR_BAD_PCK: return "ESK8_PS2_ERR_BAD_PCK";
+        case ESK8_PS2_ERR_BAD_MVMT: return "ESK8_PS2_ERR_BAD_MVMT";
         case ESK8_PS2_ERR_NO_ACK: return "ESK8_PS2_ERR_NO_ACK";
         case ESK8_PS2_ERR_RESEND: return "ESK8_PS2_ERR_RESEND";
         case ESK8_BLE_INIT_NOINIT: return "ESK8_BLE_INIT_NOINIT";

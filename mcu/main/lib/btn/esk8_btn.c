@@ -61,7 +61,7 @@ esk8_err_t esk8_btn_init(
     __esk8_err_handle(timer_enable_intr(tg, ti));
     __esk8_err_handle(timer_set_alarm_value(tg, ti, 1000 * btnCnfg->btn_longPress_ms));
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 
@@ -81,7 +81,7 @@ esk8_err_t esk8_btn_await_press(
         return ESK8_BTN_ERR_TIMEOUT;
     }
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 
@@ -109,7 +109,7 @@ esk8_err_t esk8_btn_clear(
     timer_pause(tg, ti);
     timer_disable_intr(tg, ti);
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 

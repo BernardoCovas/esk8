@@ -16,7 +16,7 @@ esk8_ble_apps_get_ctx(
         if (app->_conn_ctx_list[i].conn_id == conn_id)
         {
             (*out_ctx_p) = &app->_conn_ctx_list[i];
-            return ESK8_SUCCESS;
+            return ESK8_OK;
         }
 
     (*out_ctx_p) = NULL;
@@ -34,7 +34,7 @@ esk8_ble_apps_get_attr_idx(
         if (app->_attr_hndl_list[i] == handle)
         {
             (*out_idx) = i;
-            return ESK8_SUCCESS;
+            return ESK8_OK;
         }
 
     return ESK8_ERR_INVALID_PARAM;
@@ -59,7 +59,7 @@ esk8_ble_apps_update(
         val_len, val
     );
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 esk8_err_t
@@ -88,5 +88,5 @@ esk8_ble_apps_notify_all(
         );
     }
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }

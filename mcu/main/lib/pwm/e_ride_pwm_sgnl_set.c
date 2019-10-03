@@ -20,5 +20,5 @@ esk8_err_t esk8_pwm_sgnl_set(
     if (errCode != ESP_OK)
         return ESK8_ERR_INVALID_PARAM;
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }

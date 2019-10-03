@@ -183,7 +183,7 @@ esk8_ble_app_status_speed(
         SRVC_IDX_STATUS_SPEED_CHAR_VAL,
         1, &speed_val));
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 esk8_err_t

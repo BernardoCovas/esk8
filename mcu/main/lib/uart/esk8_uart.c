@@ -122,14 +122,14 @@ esk8_uart_msg_parse(
 
     esk8_err_t errCode = esk8_uart_msg_chk(msgNew);
 
-    if (errCode != ESK8_SUCCESS)
+    if (errCode != ESK8_OK)
     {
         free(msgNew.payload);
         return errCode;
     }
 
     (*msgOut) = msgNew;
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 size_t
@@ -151,7 +151,7 @@ esk8_uart_msg_chk(
     if (memcmp(calcChkSum, msg.chk_sum, 2) != 0)
         return ESK8_UART_MSG_ERR_INVALID_CHKSUM;
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 void

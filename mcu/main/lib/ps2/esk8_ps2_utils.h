@@ -51,7 +51,7 @@ esk8_err_t esk8_ps2_take_bit(
  * Checks The integrity of the 
  * packet's internal value.
  * If it is as expected, returns
- * `ESK8_SUCCESS`. If wrong, returns
+ * `ESK8_OK`. If wrong, returns
  * `ESK8_PS2_ERR_INVALID_STATE`.
  **/
 esk8_err_t esk8_ps2_check_pkt(

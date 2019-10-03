@@ -88,13 +88,13 @@ esk8_remote_start()
 
     esk8_remote.state = ESK8_REMOTE_STATE_NOT_CONNECTED;
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 esk8_err_t
 esk8_remote_stop()
 {
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 esk8_err_t
@@ -108,7 +108,7 @@ esk8_remote_incr_speed(
 
     esk8_pwm_sgnl_set(&esk8_remote.pwm_cnfg, esk8_remote.speed);
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
 
 void
@@ -183,5 +183,5 @@ esk8_remote_connect(
     if (err)
         return ESK8_ERR_REMT_BAD_STATE;
 
-    return ESK8_SUCCESS;
+    return ESK8_OK;
 }
