@@ -1,6 +1,9 @@
 #ifndef _ESK8_PS2_PRIV_H
 #define _ESK8_PS2_PRIV_H
 
+#include <esk8_err.h>
+#include <esk8_ps2.h>
+
 #include <stdint.h>
 
 

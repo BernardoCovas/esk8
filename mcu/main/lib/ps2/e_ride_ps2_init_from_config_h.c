@@ -5,26 +5,18 @@
 #include <driver/gpio.h>
 
 
-esk8_err_t esk8_ps2_init_from_config_h(
-
-    esk8_ps2_handle_t* ps2Handle
-
+esk8_err_t
+esk8_ps2_init_from_config_h(
+    esk8_ps2_hndl_t* hndl
 )
 {
-    esk8_ps2_config_t ps2Config= {
-        .timerConfig = {
-            .timerIdx       = ESK8_PS2_TIMER_IDX,
-            .timerGroup     = ESK8_PS2_TIMER_GROUP
-        },
-        .gpioConfig = {
-            .dataPin  = ESK8_PS2_DATA_PIN,
-            .clockPin = ESK8_PS2_CLOCK_PIN
-        }
-    };
-    
+    esk8_ps2_cnfg_t ps2_config;
+    ps2_config.clock_pin = ESK8_PS2_CLOCK_PIN;
+    ps2_config.data_pin = ESK8_PS2_DATA_PIN;
+    ps2_config.xr_timeout_ms = ESK8_PS2_BYTE_SEND_TIMEOUT_MS;
 
     return esk8_ps2_init(
-        ps2Handle,
-        &ps2Config
+        hndl,
+        &ps2_config
     );
 }

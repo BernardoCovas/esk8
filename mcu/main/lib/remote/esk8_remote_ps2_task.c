@@ -12,7 +12,7 @@ esk8_remote_task_ps2(
 )
 {
     esk8_err_t err;
-    esk8_ps2_handle_t ps2_hndl;
+    esk8_ps2_hndl_t ps2_hndl;
 
 _start:
     err = esk8_ps2_init_from_config_h(&ps2_hndl);

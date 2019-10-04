@@ -1,7 +1,7 @@
 #include <esk8_err.h>
 #include <esk8_config.h>
-#include <esk8_ps2_v2.h>
-#include <esk8_ps2_v2_priv.h>
+#include <esk8_ps2.h>
+#include <esk8_ps2_priv.h>
 
 #include <driver/gpio.h>
 
@@ -45,7 +45,7 @@ esk8_ps2_isr(
         }
 
         gpio_set_level(
-            ps2_cnfg->clock_pin,
+            ps2_cnfg->data_pin,
             bit
         );
 
@@ -62,14 +62,14 @@ esk8_ps2_isr(
     case ESK8_PS2_STATE_RECV:
     case ESK8_PS2_STATE_MVMT:
     {
-        int bit = gpio_get_level(ps2_hndl->ps2_cnfg.clock_pin);
+        int bit = gpio_get_level(ps2_hndl->ps2_cnfg.data_pin);
 
         esk8_err_t _err = ESK8_PS2_ERR_BAD_PCK;
 
         switch (frame->idx)
         {
         case 0:  if (bit) frame->err = _err; break;
-        case 9:  if (!esk8_ps2_get_parity(frame->byte)) frame->err = _err; break;
+        case 9:  if (!esk8_ps2_get_parity(frame->byte) != bit) frame->err = _err; break;
         case 10: if (!bit) frame->err = _err; break;
 
         default:
@@ -81,11 +81,26 @@ esk8_ps2_isr(
             break;
         }
 
+        ++frame->idx;
+        if (frame->idx != 11)
+            break;
+
         if (ESK8_PS2_STATE_RECV)
         {
             xQueueSendFromISR(
                 ps2_hndl->rx_cmd_queue,
                 &frame->byte,
+                NULL
+            );
+
+            /**
+             * Now that the response was received,
+             * we can allow whoever wants to send something
+             * to take the smphr.
+             * TODO (b.covas): conext switch
+             */
+            xSemaphoreGiveFromISR(
+                ps2_hndl->rx_tx_lock,
                 NULL
             );
 
@@ -151,11 +166,13 @@ esk8_ps2_init(
     esk8_ps2_hndl_def_t* ps2_hndl_def = (esk8_ps2_hndl_def_t*)*ps2_hndl;
 
     ps2_hndl_def->rx_cmd_queue = xQueueCreate(
-        ps2_config->rx_queue_len, 1
+        ps2_config->rx_queue_len,
+        sizeof(esk8_ps2_frame_t)
     );
 
     ps2_hndl_def->rx_mvt_queue = xQueueCreate(
-        ps2_config->rx_queue_len, sizeof(esk8_ps2_mvmt_t)
+        ps2_config->rx_queue_len,
+        sizeof(esk8_ps2_mvmt_t)
     );
 
     ps2_hndl_def->rx_tx_lock = xSemaphoreCreateBinary();

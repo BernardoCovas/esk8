@@ -1,11 +1,10 @@
-#ifndef _ESK8_PS2_v2_H
-#define _ESK8_PS2_v2_H
+#ifndef _ESK8_PS2_H
+#define _ESK8_PS2_H
 
 #include <esk8_err.h>
 
-#include "esk8_ps2_v2_priv.h"
-
 #include <stdint.h>
+#include <stdlib.h>
 
 
 typedef enum
@@ -89,4 +88,4 @@ esk8_ps2_await_mvmt(
     esk8_ps2_mvmt_t* out_mvmt
 );
 
-#endif /* _ESK8_PS2_v2_H */
+#endif /* _ESK8_PS2_H */

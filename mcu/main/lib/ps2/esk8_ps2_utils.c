@@ -83,23 +83,21 @@ esk8_ps2_send_cmd(
 
     esk8_ps2_hndl_def_t* ps2_hndl = (esk8_ps2_hndl_def_t*)hndl;
 
-    if  (xSemaphoreTake(
-            ps2_hndl->rx_tx_lock,
-            ps2_hndl->ps2_cnfg.xr_timeout_ms / portTICK_PERIOD_MS
-        ) != pdTRUE)
+    if  (
+            xSemaphoreTake(
+                ps2_hndl->rx_tx_lock,
+                ps2_hndl->ps2_cnfg.xr_timeout_ms / portTICK_PERIOD_MS
+            ) != pdTRUE
+        )
     {
         return ESK8_PS2_ERR_TIMEOUT;
     }
 
-    esk8_ps2_send_byte(
-        hndl,
-        (uint8_t)cmd
-    );
-
+    esk8_ps2_send_byte(hndl, (uint8_t)cmd);
     ps2_hndl->ps2_state = ESK8_PS2_STATE_SEND;
  
     uint8_t resp = 0;
-    err = esk8_ps2_await_byte(
+    err = esk8_ps2_await_rsp(
         ps2_hndl,
         &resp
     );
@@ -121,6 +119,7 @@ esk8_ps2_send_cmd(
     return ESK8_OK;
 }
 
+
 esk8_err_t
 esk8_ps2_await_rsp(
     esk8_ps2_hndl_t hndl,
@@ -128,13 +127,24 @@ esk8_ps2_await_rsp(
 )
 {
     esk8_ps2_hndl_def_t* ps2_hndl = (esk8_ps2_hndl_def_t*)hndl;
+    esk8_ps2_cnfg_t* ps2_cnfg = ps2_hndl->ps2_cnfg;
 
     ps2_hndl->ps2_state = ESK8_PS2_STATE_RECV;
-    byte
-    xQueueReceive(
-        ps2_hndl->rx_cmd_queue,
-        
-    )
+    esk8_ps2_frame_t frame;
+    if  (
+            xQueueReceive(
+                ps2_hndl->rx_cmd_queue,
+                &frame,
+                ps2_cnfg->xr_timeout_ms
+            ) != pdPASSS
+        )
+    {
+        return ESK8_PS2_ERR_BYTE_TIMEOUT;
+    }
 
+    if (frame.err)
+        return frame.err;
+
+    (*out_byte) = frame.byte;
     return ESK8_OK;
 }
