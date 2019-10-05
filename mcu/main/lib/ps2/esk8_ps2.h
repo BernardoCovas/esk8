@@ -44,7 +44,7 @@ esk8_ps2_mvmt_t;
 typedef struct
 {
     size_t   rx_queue_len;
-    uint32_t xr_timeout_ms;
+    uint32_t rx_timeout_ms;
     uint8_t  clock_pin;
     uint8_t  data_pin;
 }
@@ -57,6 +57,11 @@ esk8_err_t
 esk8_ps2_init(
     esk8_ps2_hndl_t* out_hndl,
     esk8_ps2_cnfg_t* ps2_cnfg
+);
+
+esk8_err_t
+esk8_ps2_init_from_config_h(
+    esk8_ps2_hndl_t* hndl
 );
 
 esk8_err_t

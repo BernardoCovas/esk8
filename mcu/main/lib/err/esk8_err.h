@@ -26,6 +26,7 @@ typedef enum esk8_err_t
     ESK8_PS2_ERR_BYTE_TIMEOUT,
     ESK8_PS2_ERR_NOTIF_TIMEOUT,
     ESK8_PS2_ERR_PCK_TIMEOUT,
+    ESK8_PS2_ERR_MVMT_TIMEOUT,            /* Timeout waiting for mvmt packet */
     ESK8_PS2_ERR_BAD_PCK,                 /* Invalid (lost) packed. This should cause a PS2 device reset. */
     ESK8_PS2_ERR_BAD_MVMT,                /* Invalid (lost) movement packed. This should cause a PS2 device reset. */
     ESK8_PS2_ERR_NO_ACK,                  /* Device has not ack the received command */
@@ -53,7 +54,8 @@ typedef enum esk8_err_t
     ESK8_ERR_REMT_NOINIT,
     ESK8_ERR_REMT_REINIT,
     ESK8_ERR_REMT_BAD_STATE,
-} esk8_err_t;
+}
+esk8_err_t;
 
 
 /**

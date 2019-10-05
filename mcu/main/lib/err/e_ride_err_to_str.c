@@ -25,6 +25,7 @@ const char* esk8_err_to_str(
         case ESK8_PS2_ERR_BYTE_TIMEOUT: return "ESK8_PS2_ERR_BYTE_TIMEOUT";
         case ESK8_PS2_ERR_NOTIF_TIMEOUT: return "ESK8_PS2_ERR_NOTIF_TIMEOUT";
         case ESK8_PS2_ERR_PCK_TIMEOUT: return "ESK8_PS2_ERR_PCK_TIMEOUT";
+        case ESK8_PS2_ERR_MVMT_TIMEOUT: return "ESK8_PS2_ERR_MVMT_TIMEOUT";
         case ESK8_PS2_ERR_BAD_PCK: return "ESK8_PS2_ERR_BAD_PCK";
         case ESK8_PS2_ERR_BAD_MVMT: return "ESK8_PS2_ERR_BAD_MVMT";
         case ESK8_PS2_ERR_NO_ACK: return "ESK8_PS2_ERR_NO_ACK";

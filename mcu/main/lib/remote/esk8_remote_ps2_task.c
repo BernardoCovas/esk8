@@ -31,8 +31,7 @@ _start:
     {
         err = esk8_ps2_send_cmd(
             &ps2_hndl,
-            ESK8_PS2_CMD_DATA_ENABLE,
-            ESK8_RMT_PS2_CMD_TIMEOUT_ms
+            ESK8_PS2_CMD_DATA_ENABLE
         );
 
         if (err)
@@ -58,8 +57,8 @@ _start:
 
         while(1)
         {
-            esk8_ps2_mvmnt_t mvmt;
-            err = esk8_ps2_await_mvmnt(
+            esk8_ps2_mvmt_t mvmt;
+            err = esk8_ps2_await_mvmt(
                 &ps2_hndl,
                 &mvmt);
 
@@ -74,8 +73,7 @@ _start:
                 {
                     err = esk8_ps2_send_cmd(
                         &ps2_hndl,
-                        ESK8_PS2_CMD_GET_STATUS,
-                        50
+                        ESK8_PS2_CMD_GET_STATUS
                     );
 
                     if (err)
@@ -98,7 +96,7 @@ _start:
                 "PS2 says x: %03d, y: %03d, btn: %s\n",
                 mvmt.x,
                 mvmt.y,
-                mvmt.lftBtn?"Yes":"No"
+                mvmt.lft_btn?"Yes":"No"
             );
 
             esk8_remote_incr_speed(mvmt.x);

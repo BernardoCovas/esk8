@@ -1,10 +1,12 @@
 #include <esk8_err.h>
 #include <esk8_log.h>
-#include "esk8_ps2_utils.h"
+#include <esk8_ps2.h>
+#include <esk8_ps2_priv.h>
 
 #include <driver/gpio.h>
 
 #include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include <freertos/queue.h>
 #include <freertos/semphr.h>
 
@@ -86,7 +88,7 @@ esk8_ps2_send_cmd(
     if  (
             xSemaphoreTake(
                 ps2_hndl->rx_tx_lock,
-                ps2_hndl->ps2_cnfg.xr_timeout_ms / portTICK_PERIOD_MS
+                ps2_hndl->ps2_cnfg.rx_timeout_ms / portTICK_PERIOD_MS
             ) != pdTRUE
         )
     {
@@ -107,7 +109,7 @@ esk8_ps2_send_cmd(
 
     printf(I ESK8_TAG_PS2
         "Got response: %d for cmd: %d\n",
-        resp, ps2Cmd
+        resp, cmd
     );
 
     if (resp == ESK8_PS2_RES_RESEND)
@@ -127,7 +129,7 @@ esk8_ps2_await_rsp(
 )
 {
     esk8_ps2_hndl_def_t* ps2_hndl = (esk8_ps2_hndl_def_t*)hndl;
-    esk8_ps2_cnfg_t* ps2_cnfg = ps2_hndl->ps2_cnfg;
+    esk8_ps2_cnfg_t* ps2_cnfg = &ps2_hndl->ps2_cnfg;
 
     ps2_hndl->ps2_state = ESK8_PS2_STATE_RECV;
     esk8_ps2_frame_t frame;
@@ -135,8 +137,8 @@ esk8_ps2_await_rsp(
             xQueueReceive(
                 ps2_hndl->rx_cmd_queue,
                 &frame,
-                ps2_cnfg->xr_timeout_ms
-            ) != pdPASSS
+                ps2_cnfg->rx_timeout_ms
+            ) != pdPASS
         )
     {
         return ESK8_PS2_ERR_BYTE_TIMEOUT;
@@ -147,4 +149,28 @@ esk8_ps2_await_rsp(
 
     (*out_byte) = frame.byte;
     return ESK8_OK;
+}
+
+
+esk8_err_t
+esk8_ps2_await_mvmt(
+    esk8_ps2_hndl_t hndl,
+    esk8_ps2_mvmt_t* out_mvmt
+)
+{
+    esk8_ps2_hndl_def_t* ps2_hndl = (esk8_ps2_hndl_def_t*)hndl;
+    esk8_ps2_cnfg_t* ps2_cnfg = &ps2_hndl->ps2_cnfg;
+
+    if  (
+            xQueueReceive(
+                ps2_hndl->rx_mvt_queue,
+                out_mvmt,
+                ps2_cnfg->rx_timeout_ms / portTICK_PERIOD_MS
+            ) != pdPASS
+        )
+    {
+        return ESK8_PS2_ERR_MVMT_TIMEOUT;
+    }
+
+    return out_mvmt->err;
 }

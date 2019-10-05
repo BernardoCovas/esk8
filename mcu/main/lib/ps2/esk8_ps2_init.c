@@ -18,7 +18,7 @@ esk8_ps2_isr(
 )
 {
     esk8_ps2_hndl_def_t* ps2_hndl = (esk8_ps2_hndl_def_t*)param;
-    esk8_ps2_cnfg_t* ps2_cnfg = ps2_hndl->ps2_cnfg;
+    esk8_ps2_cnfg_t* ps2_cnfg = &ps2_hndl->ps2_cnfg;
     esk8_ps2_frame_t* frame = &ps2_hndl->inflight;
     esk8_ps2_mvmt_frame_t* mvmt_frame = &ps2_hndl->mvmt_frame;
 
@@ -49,9 +49,9 @@ esk8_ps2_isr(
             bit
         );
 
-        frame->idx++;
+        (*idx)++;
 
-        if (frame->idx == 8)
+        if (*idx == 8)
         {
             esk8_ps2_reset_frame(frame);
             ps2_hndl->ps2_state = ESK8_PS2_STATE_RECV;
@@ -69,13 +69,13 @@ esk8_ps2_isr(
         switch (frame->idx)
         {
         case 0:  if (bit) frame->err = _err; break;
-        case 9:  if (!esk8_ps2_get_parity(frame->byte) != bit) frame->err = _err; break;
+        case 9:  if (esk8_ps2_get_parity(frame->byte) != bit) frame->err = _err; break;
         case 10: if (!bit) frame->err = _err; break;
 
         default:
             esk8_ps2_set_bit(
                 &frame->byte,
-                idx - 1,
+                (*idx) - 1,
                 bit
             );
             break;
