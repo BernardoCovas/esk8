@@ -23,17 +23,16 @@ typedef enum esk8_err_t
     ESK8_PS2_ERR_VALUE_READY,
     ESK8_PS2_ERR_INVALID_STATE,
     ESK8_PS2_ERR_TIMEOUT,
-    ESK8_PS2_ERR_BYTE_TIMEOUT,
-    ESK8_PS2_ERR_NOTIF_TIMEOUT,
-    ESK8_PS2_ERR_PCK_TIMEOUT,
+    ESK8_PS2_ERR_RESP_TIMEOUT,            /* There was no response from device. */
     ESK8_PS2_ERR_MVMT_TIMEOUT,            /* Timeout waiting for mvmt packet */
+    ESK8_PS2_ERR_BAD_MVMT,                /* The mvmt signal bit was 0. It is always one. This should cause a ps2 resync / reset */
     ESK8_PS2_ERR_BAD_PCK_STRT,            /* Start bit was not 0 */
     ESK8_PS2_ERR_BAD_PCK_STOP,            /* Stop bit was not 1 */
     ESK8_PS2_ERR_BAD_PCK_PRTY,            /* Parity bit is wrong */
     ESK8_PS2_ERR_BAD_PCK_ACKN,            /* Missing ack bit */
-    ESK8_PS2_ERR_BAD_MVMT,                /* Invalid (lost) movement packed. This should cause a PS2 device reset. */
     ESK8_PS2_ERR_NO_ACK,                  /* Device has not ack the received command */
     ESK8_PS2_ERR_RESEND,                  /* Device received the command but did not understand it */
+    ESK8_PS2_ERR_ERROR,                   /* Device received the command but there was an error */
     ESK8_BLE_INIT_NOINIT,                 /* Not initialized */
     ESK8_BLE_INIT_REINIT,                 /* Already had been initialized */
     ESK8_BLE_INIT_FAILED,

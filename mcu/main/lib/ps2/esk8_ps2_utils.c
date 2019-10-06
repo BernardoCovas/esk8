@@ -12,6 +12,7 @@
 
 #include <memory.h>
 
+#define PCK_CMD_WAIT_ms 20 // ms to wait between cmds
 
 void
 esk8_ps2_set_bit(
@@ -120,6 +121,12 @@ esk8_ps2_send_cmd(
         goto cleanup;
     }
 
+    if (resp == ESK8_PS2_RES_ERROR)
+    {
+        err = ESK8_PS2_ERR_ERROR;
+        goto cleanup;
+    }
+
     if (resp != ESK8_PS2_RES_ACK)
         err = ESK8_PS2_ERR_NO_ACK;
 
@@ -149,15 +156,14 @@ esk8_ps2_await_rsp(
             ) != pdTRUE
         )
     {
-        return ESK8_PS2_ERR_BYTE_TIMEOUT;
+        return ESK8_PS2_ERR_RESP_TIMEOUT;
     }
 
     if (frame.err)
     {
-        printf(I ESK8_TAG_PS2
-            "Got err: %s (%d) in frame.\n",
-            esk8_err_to_str(frame.err),
-            frame.err
+        printf(E ESK8_TAG_PS2
+            "Got err: %s in frame.\n",
+            esk8_err_to_str(frame.err)
         );
         return frame.err;
     }
@@ -181,6 +187,8 @@ esk8_ps2_mvmt_sync(
 
     xQueueReset(ps2_hndl->mv_queue);
     ps2_hndl->sqnc_frame.idx = 0;
+
+    vTaskDelay(PCK_CMD_WAIT_ms / portTICK_PERIOD_MS);
 
     ESK8_ERRCHECK_THROW(
         esk8_ps2_send_cmd(hndl, ESK8_PS2_CMD_DATA_ENABLE)
@@ -226,6 +234,9 @@ esk8_ps2_await_mvmt(
         sqnc->mvmt[sqnc->idx] = frame.byte;
         sqnc->idx++;
     }
+
+    if (!(sqnc->mvmt[0] & (1 << 3)))
+        return ESK8_PS2_ERR_BAD_MVMT;
 
     bool sX, sY;
     sX = sqnc->mvmt[0] & (1 << 4);

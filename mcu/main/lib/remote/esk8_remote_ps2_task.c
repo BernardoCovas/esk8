@@ -13,6 +13,7 @@ esk8_remote_task_ps2(
 {
     esk8_err_t err;
     esk8_ps2_hndl_t ps2_hndl;
+    bool ps2_available = false;
 
 _start:
     err = esk8_ps2_init_from_config_h(&ps2_hndl);
@@ -39,15 +40,17 @@ _start:
             );
 
             /**
-             * If we receive a resend request, we immediately
-             * continue. Else we wait 1 sec
+             * We might not have a ps2 device attatched.
+             * If this is the case, we hold a second before
+             * retrying.
              */
-            if (err != ESK8_PS2_ERR_RESEND)
+            if  (!ps2_available)
                 sleep(1);
 
             continue;
         }
 
+        ps2_available = true;
         printf(I ESK8_TAG_RMT
             "OK on ps2 data stream.\n"
         );
