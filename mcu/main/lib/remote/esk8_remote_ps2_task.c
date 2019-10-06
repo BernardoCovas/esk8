@@ -30,7 +30,7 @@ _start:
     while (1)
     {
         err = esk8_ps2_send_cmd(
-            &ps2_hndl,
+            ps2_hndl,
             ESK8_PS2_CMD_DATA_ENABLE
         );
 
@@ -59,8 +59,9 @@ _start:
         {
             esk8_ps2_mvmt_t mvmt;
             err = esk8_ps2_await_mvmt(
-                &ps2_hndl,
-                &mvmt);
+                ps2_hndl,
+                &mvmt
+            );
 
             if (err)
             {
@@ -68,26 +69,6 @@ _start:
                     "Error awaiting ps2 mvmt packet: %s\n",
                     esk8_err_to_str(err)
                 );
-
-                if (err == ESK8_PS2_ERR_TIMEOUT)
-                {
-                    err = esk8_ps2_send_cmd(
-                        &ps2_hndl,
-                        ESK8_PS2_CMD_GET_STATUS
-                    );
-
-                    if (err)
-                    {
-                        printf(W ESK8_TAG_RMT
-                            "Could not get status. Err: %s\n",
-                            esk8_err_to_str(err)
-                        );
-
-                        break;
-                    }
-
-
-                }
 
                 break;
             }

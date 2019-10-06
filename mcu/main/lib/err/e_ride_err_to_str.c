@@ -26,7 +26,9 @@ const char* esk8_err_to_str(
         case ESK8_PS2_ERR_NOTIF_TIMEOUT: return "ESK8_PS2_ERR_NOTIF_TIMEOUT";
         case ESK8_PS2_ERR_PCK_TIMEOUT: return "ESK8_PS2_ERR_PCK_TIMEOUT";
         case ESK8_PS2_ERR_MVMT_TIMEOUT: return "ESK8_PS2_ERR_MVMT_TIMEOUT";
-        case ESK8_PS2_ERR_BAD_PCK: return "ESK8_PS2_ERR_BAD_PCK";
+        case ESK8_PS2_ERR_BAD_PCK_STRT: return "ESK8_PS2_ERR_BAD_PCK_STRT";
+        case ESK8_PS2_ERR_BAD_PCK_STOP: return "ESK8_PS2_ERR_BAD_PCK_STOP";
+        case ESK8_PS2_ERR_BAD_PCK_PRTY: return "ESK8_PS2_ERR_BAD_PCK_PRTY";
         case ESK8_PS2_ERR_BAD_MVMT: return "ESK8_PS2_ERR_BAD_MVMT";
         case ESK8_PS2_ERR_NO_ACK: return "ESK8_PS2_ERR_NO_ACK";
         case ESK8_PS2_ERR_RESEND: return "ESK8_PS2_ERR_RESEND";
@@ -55,6 +57,6 @@ const char* esk8_err_to_str(
         case ESK8_ERR_REMT_BAD_STATE: return "ESK8_ERR_REMT_BAD_STATE";
 
         default:
-            return "?";
+            return "unknown_error";
     }
 }

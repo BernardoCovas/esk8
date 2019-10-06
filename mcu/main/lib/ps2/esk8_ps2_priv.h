@@ -40,9 +40,9 @@ typedef struct
     esk8_ps2_mvmt_frame_t mvmt_frame;
     esk8_ps2_state_t      ps2_state;
     esk8_ps2_cnfg_t       ps2_cnfg;
-    void*                 rx_cmd_queue;
-    void*                 rx_mvt_queue;
-    void*                 rx_tx_lock;
+    void*                 rx_queue;
+    void*                 mv_queue;
+    void*                 tx_lock;
 }
 esk8_ps2_hndl_def_t;
 

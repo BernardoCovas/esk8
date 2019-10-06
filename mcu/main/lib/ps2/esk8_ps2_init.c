@@ -1,9 +1,11 @@
+#include <esk8_log.h>
 #include <esk8_err.h>
 #include <esk8_config.h>
 #include <esk8_ps2.h>
 #include <esk8_ps2_priv.h>
 
 #include <driver/gpio.h>
+#include <esp_log.h>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
@@ -20,136 +22,73 @@ esk8_ps2_isr(
     esk8_ps2_hndl_def_t* ps2_hndl = (esk8_ps2_hndl_def_t*)param;
     esk8_ps2_cnfg_t* ps2_cnfg = &ps2_hndl->ps2_cnfg;
     esk8_ps2_frame_t* frame = &ps2_hndl->inflight;
-    esk8_ps2_mvmt_frame_t* mvmt_frame = &ps2_hndl->mvmt_frame;
-
-    int* idx = &frame->idx;
-
-    if (*idx > 10 || *idx < 0)
-        esk8_ps2_reset_frame(frame);
 
     switch(ps2_hndl->ps2_state)
     {
-    case ESK8_PS2_STATE_NONE:
-        break;
-
-    case ESK8_PS2_STATE_SEND:
-    {
-        int bit = 0;
-
-        switch (frame->idx)
-        {
-        case 0:  bit = 0; break;
-        case 9:  bit = esk8_ps2_get_parity(frame->byte); break;
-        case 10: bit = 1; break;
-        default: bit = frame->byte & (1 << frame->idx); break;
-        }
-
-        gpio_set_level(
-            ps2_cnfg->data_pin,
-            bit
-        );
-
-        (*idx)++;
-
-        if (*idx == 8)
-        {
-            esk8_ps2_reset_frame(frame);
-            ps2_hndl->ps2_state = ESK8_PS2_STATE_RECV;
-        }
-    }
-        break;
-
     case ESK8_PS2_STATE_RECV:
     case ESK8_PS2_STATE_MVMT:
     {
-        int bit = gpio_get_level(ps2_hndl->ps2_cnfg.data_pin);
-
-        esk8_err_t _err = ESK8_PS2_ERR_BAD_PCK;
-
+        int bit = gpio_get_level(ps2_cnfg->data_pin);
         switch (frame->idx)
         {
-        case 0:  if (bit) frame->err = _err; break;
-        case 9:  if (esk8_ps2_get_parity(frame->byte) != bit) frame->err = _err; break;
-        case 10: if (!bit) frame->err = _err; break;
-
+        case 0:
+        case 9:
+        case 10:
+        case 11: // Ack bit
+            break;
         default:
-            esk8_ps2_set_bit(
-                &frame->byte,
-                (*idx) - 1,
-                bit
-            );
-            break;
-        }
-
-        ++frame->idx;
-        if (frame->idx != 11)
-            break;
-
-        if (ESK8_PS2_STATE_RECV)
-        {
-            xQueueSendFromISR(
-                ps2_hndl->rx_cmd_queue,
-                &frame->byte,
-                NULL
-            );
-
-            /**
-             * Now that the response was received,
-             * we can allow whoever wants to send something
-             * to take the smphr.
-             * TODO (b.covas): conext switch
-             */
-            xSemaphoreGiveFromISR(
-                ps2_hndl->rx_tx_lock,
-                NULL
-            );
-
-            break;
-        }
-
-        if (frame->err)
-            mvmt_frame->err = frame->err;
-
-        if  (
-                !mvmt_frame->err &&
-                 mvmt_frame->idx > 2
-            )
-        {
-            mvmt_frame->err = ESK8_PS2_ERR_BAD_MVMT;
-            break;
-        }
-
-        mvmt_frame->mvmt[mvmt_frame->idx] = frame->byte;
-        mvmt_frame->idx++;
-
-        if (mvmt_frame->idx == 3)
-        {
-            esk8_ps2_mvmt_t mvmt;
-            mvmt.err = mvmt_frame->err;
-
-            if (!mvmt.err)
-            {
-                bool sX, sY;
-                sX = mvmt_frame->mvmt[0] & (1 << 4);
-                sY = mvmt_frame->mvmt[0] & (1 << 5);
-
-                mvmt.lft_btn   = mvmt_frame->mvmt[0] & 1;
-                mvmt.x         = sX * -256 + mvmt_frame->mvmt[1];
-                mvmt.y         = sY * -256 + mvmt_frame->mvmt[2];
-            }
-
-            xQueueSendFromISR(
-                ps2_hndl->rx_mvt_queue,
-                &mvmt,
-                NULL
-            );
-
+            frame->byte |= bit << (frame->idx - 1);
             break;
         }
 
         break;
     }
+    case ESK8_PS2_STATE_SEND:
+    {
+        int bit = 0;
+        switch (frame->idx)
+        {
+        case 0 : bit = 0; break;
+        case 9 : bit = esk8_ps2_get_parity(frame->byte); break;
+        case 10: bit = 1; break;
+        default:
+            bit = frame->byte & (1 << (frame->idx - 1));
+            break;
+        }
+
+        gpio_set_level(ps2_cnfg->data_pin, bit);
+        break;
     }
+    default:
+        break;
+    }
+
+    frame->idx++;
+    if (frame->idx < 11)
+        return;
+
+    switch (ps2_hndl->ps2_state)
+    {
+    case ESK8_PS2_STATE_RECV:
+        xQueueSendFromISR(ps2_hndl->rx_queue, frame, NULL);
+        ps2_hndl->ps2_state = ESK8_PS2_STATE_MVMT;
+        break;
+    case ESK8_PS2_STATE_MVMT:
+        xQueueSendFromISR(ps2_hndl->mv_queue, frame, NULL);
+        break;
+    case ESK8_PS2_STATE_SEND:
+        gpio_set_direction(ps2_cnfg->data_pin, GPIO_MODE_INPUT);
+        gpio_set_intr_type(ps2_cnfg->clock_pin, GPIO_INTR_NEGEDGE);
+        if (frame->idx != 12)
+            return;
+        ps2_hndl->ps2_state = ESK8_PS2_STATE_RECV;
+        break;
+
+    default:
+        break;
+    }
+
+    esk8_ps2_reset_frame(frame);
 }
 
 
@@ -165,22 +104,30 @@ esk8_ps2_init(
 
     esk8_ps2_hndl_def_t* ps2_hndl_def = (esk8_ps2_hndl_def_t*)*ps2_hndl;
 
-    ps2_hndl_def->rx_cmd_queue = xQueueCreate(
+    printf(I ESK8_TAG_PS2
+        "PS2 Init with queue len: %d, timeout: %d ms, clock pin: %d, data pin: %d\n",
+        ps2_config->rx_queue_len,
+        ps2_config->rx_timeout_ms,
+        ps2_config->clock_pin,
+        ps2_config->data_pin
+    );
+
+    ps2_hndl_def->rx_queue = xQueueCreate(
         ps2_config->rx_queue_len,
         sizeof(esk8_ps2_frame_t)
     );
 
-    ps2_hndl_def->rx_mvt_queue = xQueueCreate(
+    ps2_hndl_def->mv_queue = xQueueCreate(
         ps2_config->rx_queue_len,
-        sizeof(esk8_ps2_mvmt_t)
+        sizeof(esk8_ps2_frame_t)
     );
 
-    ps2_hndl_def->rx_tx_lock = xSemaphoreCreateBinary();
+    ps2_hndl_def->tx_lock = xSemaphoreCreateBinary();
 
     if  (
-            !ps2_hndl_def->rx_cmd_queue ||
-            !ps2_hndl_def->rx_mvt_queue ||
-            !ps2_hndl_def->rx_tx_lock
+            !ps2_hndl_def->rx_queue ||
+            !ps2_hndl_def->mv_queue ||
+            !ps2_hndl_def->tx_lock
         )
     {
         esk8_ps2_deinit(*ps2_hndl);
@@ -188,6 +135,23 @@ esk8_ps2_init(
     }
 
     ps2_hndl_def->ps2_cnfg = *ps2_config;
+
+    gpio_num_t c_pin = ps2_config->clock_pin;
+    gpio_num_t d_pin = ps2_config->data_pin;
+
+    gpio_set_pull_mode(c_pin, GPIO_PULLUP_ONLY);
+    gpio_set_pull_mode(d_pin, GPIO_PULLUP_ONLY);
+    gpio_set_drive_capability(c_pin, GPIO_DRIVE_CAP_0);
+    gpio_set_drive_capability(d_pin, GPIO_DRIVE_CAP_0);
+    gpio_set_direction(c_pin, GPIO_MODE_INPUT);
+    gpio_set_direction(d_pin, GPIO_MODE_INPUT);
+    gpio_set_intr_type(c_pin, GPIO_INTR_NEGEDGE);
+
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add(c_pin, esk8_ps2_isr, ps2_hndl_def);
+
+    /** Now we can allow bytes to be sent */
+    xSemaphoreGive(ps2_hndl_def->tx_lock);
 
     return ESK8_OK;
 }
@@ -199,14 +163,14 @@ esk8_ps2_deinit(
 )
 {
     esk8_ps2_hndl_def_t* ps2_hndl_def = (esk8_ps2_hndl_def_t*)ps2_hndl;
-    if (ps2_hndl_def->rx_cmd_queue)
-        vQueueDelete(ps2_hndl_def->rx_cmd_queue);
+    if (ps2_hndl_def->rx_queue)
+        vQueueDelete(ps2_hndl_def->rx_queue);
 
-    if (ps2_hndl_def->rx_mvt_queue)
-        vQueueDelete(ps2_hndl_def->rx_mvt_queue);
+    if (ps2_hndl_def->mv_queue)
+        vQueueDelete(ps2_hndl_def->mv_queue);
 
-    if (ps2_hndl_def->rx_tx_lock)
-        vSemaphoreDelete(ps2_hndl_def->rx_tx_lock);
+    if (ps2_hndl_def->tx_lock)
+        vSemaphoreDelete(ps2_hndl_def->tx_lock);
 
     free(ps2_hndl);
 

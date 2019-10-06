@@ -13,7 +13,8 @@ esk8_ps2_init_from_config_h(
     esk8_ps2_cnfg_t ps2_config;
     ps2_config.clock_pin = ESK8_PS2_CLOCK_PIN;
     ps2_config.data_pin = ESK8_PS2_DATA_PIN;
-    ps2_config.rx_timeout_ms = ESK8_PS2_BYTE_SEND_TIMEOUT_MS;
+    ps2_config.rx_timeout_ms = ESK8_PS2_MOVEMENT_TIMEOUT_MS;
+    ps2_config.rx_queue_len = ESK8_PS2_QUEUE_LENGTH;
 
     return esk8_ps2_init(
         hndl,

@@ -19,8 +19,7 @@
 #define ESK8_PS2_MOVEMENT_TIMEOUT_MS              5000            /* Timeout, in mS, between movement pkt seequences.                       */
 #define ESK8_PS2_PACKET_TIMEOUT_uS                200             /* us between clock cycles to be considered a lost packet.                */
 #define ESK8_PS2_BYTE_SEND_TIMEOUT_MS             20              /* ms to wait after signaling the isr to send a byte.                     */
-#define ESK8_PS2_BIT_QUEUE_LENGTH                 1024            /* Number of bits a queue can handle. A 'bit' is actually a bool.         */
-#define ESK8_PS2_BYTE_QUEUE_LENGTH                1024            /* Number of bytes a queue can handle. These are uint8_t's.               */
+#define ESK8_PS2_QUEUE_LENGTH                     1024            /* Number of bytes a queue can handle. These are uint8_t's.               */
 #define ESK8_PS2_RX_TASK_PRIORITY                 2
 #define ESK8_PS2_TX_TASK_PRIORITY                 2
 #define ESK8_PS2_TIMER_GROUP                      TIMER_GROUP_0
