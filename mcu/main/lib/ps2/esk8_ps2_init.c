@@ -32,9 +32,20 @@ esk8_ps2_isr(
         switch (frame->idx)
         {
         case 0:
+            if (bit)
+                frame->err = ESK8_PS2_ERR_BAD_PCK_STRT;
+            break;
         case 9:
+            if (bit != esk8_ps2_get_parity(frame->byte))
+                frame->err = ESK8_PS2_ERR_BAD_PCK_PRTY;
+            break;
         case 10:
-        case 11: // Ack bit
+            if (!bit)
+                frame->err = ESK8_PS2_ERR_BAD_PCK_STOP;
+            break;
+        case 11:
+            if (bit)
+                frame->err = ESK8_PS2_ERR_BAD_PCK_ACKN;
             break;
         default:
             frame->byte |= bit << (frame->idx - 1);
@@ -51,6 +62,7 @@ esk8_ps2_isr(
         case 0 : bit = 0; break;
         case 9 : bit = esk8_ps2_get_parity(frame->byte); break;
         case 10: bit = 1; break;
+
         default:
             bit = frame->byte & (1 << (frame->idx - 1));
             break;
@@ -64,7 +76,17 @@ esk8_ps2_isr(
     }
 
     frame->idx++;
-    if (frame->idx < 11)
+
+    /**
+     * If there is an error,
+     * we want to send right away.
+     * So we only return here if there
+     * are no errors, and the idx is not yet 11.
+     */
+    if  (
+           !frame->err &&
+            frame->idx < 11
+        )
         return;
 
     switch (ps2_hndl->ps2_state)
@@ -142,7 +164,7 @@ esk8_ps2_init(
     gpio_set_pull_mode(c_pin, GPIO_PULLUP_ONLY);
     gpio_set_pull_mode(d_pin, GPIO_PULLUP_ONLY);
     gpio_set_drive_capability(c_pin, GPIO_DRIVE_CAP_0);
-    gpio_set_drive_capability(d_pin, GPIO_DRIVE_CAP_0);
+    gpio_set_drive_capability(d_pin, GPIO_DRIVE_CAP_3);
     gpio_set_direction(c_pin, GPIO_MODE_INPUT);
     gpio_set_direction(d_pin, GPIO_MODE_INPUT);
     gpio_set_intr_type(c_pin, GPIO_INTR_NEGEDGE);

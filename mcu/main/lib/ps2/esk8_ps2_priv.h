@@ -32,12 +32,12 @@ typedef struct
     uint8_t idx;
     uint8_t mvmt[3];
 }
-esk8_ps2_mvmt_frame_t;
+esk8_ps2_sqnc_frame_t;
 
 typedef struct
 {
     esk8_ps2_frame_t      inflight;
-    esk8_ps2_mvmt_frame_t mvmt_frame;
+    esk8_ps2_sqnc_frame_t sqnc_frame;
     esk8_ps2_state_t      ps2_state;
     esk8_ps2_cnfg_t       ps2_cnfg;
     void*                 rx_queue;

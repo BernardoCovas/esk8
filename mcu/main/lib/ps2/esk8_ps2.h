@@ -93,4 +93,10 @@ esk8_ps2_await_mvmt(
     esk8_ps2_mvmt_t* out_mvmt
 );
 
+esk8_err_t
+esk8_ps2_mvmt_sync(
+    esk8_ps2_hndl_t hndl
+);
+
+
 #endif /* _ESK8_PS2_H */

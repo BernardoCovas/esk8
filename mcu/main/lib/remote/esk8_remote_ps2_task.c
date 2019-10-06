@@ -29,10 +29,7 @@ _start:
 
     while (1)
     {
-        err = esk8_ps2_send_cmd(
-            ps2_hndl,
-            ESK8_PS2_CMD_DATA_ENABLE
-        );
+        err = esk8_ps2_mvmt_sync(ps2_hndl);
 
         if (err)
         {
