@@ -7,7 +7,7 @@
 
 
 esk8_err_t esk8_pwm_sgnl_init(
-    esk8_pwm_config_t* out_cnfg
+    esk8_pwm_cnfg_t* out_cnfg
 )
 {
     ledc_timer_config_t t_Config;
@@ -41,7 +41,7 @@ esk8_err_t esk8_pwm_sgnl_init(
 }
 
 esk8_err_t esk8_pwm_sgnl_stop(
-    esk8_pwm_config_t* cnfg
+    esk8_pwm_cnfg_t* cnfg
 )
 {
     ledc_timer_pause(cnfg->t_Config.speed_mode, cnfg->t_Config.timer_num);

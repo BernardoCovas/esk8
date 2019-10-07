@@ -32,6 +32,7 @@ void app_main_onboard()
     err_code = esk8_ble_app_register(&esk8_app_srvc_status);
     printf(ESK8_TAG_MAIN "Got %s on ble app '%s'\n",
         esk8_err_to_str(err_code), esk8_app_srvc_status.app_name);
+
     esk8_onboard_cnfg_t ride_cnfg;
     ride_cnfg.bms_update_delay_ms = 5000;
     ride_cnfg.btn_timeout_ms = 5000;

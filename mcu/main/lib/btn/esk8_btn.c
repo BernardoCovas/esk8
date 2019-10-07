@@ -1,177 +1,180 @@
 #include <esk8_err.h>
 #include <esk8_btn.h>
 
-#include <esp_err.h>
+#include "esk8_btn_priv.h"
 
-#include <freertos/FreeRTOS.h>
-#include <freertos/queue.h>
-#include <freertos/task.h>
+#include <esp_err.h>
 #include <driver/gpio.h>
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
+#include <freertos/queue.h>
+#include <freertos/task.h>
 
 #define ESK8_BTN_DEBOUNCE_ms = 10
 
+static void esk8_btn_isr(void* param);
+static void esk8_tmr_isr(void* param);
 
-static void _esk8_btn_isr  (void* param);
-static void _esk8_tmr_isr  (void* param);
 
-
-esk8_err_t esk8_btn_init(
-
-    esk8_btn_cnfg_t* btnCnfg
-
+esk8_err_t
+esk8_btn_init(
+    esk8_btn_hndl_t* out_hndl,
+    esk8_btn_cnfg_t* btn_cnfg
 )
 {
+    esp_err_t err;
+    esk8_btn_hndl_def_t* btn_hndl = calloc(1, sizeof(esk8_btn_hndl_def_t));
+    if (!btn_hndl)
+        return ESK8_ERR_OOM;
 
-    btnCnfg->_que_hndlr     = NULL;
-    btnCnfg->_tsk_hndlr     = NULL;
-    btnCnfg->_hndlr_dir = 0;
-    btnCnfg->_hndlr_ms  = 0;
+    btn_hndl->btn_cnfg = (*btn_cnfg);
 
-    const timer_config_t t_Config = {
-        .alarm_en    = false,
-        .auto_reload = true,
-        .counter_dir = TIMER_COUNT_UP,
-        .counter_en  = false,
-        .divider     = 80,
-        .intr_type   = TIMER_INTR_LEVEL
-    };
-
-#define __esk8_err_handle(X) ESK8_ERRCHECK_DO(X, { esk8_btn_clear(btnCnfg); return ESK8_ERR_INVALID_PARAM; });
-
-    __esk8_err_handle(gpio_set_direction        (btnCnfg->btn_gpio, GPIO_MODE_INPUT   ));
-    __esk8_err_handle(gpio_set_pull_mode        (btnCnfg->btn_gpio, GPIO_PULLUP_ONLY  ));
-    __esk8_err_handle(gpio_set_drive_capability (btnCnfg->btn_gpio, GPIO_DRIVE_CAP_0  ));
-    __esk8_err_handle(gpio_set_intr_type        (btnCnfg->btn_gpio, GPIO_INTR_ANYEDGE ));
-    __esk8_err_handle(gpio_intr_disable         (btnCnfg->btn_gpio                    ));
+    gpio_set_direction(btn_cnfg->btn_gpio, GPIO_MODE_INPUT);
+    gpio_set_pull_mode(btn_cnfg->btn_gpio, GPIO_PULLUP_ONLY);
+    gpio_set_drive_capability(btn_cnfg->btn_gpio, GPIO_DRIVE_CAP_0);
+    gpio_set_intr_type(btn_cnfg->btn_gpio, GPIO_INTR_ANYEDGE);
+    gpio_intr_disable(btn_cnfg->btn_gpio);
 
     gpio_install_isr_service(0);
 
-    btnCnfg->_que_hndlr = xQueueCreate(1, sizeof(esk8_btn_press_t));
-    if (!btnCnfg->_que_hndlr) { esk8_btn_clear(btnCnfg); return ESK8_ERR_OOM; }
+    const esp_timer_create_args_t tmr_args = {
+        .name = "btn_long_press",
+        .arg = (void*)btn_hndl,
+        .callback = esk8_btn_isr,
+        .dispatch_method = ESP_TIMER_TASK,
+    };
 
-    __esk8_err_handle(gpio_isr_handler_add(btnCnfg->btn_gpio, _esk8_btn_isr, btnCnfg));
+    btn_hndl->que_hndl = xQueueCreate(1, sizeof(esk8_btn_press_t));
+    err = esp_timer_create(&tmr_args, &btn_hndl->tmr_hndl);
+    if (err)
+        btn_hndl->tmr_hndl = NULL;
 
-    timer_group_t tg = btnCnfg->btn_tmrGrp;
-    timer_idx_t   ti = btnCnfg->btn_tmrIdx;
+    if  (
+            !btn_hndl->que_hndl ||
+            !btn_hndl->tmr_hndl
+        )
+    {
+        esk8_btn_deinit(btn_hndl);
+        return ESK8_ERR_OOM;
+    }
 
-    __esk8_err_handle(timer_init(tg, ti, &t_Config));
-
-    __esk8_err_handle(timer_isr_register(tg, ti, _esk8_tmr_isr, (void*)btnCnfg, 0, NULL));
-    __esk8_err_handle(timer_enable_intr(tg, ti));
-    __esk8_err_handle(timer_set_alarm_value(tg, ti, 1000 * btnCnfg->btn_longPress_ms));
+    gpio_isr_handler_add(
+        btn_cnfg->btn_gpio,
+        esk8_btn_isr,
+        btn_hndl
+    );
 
     return ESK8_OK;
 }
 
 
-esk8_err_t esk8_btn_await_press(
-
-    esk8_btn_cnfg_t*    btnCnfg,
-    esk8_btn_press_t*   out_pressType,
-    uint32_t            timeOut_ms
-
+esk8_err_t
+esk8_btn_await_press(
+    esk8_btn_hndl_t*  hndl,
+    esk8_btn_press_t* out_press
 )
 {
-    if (!btnCnfg->_que_hndlr)
+    esk8_btn_hndl_def_t* btn_hndl = calloc(1, sizeof(esk8_btn_hndl_def_t));
+    esk8_btn_cnfg_t* btn_cnfg = &btn_hndl->btn_cnfg;
+
+    if (!btn_hndl->que_hndl)
         return ESK8_BTN_ERR_NOINIT;
 
-    if (!xQueueReceive(btnCnfg->_que_hndlr, out_pressType, timeOut_ms / portTICK_PERIOD_MS))
-    {
+    BaseType_t rcv = xQueueReceive(
+        btn_hndl->que_hndl,
+        out_press,
+        btn_cnfg->timeout_ms / portTICK_PERIOD_MS
+    );
+    
+    if (rcv != pdPASS)
         return ESK8_BTN_ERR_TIMEOUT;
-    }
 
     return ESK8_OK;
 }
 
 
-esk8_err_t esk8_btn_clear(
-
-    esk8_btn_cnfg_t* btnCnfg
-
+esk8_err_t
+esk8_btn_deinit(
+    esk8_btn_hndl_t hndl
 )
 {
-    if (btnCnfg->_que_hndlr)
-        vQueueDelete(btnCnfg->_que_hndlr);
+    esk8_btn_hndl_def_t* btn_hndl = (esk8_btn_hndl_def_t*)hndl;
+    esk8_btn_cnfg_t* btn_cnfg = &btn_hndl->btn_cnfg;
 
-    if (btnCnfg->_tsk_hndlr)
-        vTaskDelete(btnCnfg->_tsk_hndlr);
+    if (btn_hndl->que_hndl)
+        vQueueDelete(btn_hndl->que_hndl);
 
-    if (btnCnfg->_smp_hndlr)
-        vTaskNotifyGiveFromISR(btnCnfg->_tsk_hndlr, NULL);
+    if (btn_hndl->tmr_hndl)
+    {
+        esp_timer_stop(btn_hndl);
+        esp_timer_delete(btn_hndl);
+    }
 
-    timer_group_t tg = btnCnfg->btn_tmrGrp;
-    timer_idx_t   ti = btnCnfg->btn_tmrIdx;
-
-    gpio_isr_handler_remove(btnCnfg->btn_gpio);
-    gpio_set_pull_mode(btnCnfg->btn_gpio, GPIO_FLOATING);
-    gpio_set_direction(btnCnfg->btn_gpio, GPIO_MODE_DISABLE);
-    timer_pause(tg, ti);
-    timer_disable_intr(tg, ti);
+    gpio_isr_handler_remove(btn_cnfg->btn_gpio);
+    gpio_set_pull_mode(btn_cnfg->btn_gpio, GPIO_FLOATING);
+    gpio_set_direction(btn_cnfg->btn_gpio, GPIO_MODE_DISABLE);
 
     return ESK8_OK;
 }
 
 
-void _esk8_tmr_isr(void* param)
+void esk8_btn_isr(void* param)
 {
-    esk8_btn_press_t out_pres = ESK8_BTN_LONGPRESS;
-    esk8_btn_cnfg_t*   btnCnfg = (esk8_btn_cnfg_t*)param;
+    esk8_btn_press_t out_prss = ESK8_BTN_PRESS;
 
-    if (btnCnfg->_que_hndlr)
-        /* TODO: Issues if this fails */
-        xQueueSendFromISR(btnCnfg->_que_hndlr, &out_pres, NULL);
+    esk8_btn_hndl_def_t* btn_hndl = (esk8_btn_hndl_def_t*)param;
+    esk8_btn_cnfg_t* btn_cnfg = &btn_hndl->btn_cnfg;
 
-    TIMERG0.int_clr_timers.t1 = 1;
-}
+    int rising = gpio_get_level(btn_cnfg->btn_gpio);
+    int64_t timer_us = esp_timer_get_time();
+    int64_t delay_us = timer_us - btn_hndl->delay_us;
 
-
-void _esk8_btn_isr(void* param)
-{
-    esk8_btn_press_t out_btnPress = ESK8_BTN_PRESS;
-
-    esk8_btn_cnfg_t*   btnCnfg = (esk8_btn_cnfg_t*)param;
-    timer_group_t tg = btnCnfg->btn_tmrGrp;
-    timer_idx_t   ti = btnCnfg->btn_tmrIdx;
-
-    bool level;
-    double timer_ms;
-
-
-    level = (bool)gpio_get_level(btnCnfg->btn_gpio);
-    timer_get_counter_time_sec(tg, ti, &timer_ms);
-    timer_ms = timer_ms * 1000;
-
-
-    if (timer_ms == 0)
-    {
-       timer_set_alarm(tg, ti, TIMER_ALARM_EN);
-       timer_start(tg, ti);
-       return;
-    }
-
-
-    if (timer_ms >= btnCnfg->btn_longPress_ms)
-    {
-        timer_pause(ti, tg);
-        timer_set_counter_value(tg, ti, 0);
-    }
-
-    if (timer_ms == 0 || !level)
-    {
-       timer_set_alarm(tg, ti, TIMER_ALARM_EN);
-       timer_start(tg, ti);
-       return;
-    }
-
-    if (timer_ms < btnCnfg->btn_debounce_ms) // Debounce
+    if  (
+            btn_hndl->hndl_state == ESK8_BTN_STATE_PRESSED &&
+            delay_us < btn_cnfg->debounce_ms
+        )
         return;
 
-    /** 
-     * The button was released after the debounce,
-     * but before the timer
-     */
-    timer_pause(tg, ti);
-    timer_set_counter_value(tg, ti, 0);
-    xQueueSendFromISR(btnCnfg->_que_hndlr, &out_btnPress, NULL);
+    if (rising)
+    {
+        switch (btn_hndl->hndl_state)
+        {
+        case ESK8_BTN_STATE_PRESSED:
+            btn_hndl->hndl_state = ESK8_BTN_STATE_RELEASED;
+            out_prss = ESK8_BTN_PRESS;
+            esp_timer_stop(btn_hndl->tmr_hndl);
+            break;
+
+        case ESK8_BTN_STATE_RELEASED:
+        default:
+            return;
+        }
+    } else
+    {
+        switch (btn_hndl->hndl_state)
+        {
+        case ESK8_BTN_STATE_PRESSED: // timer triggered
+            out_prss = ESK8_BTN_LONGPRESS;
+            btn_hndl->hndl_state = ESK8_BTN_STATE_RELEASED;
+            break;
+
+        case ESK8_BTN_STATE_RELEASED:
+            btn_hndl->hndl_state = ESK8_BTN_STATE_PRESSED;
+            esp_timer_start_once(
+                btn_hndl->tmr_hndl,
+                btn_cnfg->longpress_ms * 1000
+            );
+            return;
+
+        default:
+            return;
+        }
+    }
+
+    xQueueSendFromISR(
+        btn_hndl->que_hndl,
+        &out_prss,
+        NULL
+    );
 }

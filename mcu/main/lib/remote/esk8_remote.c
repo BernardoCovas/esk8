@@ -1,4 +1,5 @@
 #include <esk8_err.h>
+#include <esk8_log.h>
 #include <esk8_pwm.h>
 #include <esk8_remote.h>
 
@@ -74,11 +75,14 @@ esk8_remote_start()
         return ESK8_ERR_OOM;
     }
 
-    esk8_err_t err;
-
-    err = esk8_pwm_sgnl_init(&esk8_remote.pwm_cnfg);
+    esk8_err_t err = esk8_pwm_sgnl_init(&esk8_remote.pwm_cnfg);
     if (err)
     {
+        printf(E ESK8_TAG_RMT
+            "Got err :%s initializing pwm.\n",
+            esk8_err_to_str(err)
+        );
+
         esk8_remote_stop();
         return err;
     }

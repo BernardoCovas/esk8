@@ -9,7 +9,7 @@ typedef struct
 {
     ledc_timer_config_t t_Config;
     ledc_channel_config_t c_Config;
-} esk8_pwm_config_t;
+} esk8_pwm_cnfg_t;
 
 /**
  * Initializes the pwm signal generator, from
@@ -20,14 +20,14 @@ typedef struct
  * current config.
  **/
 esk8_err_t esk8_pwm_sgnl_init(
-    esk8_pwm_config_t* out_cnfg
+    esk8_pwm_cnfg_t* out_cnfg
 );
 
 /**
  *
  **/
 esk8_err_t esk8_pwm_sgnl_set(
-    esk8_pwm_config_t *t_Condig,
+    esk8_pwm_cnfg_t *t_Condig,
     uint8_t pwm_Val
 );
 
@@ -35,7 +35,7 @@ esk8_err_t esk8_pwm_sgnl_set(
  *
  */
 esk8_err_t esk8_pwm_sgnl_stop(
-    esk8_pwm_config_t* cnfg
+    esk8_pwm_cnfg_t* cnfg
 );
 
 

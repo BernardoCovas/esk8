@@ -46,6 +46,8 @@ _start:
              */
             if  (!ps2_available)
                 sleep(1);
+            else
+                usleep(20 * 1000); // 10 ms
 
             continue;
         }

@@ -1,6 +1,6 @@
-#include <esk8_log.h>
-#include <esk8_err.h>
 #include <esk8_config.h>
+#include <esk8_err.h>
+#include <esk8_log.h>
 #include <esk8_ps2.h>
 #include <esk8_ps2_priv.h>
 
@@ -10,8 +10,6 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 #include <freertos/semphr.h>
-
-#define RX_QUEUE_LEN 1024
 
 
 void

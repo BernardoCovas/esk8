@@ -58,12 +58,11 @@ esk8_onboard_start(
         return ESK8_ERR_OOM;
     }
 
-    esk8_onboard.btn_cnfg = (esk8_btn_cnfg_t) {
-        .btn_debounce_ms  = 10,
-        .btn_gpio         = GPIO_NUM_0,
-        .btn_longPress_ms = 2000,
-        .btn_tmrGrp       = 0,
-        .btn_tmrIdx       = 1
+    esk8_btn_cnfg_t btn_cnfg = {
+        .btn_gpio     = GPIO_NUM_0,
+        .timeout_ms   = 10000,
+        .longpress_ms = 3000,
+        .debounce_ms  = 10
     };
 
     err = esk8_btn_init(&esk8_onboard.btn_cnfg);

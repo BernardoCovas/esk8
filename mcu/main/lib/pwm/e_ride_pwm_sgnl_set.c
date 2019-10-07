@@ -6,7 +6,7 @@
 
 esk8_err_t esk8_pwm_sgnl_set(
 
-    esk8_pwm_config_t* pwm_Config,
+    esk8_pwm_cnfg_t* pwm_Config,
     uint8_t pwm_Val
 
 )
