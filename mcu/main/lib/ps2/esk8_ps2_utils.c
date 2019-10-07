@@ -14,6 +14,7 @@
 
 #define PCK_CMD_WAIT_ms 20 // ms to wait between cmds
 
+
 void
 esk8_ps2_set_bit(
     uint8_t* byte,

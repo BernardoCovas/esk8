@@ -33,9 +33,8 @@ esk8_onboard_cnfg_t;
 typedef struct
 {
     esk8_err_t                err;
-    esk8_onboard_cnfg_t  cnfg;
-    esk8_onboard_state_t state;
-    double                    runtime_s;
+    esk8_onboard_cnfg_t       cnfg;
+    esk8_onboard_state_t      state;
 
     uint8_t                   speed;
     esk8_bms_status_t*        bms_stat;

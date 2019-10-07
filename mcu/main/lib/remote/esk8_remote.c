@@ -53,16 +53,13 @@ esk8_remote_start()
 
     esp_bt_controller_config_t bt_cnfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
 
-    ESP_ERROR_CHECK(    ret                                                             );
-    ESP_ERROR_CHECK(    esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)           );
-    ESP_ERROR_CHECK(    esp_bt_controller_init(&bt_cnfg)                                );
-    ESP_ERROR_CHECK(    esp_bt_controller_enable(ESP_BT_MODE_BLE)                       );
-
-    ESP_ERROR_CHECK(    esp_bluedroid_init()                                            );
-    ESP_ERROR_CHECK(    esp_bluedroid_enable()                                          );
-
-    ESP_ERROR_CHECK(    esp_ble_gap_register_callback(esk8_remote_gap_cb)               );
-    ESP_ERROR_CHECK(    esp_ble_gattc_register_callback(esk8_remote_gattc_cb)           );
+    esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
+    esp_bt_controller_init(&bt_cnfg);
+    esp_bt_controller_enable(ESP_BT_MODE_BLE);
+    esp_bluedroid_init();
+    esp_bluedroid_enable();
+    esp_ble_gap_register_callback(esk8_remote_gap_cb);
+    esp_ble_gattc_register_callback(esk8_remote_gattc_cb);
 
     if  (
             xTaskCreate(
