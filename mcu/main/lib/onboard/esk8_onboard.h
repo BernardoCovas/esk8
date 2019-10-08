@@ -40,7 +40,7 @@ typedef struct
     esk8_bms_status_t*        bms_stat;
     esk8_bms_deep_status_t*   bms_deep_stat;
     esk8_bms_config_t         bms_cnfg;
-    esk8_pwm_cnfg_t         pwm_cnfg;
+    esk8_pwm_cnfg_t           pwm_cnfg;
     esk8_btn_cnfg_t           btn_cnfg;
 
     void*                     bms_stat_task;

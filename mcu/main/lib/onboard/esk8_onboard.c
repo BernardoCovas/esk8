@@ -65,7 +65,11 @@ esk8_onboard_start(
         .debounce_ms  = 10
     };
 
-    err = esk8_btn_init(&esk8_onboard.btn_cnfg);
+    err = esk8_btn_init(
+        &esk8_onboard.btn_cnfg,
+        &btn_cnfg
+    );
+
     if (err)
     {
         esk8_onboard_stop();

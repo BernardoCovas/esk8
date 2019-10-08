@@ -8,28 +8,7 @@
 #include <stdint.h>
 
 
-typedef enum
-{
-    ESK8_REMOTE_STATE_STOPPED,
-    ESK8_REMOTE_STATE_INIT,
-    ESK8_REMOTE_STATE_NOT_CONNECTED,
-    ESK8_REMOTE_STATE_SEARCHING,
-    ESK8_REMOTE_STATE_CONNECTED,
-    ESK8_REMOTE_STATE_RUNNING,
-}
-esk8_remote_state_t;
-
-typedef struct
-{
-    esk8_remote_state_t state;
-    esk8_pwm_cnfg_t   pwm_cnfg;
-    esk8_btn_cnfg_t     btn_cnfg;
-    int                 speed;
-
-    void*               ble_task;
-    void*               ps2_task;
-    void*               btn_task;
-}
+typedef void*
 esk8_remote_t;
 
 extern esk8_remote_t
@@ -37,6 +16,8 @@ esk8_remote;
 
 esk8_err_t
 esk8_remote_start(
+    esk8_ps2_hndl_t ps2_hndl,
+    esk8_btn_hndl_t btn_hndl
 );
 
 esk8_err_t

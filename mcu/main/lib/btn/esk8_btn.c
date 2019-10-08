@@ -46,7 +46,7 @@ esk8_btn_init(
     };
 
     btn_hndl->que_hndl = xQueueCreate(1, sizeof(esk8_btn_press_t));
-    err = esp_timer_create(&tmr_args, &btn_hndl->tmr_hndl);
+    err = esp_timer_create(&tmr_args, (esp_timer_handle_t*)&btn_hndl->tmr_hndl);
     if (err)
         btn_hndl->tmr_hndl = NULL;
 
@@ -71,11 +71,11 @@ esk8_btn_init(
 
 esk8_err_t
 esk8_btn_await_press(
-    esk8_btn_hndl_t*  hndl,
+    esk8_btn_hndl_t   hndl,
     esk8_btn_press_t* out_press
 )
 {
-    esk8_btn_hndl_def_t* btn_hndl = calloc(1, sizeof(esk8_btn_hndl_def_t));
+    esk8_btn_hndl_def_t* btn_hndl = (esk8_btn_hndl_def_t*)hndl;
     esk8_btn_cnfg_t* btn_cnfg = &btn_hndl->btn_cnfg;
 
     if (!btn_hndl->que_hndl)
@@ -86,7 +86,7 @@ esk8_btn_await_press(
         out_press,
         btn_cnfg->timeout_ms / portTICK_PERIOD_MS
     );
-    
+
     if (rcv != pdPASS)
         return ESK8_BTN_ERR_TIMEOUT;
 

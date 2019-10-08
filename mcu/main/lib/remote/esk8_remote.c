@@ -67,7 +67,7 @@ esk8_remote_start()
                 esk8_remote_task_ps2,
                 "esk8_remote_task_ps2",
                 2048, NULL, 2,
-                esk8_remote.ps2_task
+                &esk8_remote.ps2_task
             ) != pdPASS
         )
     {
@@ -87,8 +87,25 @@ esk8_remote_start()
         return err;
     }
 
-    esk8_remote.state = ESK8_REMOTE_STATE_NOT_CONNECTED;
+    esk8_btn_cnfg_t btn_cnfg;
 
+    err = esk8_btn_init(
+        &esk8_remote.btn_hndl,
+        &btn_cnfg
+    );
+
+    if (err)
+    {
+        printf(E ESK8_TAG_RMT
+            "Got err :%s initializing btn.\n",
+            esk8_err_to_str(err)
+        );
+
+        esk8_remote_stop();
+        return err;
+    }
+
+    esk8_remote.state = ESK8_REMOTE_STATE_NOT_CONNECTED;
     return ESK8_OK;
 }
 

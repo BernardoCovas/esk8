@@ -1,7 +1,10 @@
-#include <esk8_config.h>
-#include <esk8_onboard.h>
+#ifdef ESK8_REMOTE
 #include <esk8_remote.h>
+#else
+#include <esk8_onboard.h>
+#endif
 
+#include <esk8_config.h>
 #include <esk8_log.h>
 #include <esk8_err.h>
 #include <esk8_bms.h>
@@ -16,7 +19,18 @@
 #include <stdio.h>
 
 
-void app_main_onboard()
+#ifdef ESK8_REMOTE
+
+void
+app_main()
+{
+    esk8_remote_start();
+}
+
+#else
+
+void
+app_main()
 {
     esk8_err_t  err_code;
 
@@ -41,18 +55,4 @@ void app_main_onboard()
     return;
 }
 
-void app_main_remote()
-{
-    esk8_remote_start();
-}
-
-void app_main()
-{
-
-#ifdef ESK8_REMOTE
-    app_main_remote();
-#else
-    app_main_onboard();
-#endif
-
-}
+#endif /* ESK8_REMOTE */

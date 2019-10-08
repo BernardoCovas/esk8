@@ -8,4 +8,7 @@ esk8_remote_task_ble(
     void* param
 )
 {
+    /**
+     * TODO: (bcovas)
+     */
 }

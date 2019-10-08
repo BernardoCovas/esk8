@@ -4,6 +4,8 @@
 #include <esk8_err.h>
 #include <esk8_btn.h>
 
+#include <stdint.h>
+
 
 typedef enum
 {
@@ -32,9 +34,8 @@ esk8_btn_init(
 
 esk8_err_t
 esk8_btn_await_press(
-    esk8_btn_hndl_t   btn_hndl,
-    esk8_btn_press_t* out_press,
-    uint32_t          timeout_ms
+    esk8_btn_hndl_t   hndl,
+    esk8_btn_press_t* out_press
 );
 
 esk8_err_t
