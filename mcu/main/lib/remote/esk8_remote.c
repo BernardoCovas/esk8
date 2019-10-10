@@ -1,7 +1,9 @@
 #include <esk8_err.h>
 #include <esk8_log.h>
 #include <esk8_pwm.h>
+#include <esk8_ps2.h>
 #include <esk8_remote.h>
+#include <esk8_remote_priv.h>
 
 #include <esp_log.h>
 #include <nvs_flash.h>
@@ -31,7 +33,11 @@ esk8_remote_gap_cb(
 );
 
 esk8_err_t
-esk8_remote_start()
+esk8_remote_start(
+    esk8_remote_cnfg_t* rmt_cnfg,
+    esk8_ps2_hndl_t     ps2_hndl,
+    esk8_btn_hndl_t     btn_hndl
+)
 {
     if (esk8_remote.state)
         return ESK8_ERR_REMT_REINIT;
@@ -62,50 +68,50 @@ esk8_remote_start()
     esp_ble_gap_register_callback(esk8_remote_gap_cb);
     esp_ble_gattc_register_callback(esk8_remote_gattc_cb);
 
-    if  (
-            xTaskCreate(
-                esk8_remote_task_ps2,
-                "esk8_remote_task_ps2",
-                2048, NULL, 2,
-                &esk8_remote.ps2_task
-            ) != pdPASS
-        )
-    {
-        esk8_remote.state = ESK8_REMOTE_STATE_STOPPED;
-        return ESK8_ERR_OOM;
-    }
-
-    esk8_err_t err = esk8_pwm_sgnl_init(&esk8_remote.pwm_cnfg);
-    if (err)
-    {
-        printf(E ESK8_TAG_RMT
-            "Got err :%s initializing pwm.\n",
-            esk8_err_to_str(err)
-        );
-
-        esk8_remote_stop();
-        return err;
-    }
-
-    esk8_btn_cnfg_t btn_cnfg;
-
-    err = esk8_btn_init(
-        &esk8_remote.btn_hndl,
-        &btn_cnfg
+    esk8_err_t err = esk8_pwm_sgnl_init(
+        &esk8_remote.pwm_cnfg
     );
 
     if (err)
     {
         printf(E ESK8_TAG_RMT
-            "Got err :%s initializing btn.\n",
+            "Could not start pwm: %s\n",
             esk8_err_to_str(err)
         );
 
-        esk8_remote_stop();
         return err;
     }
 
+    BaseType_t ps2_tsk = xTaskCreate(
+        esk8_remote_task_ps2,
+        "esk8_remote_task_ps2",
+        2048, ps2_hndl, 3,
+        &esk8_remote.ps2_task
+    );
+
+    if (ps2_tsk != pdPASS)
+    {
+        esk8_remote_stop();
+        return ESK8_ERR_OOM;
+    }
+
+    BaseType_t btn_tsk = xTaskCreate(
+        esk8_remote_task_btn,
+        "esk8_remote_task_btn",
+        2048, btn_hndl, 2,
+        &esk8_remote.btn_task
+    );
+
+    if (btn_tsk != pdPASS)
+    {
+        esk8_remote_stop();
+        return ESK8_ERR_OOM;
+    }
+
+    esk8_remote.ps2_hndl = ps2_hndl;
+    esk8_remote.btn_hndl = btn_hndl;
     esk8_remote.state = ESK8_REMOTE_STATE_NOT_CONNECTED;
+
     return ESK8_OK;
 }
 
@@ -124,7 +130,15 @@ esk8_remote_incr_speed(
     esk8_remote.speed = esk8_remote.speed > 255 ? 255 : esk8_remote.speed;
     esk8_remote.speed = esk8_remote.speed < 0   ? 0   : esk8_remote.speed;
 
-    esk8_pwm_sgnl_set(&esk8_remote.pwm_cnfg, esk8_remote.speed);
+    printf(I ESK8_TAG_RMT
+        "Speed incr: %d. Now: %d\n",
+        incr, esk8_remote.speed
+    );
+
+    esk8_pwm_sgnl_set(
+        &esk8_remote.pwm_cnfg,
+        esk8_remote.speed
+    );
 
     return ESK8_OK;
 }

@@ -12,26 +12,12 @@ esk8_remote_task_ps2(
 )
 {
     esk8_err_t err;
-    esk8_ps2_hndl_t ps2_hndl;
+    esk8_ps2_hndl_t ps2_hndl = param;
     bool ps2_available = false;
-
-_start:
-    err = esk8_ps2_init_from_config_h(&ps2_hndl);
-    if (err)
-    {
-        printf(E ESK8_TAG_RMT
-            "Could not init ps2. Err: %s\n",
-            esk8_err_to_str(err)
-        );
-
-        sleep(1);
-        goto _start;
-    }
 
     while (1)
     {
         err = esk8_ps2_mvmt_sync(ps2_hndl);
-
         if (err)
         {
             printf(E ESK8_TAG_RMT

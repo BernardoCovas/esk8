@@ -26,9 +26,6 @@ esk8_ps2_isr(
     case ESK8_PS2_STATE_RECV:
     case ESK8_PS2_STATE_MVMT:
     {
-        if (frame->err)
-            break;
-
         int bit = gpio_get_level(ps2_cnfg->data_pin);
         switch (frame->idx)
         {
@@ -37,8 +34,8 @@ esk8_ps2_isr(
                 frame->err = ESK8_PS2_ERR_BAD_PCK_STRT;
             break;
         case 9:
-            if (bit != esk8_ps2_get_parity(frame->byte))
-                frame->err = ESK8_PS2_ERR_BAD_PCK_PRTY;
+            // if (bit != esk8_ps2_get_parity(frame->byte))
+            //     frame->err = ESK8_PS2_ERR_BAD_PCK_PRTY;
             break;
         case 10:
             if (!bit)

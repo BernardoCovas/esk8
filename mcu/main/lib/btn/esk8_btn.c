@@ -14,8 +14,6 @@
 #define ESK8_BTN_DEBOUNCE_ms = 10
 
 static void esk8_btn_isr(void* param);
-static void esk8_tmr_isr(void* param);
-
 
 esk8_err_t
 esk8_btn_init(
@@ -65,6 +63,7 @@ esk8_btn_init(
         btn_hndl
     );
 
+    (*out_hndl) = btn_hndl;
     return ESK8_OK;
 }
 
@@ -107,8 +106,8 @@ esk8_btn_deinit(
 
     if (btn_hndl->tmr_hndl)
     {
-        esp_timer_stop(btn_hndl);
-        esp_timer_delete(btn_hndl);
+        esp_timer_stop(btn_hndl->tmr_hndl);
+        esp_timer_delete(btn_hndl->tmr_hndl);
     }
 
     gpio_isr_handler_remove(btn_cnfg->btn_gpio);
