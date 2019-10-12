@@ -77,14 +77,14 @@ esk8_ps2_send_byte(
     vTaskDelay(1 / portTICK_PERIOD_MS);
 
     gpio_set_direction(c_pin, GPIO_MODE_INPUT);
-    gpio_set_intr_type(c_pin, GPIO_INTR_POSEDGE);
+    gpio_set_intr_type(c_pin, GPIO_PIN_INTR_POSEDGE);
 }
 
 
 esk8_err_t
 esk8_ps2_send_cmd(
     esk8_ps2_hndl_t hndl,
-    esk8_ps2_cmd_t    cmd
+    esk8_ps2_cmd_t  cmd
 )
 {
     esk8_err_t err = ESK8_OK;

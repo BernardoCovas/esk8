@@ -12,7 +12,7 @@
 #include <freertos/semphr.h>
 
 
-void
+void IRAM_ATTR
 esk8_ps2_isr(
     void* param
 )
@@ -21,21 +21,23 @@ esk8_ps2_isr(
     esk8_ps2_cnfg_t* ps2_cnfg = &ps2_hndl->ps2_cnfg;
     esk8_ps2_frame_t* frame = &ps2_hndl->inflight;
 
+    int* idx = &frame->idx;
+
     switch(ps2_hndl->ps2_state)
     {
     case ESK8_PS2_STATE_RECV:
     case ESK8_PS2_STATE_MVMT:
     {
         int bit = gpio_get_level(ps2_cnfg->data_pin);
-        switch (frame->idx)
+        switch (*idx)
         {
         case 0:
             if (bit)
                 frame->err = ESK8_PS2_ERR_BAD_PCK_STRT;
             break;
         case 9:
-            // if (bit != esk8_ps2_get_parity(frame->byte))
-            //     frame->err = ESK8_PS2_ERR_BAD_PCK_PRTY;
+            if (bit != esk8_ps2_get_parity(frame->byte))
+                frame->err = ESK8_PS2_ERR_BAD_PCK_PRTY;
             break;
         case 10:
             if (!bit)
@@ -46,7 +48,7 @@ esk8_ps2_isr(
                 frame->err = ESK8_PS2_ERR_BAD_PCK_ACKN;
             break;
         default:
-            frame->byte |= bit << (frame->idx - 1);
+            frame->byte |= bit << ((*idx) - 1);
             break;
         }
 
@@ -55,14 +57,14 @@ esk8_ps2_isr(
     case ESK8_PS2_STATE_SEND:
     {
         int bit = 0;
-        switch (frame->idx)
+        switch (*idx)
         {
         case 0 : bit = 0; break;
         case 9 : bit = esk8_ps2_get_parity(frame->byte); break;
         case 10: bit = 1; break;
 
         default:
-            bit = frame->byte & (1 << (frame->idx - 1));
+            bit = frame->byte & (1 << ((*idx) - 1));
             break;
         }
 
@@ -73,7 +75,7 @@ esk8_ps2_isr(
         break;
     }
 
-    frame->idx++;
+    (*idx)++;
 
     /**
      * If there is an error,
@@ -83,7 +85,7 @@ esk8_ps2_isr(
      */
     if  (
            !frame->err &&
-            frame->idx < 11
+            (*idx) < 11
         )
         return;
 
@@ -98,7 +100,7 @@ esk8_ps2_isr(
         break;
     case ESK8_PS2_STATE_SEND:
         gpio_set_direction(ps2_cnfg->data_pin, GPIO_MODE_INPUT);
-        gpio_set_intr_type(ps2_cnfg->clock_pin, GPIO_INTR_NEGEDGE);
+        gpio_set_intr_type(ps2_cnfg->clock_pin, GPIO_INTR_POSEDGE);
         if (frame->idx != 12)
             return;
         ps2_hndl->ps2_state = ESK8_PS2_STATE_RECV;
@@ -162,12 +164,12 @@ esk8_ps2_init(
     gpio_set_pull_mode(c_pin, GPIO_PULLUP_ONLY);
     gpio_set_pull_mode(d_pin, GPIO_PULLUP_ONLY);
     gpio_set_drive_capability(c_pin, GPIO_DRIVE_CAP_0);
-    gpio_set_drive_capability(d_pin, GPIO_DRIVE_CAP_3);
+    gpio_set_drive_capability(d_pin, GPIO_DRIVE_CAP_0);
     gpio_set_direction(c_pin, GPIO_MODE_INPUT);
     gpio_set_direction(d_pin, GPIO_MODE_INPUT);
-    gpio_set_intr_type(c_pin, GPIO_INTR_NEGEDGE);
+    gpio_set_intr_type(c_pin, GPIO_INTR_POSEDGE);
 
-    gpio_install_isr_service(0);
+    gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
     gpio_isr_handler_add(c_pin, esk8_ps2_isr, ps2_hndl_def);
 
     /** Now we can allow bytes to be sent */
