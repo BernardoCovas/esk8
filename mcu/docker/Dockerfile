@@ -36,7 +36,8 @@ RUN apt update -y; apt upgrade -y; apt install -y \
     libtool-bin         \
     make
 
-RUN useradd -G sudo -ms /bin/bash dev
+RUN useradd -G sudo -ms /bin/bash dev && echo "dev:docker" | chpasswd
+
 USER dev
 WORKDIR /home/dev
 
