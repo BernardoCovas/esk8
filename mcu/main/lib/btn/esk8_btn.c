@@ -13,8 +13,8 @@
 
 #define ESK8_BTN_DEBOUNCE_ms = 10
 
-static void esk8_btn_isr(void* param);
-static void esk8_tmr_isr(void* param);
+static void IRAM_ATTR esk8_btn_isr(void* param);
+static void           esk8_tmr_isr(void* param);
 
 esk8_err_t
 esk8_btn_init(
@@ -35,7 +35,7 @@ esk8_btn_init(
     gpio_set_intr_type(btn_cnfg->btn_gpio, GPIO_INTR_ANYEDGE);
     gpio_intr_disable(btn_cnfg->btn_gpio);
 
-    gpio_install_isr_service(0);
+    gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
 
     const esp_timer_create_args_t tmr_args = {
         .name = "btn_long_press",

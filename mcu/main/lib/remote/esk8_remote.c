@@ -108,7 +108,6 @@ esk8_remote_start(
         return ESK8_ERR_OOM;
     }
 
-    esk8_remote.ps2_hndl = ps2_hndl;
     esk8_remote.btn_hndl = btn_hndl;
     esk8_remote.state = ESK8_REMOTE_STATE_NOT_CONNECTED;
 

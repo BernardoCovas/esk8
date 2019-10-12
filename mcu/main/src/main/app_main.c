@@ -28,13 +28,6 @@ app_main()
     esk8_remote_cnfg_t rmt_cnfg = { 0 };
     esk8_pwm_cnfg_t pwm_cnfg;
 
-    esk8_ps2_cnfg_t ps2_cnfg = {
-        .clock_pin = ESK8_PS2_CLOCK_PIN,
-        .data_pin = ESK8_PS2_DATA_PIN,
-        .rx_queue_len = 1024,
-        .rx_timeout_ms = 1000
-    };
-
     esk8_btn_cnfg_t btn_cnfg = {
         .btn_gpio = ESK8_BTN_GPIO,
         .debounce_ms = ESK8_BTN_DEBOUNCE_ms,
@@ -42,13 +35,13 @@ app_main()
         .timeout_ms = 10000
     };
 
-    esk8_btn_hndl_t btn_hndl;
-    err = esk8_btn_init(&btn_hndl, &btn_cnfg);
+    esk8_ps2_hndl_t ps2_hndl;
+    err = esk8_ps2_init_from_config_h(&ps2_hndl);
     if (err)
         goto fail;
 
-    esk8_ps2_hndl_t ps2_hndl;
-    err = esk8_ps2_init(&ps2_hndl, &ps2_cnfg);
+    esk8_btn_hndl_t btn_hndl;
+    err = esk8_btn_init(&btn_hndl, &btn_cnfg);
     if (err)
         goto fail;
 

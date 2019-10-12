@@ -33,7 +33,7 @@ esk8_remote_task_ps2(
             if  (!ps2_available)
                 sleep(1);
             else
-                usleep(20 * 1000); // 10 ms
+                usleep(10 * 1000); // 10 ms
 
             continue;
         }

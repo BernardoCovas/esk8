@@ -35,7 +35,7 @@
 /* ========================================== BTN Configurations ========================================= */
 #define ESK8_BTN_GPIO                             GPIO_NUM_0
 #define ESK8_BTN_LONGPRESS_ms                     3000
-#define ESK8_BTN_DEBOUNCE_ms                      10
+#define ESK8_BTN_DEBOUNCE_ms                      30
 
 
 /* ========================================== RMT Configurations ========================================= */
