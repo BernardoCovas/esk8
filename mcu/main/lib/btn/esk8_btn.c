@@ -14,6 +14,7 @@
 #define ESK8_BTN_DEBOUNCE_ms = 10
 
 static void esk8_btn_isr(void* param);
+static void esk8_tmr_isr(void* param);
 
 esk8_err_t
 esk8_btn_init(
@@ -39,7 +40,7 @@ esk8_btn_init(
     const esp_timer_create_args_t tmr_args = {
         .name = "btn_long_press",
         .arg = (void*)btn_hndl,
-        .callback = esk8_btn_isr,
+        .callback = esk8_tmr_isr,
         .dispatch_method = ESP_TIMER_TASK,
     };
 
@@ -118,47 +119,60 @@ esk8_btn_deinit(
 }
 
 
-void esk8_btn_isr(void* param)
+void
+esk8_tmr_isr(
+    void* param
+)
 {
-    esk8_btn_press_t out_prss = ESK8_BTN_PRESS;
+    esk8_btn_press_t out_prss = ESK8_BTN_LONGPRESS;
 
+    esk8_btn_hndl_def_t* btn_hndl = (esk8_btn_hndl_def_t*)param;
+    btn_hndl->hndl_state = ESK8_BTN_STATE_RELEASED;
+
+    xQueueSendFromISR(
+        btn_hndl->que_hndl,
+        &out_prss,
+        NULL
+    );
+}
+
+
+void
+esk8_btn_isr(
+    void* param
+)
+{
+    esk8_btn_press_t out_prss;
     esk8_btn_hndl_def_t* btn_hndl = (esk8_btn_hndl_def_t*)param;
     esk8_btn_cnfg_t* btn_cnfg = &btn_hndl->btn_cnfg;
 
-    int rising = gpio_get_level(btn_cnfg->btn_gpio);
+    int btn_up = gpio_get_level(btn_cnfg->btn_gpio);
     int64_t timer_us = esp_timer_get_time();
     int64_t delay_us = timer_us - btn_hndl->delay_us;
 
-    if  (
-            btn_hndl->hndl_state == ESK8_BTN_STATE_PRESSED &&
-            delay_us < btn_cnfg->debounce_ms
-        )
+    if  (delay_us < (btn_cnfg->debounce_ms * 1000))
         return;
+    btn_hndl->delay_us = timer_us;
 
-    if (rising)
+    if (btn_up)
     {
         switch (btn_hndl->hndl_state)
         {
         case ESK8_BTN_STATE_PRESSED:
+            esp_timer_stop(btn_hndl->tmr_hndl);
             btn_hndl->hndl_state = ESK8_BTN_STATE_RELEASED;
             out_prss = ESK8_BTN_PRESS;
-            esp_timer_stop(btn_hndl->tmr_hndl);
             break;
 
-        case ESK8_BTN_STATE_RELEASED:
+        case ESK8_BTN_STATE_RELEASED: // Timer already triggered
         default:
             return;
         }
-    } else
+    } else // btn_down
     {
         switch (btn_hndl->hndl_state)
         {
-        case ESK8_BTN_STATE_PRESSED: // timer triggered
-            out_prss = ESK8_BTN_LONGPRESS;
-            btn_hndl->hndl_state = ESK8_BTN_STATE_RELEASED;
-            break;
-
-        case ESK8_BTN_STATE_RELEASED:
+        case ESK8_BTN_STATE_RELEASED: // button pressed, no timer
             btn_hndl->hndl_state = ESK8_BTN_STATE_PRESSED;
             esp_timer_start_once(
                 btn_hndl->tmr_hndl,
@@ -166,6 +180,7 @@ void esk8_btn_isr(void* param)
             );
             return;
 
+        case ESK8_BTN_STATE_PRESSED:
         default:
             return;
         }
