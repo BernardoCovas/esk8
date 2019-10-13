@@ -20,35 +20,13 @@ typedef enum
 }
 esk8_onboard_state_t;
 
-
 typedef struct
 {
-    int bms_update_delay_ms;
+    int bms_update_ms;
     int btn_timeout_ms;
-    int runtime_timer_group;
-    int runtime_timer_idx;
+    int ps2_timeout_ms;
 }
 esk8_onboard_cnfg_t;
-
-typedef struct
-{
-    esk8_err_t                err;
-    esk8_onboard_cnfg_t       cnfg;
-    esk8_onboard_state_t      state;
-
-    uint8_t                   speed;
-    esk8_bms_status_t*        bms_stat;
-    esk8_bms_deep_status_t*   bms_deep_stat;
-    esk8_bms_config_t         bms_cnfg;
-    esk8_pwm_cnfg_t           pwm_cnfg;
-    esk8_btn_cnfg_t           btn_cnfg;
-
-    void*                     bms_stat_task;
-    void*                     btn_stat_task;
-}
-esk8_onboard_t;
-
-extern esk8_onboard_t esk8_onboard;
 
 esk8_err_t
 esk8_onboard_start(
@@ -59,19 +37,10 @@ esk8_err_t
 esk8_onboard_stop(
 );
 
-void
-esk8_onboard_task_bms(
-    void* param
-);
-
-void
-esk8_onboard_task_btn(
-    void* param
-);
-
 esk8_err_t
 esk8_onboard_set_speed(
     uint8_t speed
 );
+
 
 #endif /* _ESK8_ONBOARD_H */

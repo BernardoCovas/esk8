@@ -18,14 +18,14 @@ esk8_remote_state_t;
 typedef struct
 {
     esk8_remote_state_t state;
-    esk8_pwm_cnfg_t pwm_cnfg;
     int   speed;
 
-    void* btn_hndl;
-    void* ps2_hndl;
-    void* btn_task;
-    void* ble_task;
-    void* ps2_task;
+    void* hndl_btn;
+    void* hndl_ps2;
+    void* hndl_pwm;
+    void* task_btn;
+    void* task_ble;
+    void* task_ps2;
 }
 esk8_remote_t;
 

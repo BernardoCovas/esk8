@@ -5,9 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-
 #define SRVC_AUTH_NAME  "SRVC_AUTH"
-#define LOG_TAG         ESK8_TAG_BLE "(SRVC_AUTH):"
 
 
 static uint16_t         SRVC_AUTH_UUID              = 0xE8A0;
@@ -25,6 +23,7 @@ static uint16_t         CHAR_UUID_DECLARE           = ESP_GATT_UUID_CHAR_DECLARE
 static uint16_t         CHAR_UUID_CONFIG            = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
 static uint8_t          CHAR_PROP_READ_WRITE        = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE;
 
+
 enum
 {
     SRVC_IDX_AUTH_SRVC,
@@ -37,6 +36,7 @@ enum
 
     SRVC_AUTH_NUM_ATTR
 };
+
 
 static esp_gatts_attr_db_t srvc_auth_attr_list[] =
 {
@@ -136,12 +136,12 @@ esk8_ble_app_t esk8_app_srvc_auth =
 
 static void app_init()
 {
-    printf(LOG_TAG "app_init()\n");
+    esk8_log_D(ESK8_TAG_BLE, "app_init()\n");
 }
 
 static void app_deinit()
 {
-    printf(LOG_TAG  "app_deinit() \n");
+    esk8_log_D(ESK8_TAG_BLE, "app_deinit() \n");
 }
 
 static void app_conn_add(
@@ -154,7 +154,7 @@ static void app_conn_add(
     err = esk8_auth_init(&hndl);
     if (err)
     {
-        printf(LOG_TAG "Got '%s' on auth init.\n",
+        esk8_log_D(ESK8_TAG_BLE, "Got '%s' on auth init.\n",
             esk8_err_to_str(err));
         conn_ctx->ctx = NULL;
         return;
@@ -167,7 +167,7 @@ static void app_conn_del(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
-    printf(LOG_TAG  "app_conn_del() \n");
+    esk8_log_D(ESK8_TAG_BLE, "app_conn_del() \n");
 }
 
 static void app_conn_write(
@@ -177,7 +177,7 @@ static void app_conn_write(
     uint8_t*             val
 )
 {
-    printf(LOG_TAG  "app_conn_write() on idx: %d\n", attr_idx);
+    esk8_log_D(ESK8_TAG_BLE, "app_conn_write() on idx: %d\n", attr_idx);
 }
 
 static void
@@ -186,5 +186,5 @@ app_evt_cb(
     esp_ble_gatts_cb_param_t *param
 )
 {
-    // printf(LOG_TAG  "app_evt_cb() \n");
+
 }

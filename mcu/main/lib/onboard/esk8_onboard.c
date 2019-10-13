@@ -1,4 +1,5 @@
 #include <esk8_onboard.h>
+#include <esk8_onboard_priv.h>
 #include <ble_apps/esk8_ble_app_status.h>
 
 #include <esk8_config.h>
@@ -36,38 +37,8 @@ esk8_onboard_start(
         return ESK8_ERR_OOM;
     }
 
-    esk8_err_t err = esk8_bms_init_from_config_h(&esk8_onboard.bms_cnfg);
-    if (err)
-    {
-        esk8_onboard_stop();
-        return err;
-    }
-
-    err = esk8_pwm_sgnl_init(&esk8_onboard.pwm_cnfg);
-    if (err)
-    {
-        esk8_onboard_stop();
-        return err;
-    }
-
-    if (xTaskCreate(
-        esk8_onboard_task_bms,
-        "ESK8_TASK_BMS", 2048, cnfg, 1, &esk8_onboard.bms_stat_task) != pdPASS)
-    {
-        esk8_onboard_stop();
-        return ESK8_ERR_OOM;
-    }
-
-    esk8_btn_cnfg_t btn_cnfg = {
-        .btn_gpio     = GPIO_NUM_0,
-        .timeout_ms   = 10000,
-        .longpress_ms = 3000,
-        .debounce_ms  = 10
-    };
-
-    err = esk8_btn_init(
-        &esk8_onboard.btn_cnfg,
-        &btn_cnfg
+    esk8_err_t err = esk8_bms_init_from_config_h(
+        &esk8_onboard.hndl_bms
     );
 
     if (err)
@@ -76,9 +47,44 @@ esk8_onboard_start(
         return err;
     }
 
-    if (xTaskCreate(
-        esk8_onboard_task_btn,
-        "ESK8_TASK_BTN", 2048, cnfg, 1, &esk8_onboard.btn_stat_task) != pdPASS)
+    err = esk8_pwm_sgnl_init_from_config_h(
+        &esk8_onboard.hndl_pwm
+    );
+
+    if (err)
+    {
+        esk8_onboard_stop();
+        return err;
+    }
+
+    if  (
+            xTaskCreate(
+                esk8_onboard_task_bms,
+                "ESK8_TASK_BMS", 2048,
+                cnfg, 1, &esk8_onboard.task_bms
+            ) != pdPASS)
+    {
+        esk8_onboard_stop();
+        return ESK8_ERR_OOM;
+    }
+
+    err = esk8_btn_init_from_config_h(
+        &esk8_onboard.hndl_btn
+    );
+
+    if (err)
+    {
+        esk8_onboard_stop();
+        return err;
+    }
+
+    if  (
+            xTaskCreate(
+                esk8_onboard_task_btn,
+                "ESK8_TASK_BTN", 2048,
+                cnfg, 1, &esk8_onboard.task_btn
+            ) != pdPASS
+        )
     {
         esk8_onboard_stop();
         return ESK8_ERR_OOM;
@@ -96,13 +102,15 @@ esk8_onboard_set_speed(
     if (!esk8_onboard.state)
         return ESK8_ERR_OBRD_NOINIT;
 
-    esk8_onboard.speed = speed;
+    esk8_onboard.now_speed = speed;
 
     esk8_onboard.err = esk8_pwm_sgnl_set(
-        &esk8_onboard.pwm_cnfg, speed);
+        esk8_onboard.hndl_pwm, speed
+    );
 
-    printf(ESK8_TAG_ONB "Got: '%s' on pwm update.\n",
-        esk8_err_to_str(esk8_onboard.err));
+    esk8_log_I(ESK8_TAG_ONB, "Got: '%s' on pwm update.\n",
+        esk8_err_to_str(esk8_onboard.err)
+    );
 
     esk8_ble_app_status_speed(speed);
 
@@ -113,11 +121,11 @@ esk8_err_t
 esk8_onboard_stop(
 )
 {
-    if (esk8_onboard.bms_stat_task)
-        vTaskDelete(esk8_onboard.bms_stat_task);
+    if (esk8_onboard.task_btn)
+        vTaskDelete(esk8_onboard.task_btn);
 
-    if (esk8_onboard.btn_stat_task)
-        vTaskDelete(esk8_onboard.btn_stat_task);
+    if (esk8_onboard.task_btn)
+        vTaskDelete(esk8_onboard.task_btn);
 
     if (esk8_onboard.bms_stat)
         free(esk8_onboard.bms_stat);

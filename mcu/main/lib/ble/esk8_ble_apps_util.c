@@ -76,7 +76,7 @@ esk8_ble_apps_notify_all(
         if (conn_id < 0)
             continue;
 
-        printf(ESK8_TAG_BLE "Notifying conn id %d, from '%s'\n",
+        esk8_log_D(ESK8_TAG_BLE, "Notifying conn id %d, from '%s'\n",
             conn_id, app->app_name);
 
         esp_ble_gatts_send_indicate(

@@ -68,13 +68,7 @@ esk8_err_t esk8_nvs_init()
             continue;
         }
 
-        printf(ESK8_TAG_NVS "Got value: %s -> ", sttg->nvs_key);
-        for (int _i = 0; _i < sttg->nvs_len; _i++)
-        {
-            printf("%02x", ((uint8_t*)sttg->__nvs_mem)[_i]);
-        }
-        printf("\n");
-
+        esk8_log_D(ESK8_TAG_NVS, "Got value: %s\n", sttg->nvs_key);
         sttg->nvs_val = sttg->__nvs_mem;
     }
 

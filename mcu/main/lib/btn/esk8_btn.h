@@ -33,6 +33,11 @@ esk8_btn_init(
 );
 
 esk8_err_t
+esk8_btn_init_from_config_h(
+    esk8_btn_hndl_t* out_hndl
+);
+
+esk8_err_t
 esk8_btn_await_press(
     esk8_btn_hndl_t   hndl,
     esk8_btn_press_t* out_press

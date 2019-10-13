@@ -5,9 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
 #define SRVC_CTRL_NAME  "SRVC_CTRL"
-#define LOG_TAG         ESK8_TAG_BLE "(SRVC_CTRL):"
 
 
 static uint16_t SRVC_CTRL_UUID                 = 0xE8C0;
@@ -152,13 +150,13 @@ esk8_ble_app_t esk8_app_srvc_ctrl =
 
 static void app_init()
 {
-    printf(LOG_TAG "app_init()\n");
+    esk8_log_D(ESK8_TAG_BLE, "app_init()\n");
     conn_id = -1;
 }
 
 static void app_deinit()
 {
-    printf(LOG_TAG  "app_deinit()\n");
+    esk8_log_D(ESK8_TAG_BLE, "app_deinit()\n");
 }
 
 static void app_conn_add(
@@ -169,7 +167,7 @@ static void app_conn_add(
         return;
 
     conn_id = conn_ctx->conn_id;
-    printf(LOG_TAG
+    esk8_log_D(ESK8_TAG_BLE,
         "Registering conn id %d as controller.\n",
         conn_id
     );
@@ -184,7 +182,7 @@ static void app_conn_del(
 
     conn_id = -1;
 
-    printf(LOG_TAG "Controller disconnected. Resetting speed.\n");
+    esk8_log_D(ESK8_TAG_BLE, "Controller disconnected. Resetting speed.\n");
     esk8_onboard_set_speed(0);
 }
 
@@ -205,7 +203,7 @@ static void app_conn_write(
 
         if (conn_id != conn_ctx->conn_id)
         {
-            printf(LOG_TAG
+            esk8_log_D(ESK8_TAG_BLE, 
                 "Connection id %d tried to write."
                 "Write allowed to %d only.\n",
                 conn_ctx->conn_id,
@@ -216,8 +214,10 @@ static void app_conn_write(
         }
 
         err = esk8_onboard_set_speed(*val);
-        printf(LOG_TAG "Got '%s' updating ble status to speed: %d\n",
-            esk8_err_to_str(err), val[0]);
+        esk8_log_D(ESK8_TAG_BLE,
+            "Got '%s' updating ble status to speed: %d\n",
+            esk8_err_to_str(err), val[0]
+        );
 
         break;
 

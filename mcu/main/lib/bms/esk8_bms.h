@@ -15,8 +15,8 @@ typedef struct __attribute__((__packed__))
     int16_t  current;
     uint8_t  temperature1;
     uint8_t  temperature2;
-} esk8_bms_status_t;
-
+}
+esk8_bms_status_t;
 
 typedef struct __attribute__((__packed__))
 {
@@ -34,42 +34,44 @@ typedef struct __attribute__((__packed__))
     uint8_t  isCharging;
     uint8_t  isOverVoltage;
     uint8_t  isOverHeat;
-} esk8_bms_deep_status_t;
+}
+esk8_bms_deep_status_t;
 
 typedef void (*esk8_bms_cb_t)(esk8_bms_status_t* status, uint8_t nStatus);
 
 typedef struct
 {
-    uart_port_t         bmsUartPort;
-    uint8_t             numBat;
-    uint8_t*            batRxPins;
-    uint8_t*            batTxPins;
-    uint8_t             batTxPin;
-    uint32_t            bmsUpdateMs;
-    uart_config_t       uartConfig;
-} esk8_bms_config_t;
+    int                 uart_port;
+    uint8_t             bat_num;
+    uint8_t*            rx_pins;
+    uint8_t*            tx_pins;
+    uint8_t             tx_pin;
+    uint32_t            bms_update_ms;
+}
+esk8_bms_config_t;
 
-esk8_err_t esk8_bms_init(
+typedef void*
+esk8_bms_hndl_t;
 
-    esk8_bms_config_t* bmsConfig
-
+esk8_err_t
+esk8_bms_init(
+    esk8_bms_config_t* bms_cnfg,
+    esk8_bms_hndl_t* out_hndl
 );
 
-esk8_err_t esk8_bms_set_rx(
-
-    esk8_bms_config_t* eSkateUart,
-    uint8_t uartRxI
-
+esk8_err_t
+esk8_bms_set_pin(
+    esk8_bms_hndl_t* hndl,
+    uint8_t pin
 );
 
 /**
  * Same as `esk8_bms_init()`, but uses
  * values from `esk8_config.h`.
  **/
-esk8_err_t esk8_bms_init_from_config_h(
-
-    esk8_bms_config_t* outConfig
-
+esk8_err_t
+esk8_bms_init_from_config_h(
+    esk8_bms_hndl_t* out_hndl
 );
 
 /**
@@ -80,23 +82,22 @@ esk8_err_t esk8_bms_init_from_config_h(
  * Returns `ESK8_BMS_SUCCESS` on
  * success, anything else on error.
  **/
-esk8_err_t esk8_bms_get_status(
-
-    esk8_bms_config_t *bmsConfig,
-    esk8_bms_status_t *outStatus
-
+esk8_err_t
+esk8_bms_get_status(
+    esk8_bms_hndl_t hndl,
+    esk8_bms_status_t *out_status
 );
 
 /**
  * Reads the pack's deep status.
  * Takes a while, and the result is stored
- * in `outDeepStatus`.
+ * in `out_status`.
  **/
-esk8_err_t esk8_bms_get_deep_status(
-
-    esk8_bms_config_t      *bmsConfig,
-    esk8_bms_deep_status_t *outStatus
-
+esk8_err_t
+esk8_bms_get_deep_status(
+    esk8_bms_hndl_t hndl,
+    esk8_bms_deep_status_t *out_status
 );
+
 
 #endif /* _ESK8_BMS_H */

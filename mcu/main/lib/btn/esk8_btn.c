@@ -1,3 +1,4 @@
+#include <esk8_config.h>
 #include <esk8_err.h>
 #include <esk8_btn.h>
 
@@ -11,10 +12,9 @@
 #include <freertos/queue.h>
 #include <freertos/task.h>
 
-#define ESK8_BTN_DEBOUNCE_ms = 10
-
 static void IRAM_ATTR esk8_btn_isr(void* param);
 static void           esk8_tmr_isr(void* param);
+
 
 esk8_err_t
 esk8_btn_init(
@@ -45,7 +45,11 @@ esk8_btn_init(
     };
 
     btn_hndl->que_hndl = xQueueCreate(1, sizeof(esk8_btn_press_t));
-    err = esp_timer_create(&tmr_args, (esp_timer_handle_t*)&btn_hndl->tmr_hndl);
+    err = esp_timer_create(
+        &tmr_args,
+        (esp_timer_handle_t*)&btn_hndl->tmr_hndl
+    );
+ 
     if (err)
         btn_hndl->tmr_hndl = NULL;
 
@@ -66,6 +70,21 @@ esk8_btn_init(
 
     (*out_hndl) = btn_hndl;
     return ESK8_OK;
+}
+
+
+esk8_err_t
+esk8_btn_init_from_config_h(
+    esk8_btn_hndl_t* out_hndl
+)
+{
+    esk8_btn_cnfg_t cnfg;
+    cnfg.btn_gpio = ESK8_BTN_GPIO;
+    cnfg.debounce_ms = ESK8_BTN_DEBOUNCE_ms;
+    cnfg.longpress_ms = ESK8_BTN_LONGPRESS_ms;
+    cnfg.timeout_ms = ESK8_BTN_TIMEOUT_ms;
+
+    return esk8_btn_init(out_hndl, &cnfg);
 }
 
 

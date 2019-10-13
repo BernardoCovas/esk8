@@ -65,11 +65,6 @@ esk8_err_t esk8_auth_register(
     if (mbedtls_md_finish(&cntx->mbtls_cntx, cntx->hash))
         return ESK8_AUTH_ERR_HASH;
 
-    printf(ESK8_TAG_ATH "Registered hash: ");
-    for (int i = 0; i < sizeof(esk8_auth_hash_t); i++)
-        printf("%02x", cntx->hash[i]);
-    printf("\n");
-
     memcpy(sttg_val.auth_hash, cntx->hash, sizeof(esk8_auth_hash_t));
 
     ESK8_ERRCHECK_THROW(esk8_nvs_settings_set(ESK8_NVS_AUTH_HASH, &sttg_val));

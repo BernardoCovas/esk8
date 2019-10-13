@@ -258,7 +258,7 @@ esk8_ble_app_status_bms_deep(
 static void
 app_init()
 {
-    printf(LOG_TAG "app_init()\n");
+    esk8_log_D(ESK8_TAG_BLE, "app_init()\n");
     memset(SRVC_STATUS_BMS_SHALLOW_VAL, 0, sizeof(SRVC_STATUS_BMS_SHALLOW_VAL));
     memset(SRVC_STATUS_BMS_DEEP_VAL   , 0, sizeof(SRVC_STATUS_BMS_DEEP_VAL   ));
 }
@@ -266,7 +266,7 @@ app_init()
 static void
 app_deinit()
 {
-    printf(LOG_TAG  "app_deinit() \n");
+    esk8_log_D(ESK8_TAG_BLE, "app_deinit() \n");
 }
 
 static void
@@ -274,7 +274,7 @@ app_conn_add(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
-    printf(LOG_TAG  "app_conn_add() \n");
+    esk8_log_D(ESK8_TAG_BLE, "app_conn_add() \n");
 }
 
 static void
@@ -282,7 +282,7 @@ app_conn_del(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
-    printf(LOG_TAG  "app_conn_del() \n");
+    esk8_log_D(ESK8_TAG_BLE, "app_conn_del() \n");
 }
 
 static void app_conn_write(
@@ -291,7 +291,7 @@ static void app_conn_write(
     size_t               len,
     uint8_t*             val)
 {
-    printf(LOG_TAG  "app_conn_write() on idx: %d\n", attr_idx);
+    esk8_log_D(ESK8_TAG_BLE, "app_conn_write() on idx: %d\n", attr_idx);
 }
 
 static void

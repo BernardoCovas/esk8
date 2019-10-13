@@ -25,42 +25,15 @@ void
 app_main()
 {
     esk8_err_t err;
-    esk8_remote_cnfg_t rmt_cnfg = { 0 };
-    esk8_pwm_cnfg_t pwm_cnfg;
+    err = esk8_remote_start();
 
-    esk8_btn_cnfg_t btn_cnfg = {
-        .btn_gpio = ESK8_BTN_GPIO,
-        .debounce_ms = ESK8_BTN_DEBOUNCE_ms,
-        .longpress_ms = 1000,
-        .timeout_ms = 10000
-    };
-
-    esk8_ps2_hndl_t ps2_hndl;
-    err = esk8_ps2_init_from_config_h(&ps2_hndl);
-    if (err)
-        goto fail;
-
-    esk8_btn_hndl_t btn_hndl;
-    err = esk8_btn_init(&btn_hndl, &btn_cnfg);
-    if (err)
-        goto fail;
-
-    err = esk8_pwm_sgnl_init(&pwm_cnfg);
-    if (err)
-        goto fail;
-
-    err = esk8_remote_start(
-        &rmt_cnfg,
-        ps2_hndl,
-        btn_hndl
-    );
     if (err)
         goto fail;
 
     return;
 
 fail:
-    printf(E ESK8_TAG_MAIN
+    esk8_log_E(ESK8_TAG_MAIN,
         "Got err: %s\n",
         esk8_err_to_str(err)
     );
@@ -71,26 +44,38 @@ fail:
 void
 app_main()
 {
-    esk8_err_t  err_code;
+    esk8_err_t  err;
+    static esk8_ble_app_t* apps[] = {
+        &esk8_app_srvc_auth,
+        &esk8_app_srvc_ctrl,
+        &esk8_app_srvc_status
+    };
 
-    err_code = esk8_ble_apps_init(3, 10);
-    printf(ESK8_TAG_MAIN "Got %s on ble init\n",
-        esk8_err_to_str(err_code));
-    err_code = esk8_ble_app_register(&esk8_app_srvc_auth);
-    printf(ESK8_TAG_MAIN "Got %s on ble app '%s'\n",
-        esk8_err_to_str(err_code), esk8_app_srvc_auth.app_name);
-    err_code = esk8_ble_app_register(&esk8_app_srvc_ctrl);
-    printf(ESK8_TAG_MAIN "Got %s on ble app '%s'\n",
-        esk8_err_to_str(err_code), esk8_app_srvc_ctrl.app_name);
-    err_code = esk8_ble_app_register(&esk8_app_srvc_status);
-    printf(ESK8_TAG_MAIN "Got %s on ble app '%s'\n",
-        esk8_err_to_str(err_code), esk8_app_srvc_status.app_name);
+    err = esk8_ble_apps_init(3, 10);
 
-    esk8_onboard_cnfg_t ride_cnfg;
-    ride_cnfg.bms_update_delay_ms = 5000;
-    ride_cnfg.btn_timeout_ms = 5000;
+    if (err)
+        esk8_log_E(ESK8_TAG_MAIN,
+            "Got %s on ble init\n",
+            esk8_err_to_str(err)
+        );
 
-    esk8_onboard_start(&ride_cnfg);
+    for (int i = 0; i < sizeof(apps) / sizeof(apps[0]); i++)
+    {
+        err = esk8_ble_app_register(apps[i]);
+        if (err)
+            esk8_log_E(ESK8_TAG_MAIN,
+                "Got %s on ble app '%s'\n",
+                esk8_err_to_str(err),
+                apps[i]->app_name
+            );
+    }
+
+    static esk8_onboard_cnfg_t cnfg;
+    cnfg.bms_update_ms = 5000;
+    cnfg.btn_timeout_ms = 5000; // unused
+    cnfg.ps2_timeout_ms = 60000; // unused
+
+    esk8_onboard_start(&cnfg);
     return;
 }
 

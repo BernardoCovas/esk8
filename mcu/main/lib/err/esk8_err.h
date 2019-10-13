@@ -3,7 +3,7 @@
 
 #define ESK8_ERRCHECK_DO(X, _do_what) do { esk8_err_t __err_c = (X); if (__err_c) { _do_what; } } while(0)
 #define ESK8_ERRCHECK_THROW(X) do { esk8_err_t __err_c = (X); if (__err_c) return __err_c; } while(0)
-#define ESK8_ERRCHECK_LOG(tag, X) do { esk8_err_t __err_c = (X); if (__err_c) printf(tag "Got error: %s\n", esk8_err_to_str(__err_c)); } while(0)
+#define ESK8_ERRCHECK_LOG(tag, X) do { esk8_err_t __err_c = (X); if (__err_c) esk8_log_E(tag "Got error: %s\n", esk8_err_to_str(__err_c)); } while(0)
 
 
 typedef enum esk8_err_t

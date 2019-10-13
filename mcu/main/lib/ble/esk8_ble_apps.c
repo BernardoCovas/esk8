@@ -143,7 +143,7 @@ esk8_ble_app_register(
             app->_conn_ctx_list[i].conn_id = -1;
 
         ESP_ERROR_CHECK(esp_ble_gatts_app_register(esk8_ble_apps.curr_app_id++));
-        printf(ESK8_TAG_BLE "Registered app: '%s'\n", app->app_name);
+        esk8_log_D(ESK8_TAG_BLE, "Registered app: '%s'\n", app->app_name);
 
         return ESK8_OK;
     }
@@ -196,7 +196,7 @@ esk8_ble_apps_gap_evt_hndl(
     {
         case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
             ESP_ERROR_CHECK(esp_ble_gap_start_advertising(&adv_params));
-            printf(ESK8_TAG_BLE "Started advertizing.\n");
+            esk8_log_D(ESK8_TAG_BLE, "Started advertizing.\n");
             break;
 
         default:
@@ -263,7 +263,7 @@ esk8_ble_apps_gatts_evt_hndl(
         {
             if (param->add_attr_tab.status != ESP_OK)
             {
-                printf(ESK8_TAG_BLE "Error creating table for app: '%s'. Status: %d\n",
+                esk8_log_D(ESK8_TAG_BLE, "Error creating table for app: '%s'. Status: %d\n",
                     app->app_name,
                     param->add_attr_tab.status);
 
@@ -272,7 +272,7 @@ esk8_ble_apps_gatts_evt_hndl(
 
             if (param->add_attr_tab.num_handle != app->attr_num)
             {
-                printf(ESK8_TAG_BLE
+                esk8_log_D(ESK8_TAG_BLE,
                     "Table created but the returned number of handles is %d. Expected %d instead.\n",
                     param->add_attr_tab.num_handle,
                     app->attr_num
@@ -310,7 +310,7 @@ esk8_ble_apps_gatts_evt_hndl(
 
             if (!ctx)
             {
-                printf(ESK8_TAG_BLE
+                esk8_log_D(ESK8_TAG_BLE,
                     "Got new connection, but ctx list is full, "
                     "app: '%s'\n", app->app_name);
 
@@ -318,7 +318,8 @@ esk8_ble_apps_gatts_evt_hndl(
                 break;
             }
 
-            printf(ESK8_TAG_BLE "Adding conn id %d to app %s.\n",
+            esk8_log_D(ESK8_TAG_BLE,
+                "Adding conn id %d to app %s.\n",
                 param->connect.conn_id,
                 app->app_name);
 
@@ -333,8 +334,10 @@ esk8_ble_apps_gatts_evt_hndl(
             for (int i = 0; i < esk8_ble_apps.conn_num_max; i++)
                 if (param->disconnect.conn_id == app->_conn_ctx_list[i].conn_id)
                 {
-                    printf(ESK8_TAG_BLE "Removing conn id: %d\n",
-                        param->disconnect.conn_id);
+                    esk8_log_D(ESK8_TAG_BLE,
+                        "Removing conn id: %d\n",
+                        param->disconnect.conn_id
+                    );
 
                     app->app_conn_del(&app->_conn_ctx_list[i]);
                     app->_conn_ctx_list[i].conn_id = -1;
@@ -352,7 +355,7 @@ esk8_ble_apps_gatts_evt_hndl(
 
             if (err_code)
             {
-                printf(ESK8_TAG_BLE
+                esk8_log_D(ESK8_TAG_BLE,
                     "Got err: '%s' getting the attr idx, "
                     "on write event of app: '%s'\n",
                     esk8_err_to_str(err_code), app->app_name);
@@ -365,7 +368,7 @@ esk8_ble_apps_gatts_evt_hndl(
 
             if (err_code)
             {
-                printf(ESK8_TAG_BLE
+                esk8_log_D(ESK8_TAG_BLE,
                     "Got err: '%s' getting the conn ctx, "
                     "on write event of app: '%s'\n",
                     esk8_err_to_str(err_code), app->app_name);

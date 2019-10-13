@@ -77,7 +77,6 @@ esk8_ps2_send_byte(
     vTaskDelay(1 / portTICK_PERIOD_MS);
 
     gpio_set_direction(c_pin, GPIO_MODE_INPUT);
-    gpio_set_intr_type(c_pin, GPIO_PIN_INTR_POSEDGE);
 }
 
 
@@ -111,7 +110,7 @@ esk8_ps2_send_cmd(
     if (err)
         goto cleanup;
 
-    printf(I ESK8_TAG_PS2
+    esk8_log_D(ESK8_TAG_PS2,
         "Got response: 0x%02x for cmd: 0x%02x\n",
         resp, cmd
     );
@@ -162,7 +161,7 @@ esk8_ps2_await_rsp(
 
     if (frame.err)
     {
-        printf(E ESK8_TAG_PS2
+        esk8_log_E(ESK8_TAG_PS2,
             "Got err: %s in frame.\n",
             esk8_err_to_str(frame.err)
         );
@@ -224,7 +223,7 @@ esk8_ps2_await_mvmt(
 
         if (frame.err)
         {
-            printf(E ESK8_TAG_PS2
+            esk8_log_E(ESK8_TAG_PS2,
                 "Gor error in packet: %s\n",
                 esk8_err_to_str(frame.err)
             );

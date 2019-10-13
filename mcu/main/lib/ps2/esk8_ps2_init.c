@@ -100,7 +100,6 @@ esk8_ps2_isr(
         break;
     case ESK8_PS2_STATE_SEND:
         gpio_set_direction(ps2_cnfg->data_pin, GPIO_MODE_INPUT);
-        gpio_set_intr_type(ps2_cnfg->clock_pin, GPIO_INTR_POSEDGE);
         if (frame->idx != 12)
             return;
         ps2_hndl->ps2_state = ESK8_PS2_STATE_RECV;
@@ -126,7 +125,7 @@ esk8_ps2_init(
 
     esk8_ps2_hndl_def_t* ps2_hndl_def = (esk8_ps2_hndl_def_t*)*ps2_hndl;
 
-    printf(I ESK8_TAG_PS2
+    esk8_log_I(ESK8_TAG_PS2,
         "PS2 Init with queue len: %d, timeout: %d ms, clock pin: %d, data pin: %d\n",
         ps2_config->rx_queue_len,
         ps2_config->rx_timeout_ms,
