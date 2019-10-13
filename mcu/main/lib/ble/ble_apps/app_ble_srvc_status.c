@@ -1,6 +1,7 @@
 #include <esk8_log.h>
 #include <esk8_bms.h>
 #include <esk8_ble_apps.h>
+#include <esk8_ble_defs.h>
 
 #include "../esk8_ble_apps_util.h"
 
@@ -12,17 +13,17 @@
 #define LOG_TAG             ESK8_TAG_BLE "(SRVC_STAT):"
 
 
-static uint16_t SRVC_STATUS_UUID                            = 0xE8E0;
+static uint16_t SRVC_STATUS_UUID                            = ESK8_BLE_STATUS_UUID;
 
-static uint16_t SRVC_STATUS_SPEED_UUID                      = 0xE8E1;
+static uint16_t SRVC_STATUS_SPEED_UUID                      = ESK8_BLE_STATUS_SPEED_UUID;
 static uint8_t  SRVC_STATUS_SPEED_VAL[1]                    = {0};
 static uint16_t SRVC_STATUS_SPEED_DESC                      = 0x0000;
 
-static uint16_t SRVC_STATUS_BMS_SHALLOW_UUID                = 0xE8E2;
+static uint16_t SRVC_STATUS_BMS_SHALLOW_UUID                = ESK8_BLE_STATUS_BMS_SHALLOW_UUID;
 static esk8_bms_status_t SRVC_STATUS_BMS_SHALLOW_VAL[ESK8_UART_BMS_CONF_NUM]     = {0};
 static uint16_t SRVC_STATUS_BMS_SHALLOW_DESC                = 0x0000;
 
-static uint16_t SRVC_STATUS_BMS_DEEP_UUID                   = 0xE8E3;
+static uint16_t SRVC_STATUS_BMS_DEEP_UUID                   = ESK8_BLE_STATUS_BMS_DEEP_UUID;
 static esk8_bms_deep_status_t SRVC_STATUS_BMS_DEEP_VAL[ESK8_UART_BMS_CONF_NUM]   = {0};
 static uint16_t SRVC_STATUS_BMS_DEEP_DESC                   = 0x0000;
 

@@ -1,3 +1,4 @@
+#include <esk8_ble_defs.h>
 #include <esk8_ble_apps.h>
 #include <esk8_log.h>
 #include <esk8_auth.h>
@@ -8,13 +9,13 @@
 #define SRVC_AUTH_NAME  "SRVC_AUTH"
 
 
-static uint16_t         SRVC_AUTH_UUID              = 0xE8A0;
+static uint16_t         SRVC_AUTH_UUID              = ESK8_BLE_AUTH_UUID;
 
-static uint16_t         SRVC_AUTH_KEY_UUID          = 0xE8A1;
+static uint16_t         SRVC_AUTH_KEY_UUID          = ESK8_BLE_AUTH_KEY_UUID;
 static esk8_auth_key_t  SRVC_AUTH_KEY_VAL           = {0};
 static uint16_t         SRVC_AUTH_KEY_DESC          = 0x0000;
 
-static uint16_t         SRVC_AUTH_CHANGE_UUID       = 0xE8A2;
+static uint16_t         SRVC_AUTH_CHANGE_UUID       = ESK8_BLE_AUTH_CHANGE_UUID;
 static esk8_auth_key_t  SRVC_AUTH_CHANGE_VAL        = {0};
 static uint16_t         SRVC_AUTH_CHANGE_DESC       = 0x0000;
 
