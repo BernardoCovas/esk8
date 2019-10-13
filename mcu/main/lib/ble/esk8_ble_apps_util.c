@@ -53,7 +53,7 @@ esk8_ble_apps_update(
         return ESK8_ERR_INVALID_PARAM;
 
     if (!app->_conn_ctx_list)
-        return ESK8_ERR_BLE_APP_NOREG;
+        return ESK8_ERR_BLE_APPS_APP_NOREG;
 
     esp_ble_gatts_set_attr_value(
         app->_attr_hndl_list[attr_idx],

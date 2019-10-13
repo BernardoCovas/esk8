@@ -20,7 +20,7 @@ esk8_onboard_start(
 )
 {
     if (esk8_onboard.state)
-        return ESK8_ERR_BLE_INIT_REINIT;
+        return ESK8_ERR_BLE_APPS_INIT_REINIT;
 
     esk8_onboard.state = ESK8_RIDE_STATE_INIT;
     esk8_onboard.cnfg  = (*cnfg);

@@ -62,7 +62,7 @@ esk8_ble_apps_init(
 )
 {
     if (esk8_ble_apps.apps_list)
-        return ESK8_ERR_BLE_INIT_REINIT;
+        return ESK8_ERR_BLE_APPS_INIT_REINIT;
 
     /**
      * NOTE: (b.covas) NVS Has to be initialized
@@ -112,7 +112,7 @@ esk8_ble_app_register(
 )
 {
     if (!esk8_ble_apps.apps_list)
-        return ESK8_ERR_BLE_INIT_NOINIT;
+        return ESK8_ERR_BLE_APPS_INIT_NOINIT;
 
     for (int i = 0; i < esk8_ble_apps.apps_num_max; i++)
     {
@@ -146,14 +146,14 @@ esk8_ble_app_register(
         return ESK8_OK;
     }
 
-    return ESK8_ERR_BLE_INIT_MAXREG;
+    return ESK8_ERR_BLE_APPS_INIT_MAXREG;
 }
 
 esk8_err_t
 esk8_ble_apps_deinit()
 {
     if (!esk8_ble_apps.apps_list)
-        return ESK8_ERR_BLE_INIT_NOINIT;
+        return ESK8_ERR_BLE_APPS_INIT_NOINIT;
 
     for (int i = 0; i < esk8_ble_apps.apps_num_max; i++)
     {

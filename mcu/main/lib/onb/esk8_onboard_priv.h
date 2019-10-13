@@ -6,6 +6,15 @@
 #include <esk8_onboard.h>
 
 
+typedef enum
+{
+    ESK8_RIDE_STATE_STOPPED,
+    ESK8_RIDE_STATE_INIT,
+    ESK8_RIDE_STATE_RUNNING,
+    ESK8_RIDE_STATE_ERR_FATAL,
+}
+esk8_onboard_state_t;
+
 typedef struct
 {
     esk8_err_t           err;

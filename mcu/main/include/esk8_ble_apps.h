@@ -39,9 +39,9 @@ esk8_ble_app_t;
 typedef struct
 {
     esk8_ble_app_t** apps_list;
-    unsigned int     apps_num_max;
-    unsigned int     conn_num_max;
-    unsigned int     curr_app_id;
+    uint apps_num_max;
+    uint conn_num_max;
+    uint curr_app_id;
 }
 esk8_ble_apps_t;
 
@@ -50,26 +50,17 @@ extern esk8_ble_app_t  esk8_app_srvc_auth;
 extern esk8_ble_app_t  esk8_app_srvc_status;
 extern esk8_ble_app_t  esk8_app_srvc_ctrl;
 
-/**
- *
- */
 esk8_err_t
 esk8_ble_apps_init(
-    unsigned int    n_apps_max,
-    unsigned int    n_conn_max
+    uint n_apps_max,
+    uint n_conn_max
 );
 
-/**
- *
- */
 esk8_err_t
 esk8_ble_app_register(
     esk8_ble_app_t* app
 );
 
-/**
- *
- */
 esk8_err_t
 esk8_ble_apps_deinit(
 );

@@ -4,38 +4,18 @@
 #include <esk8_ps2.h>
 #include <esk8_config.h>
 #include <esk8_rmt.h>
+#include <esk8_ble_appc.h>
 
 #include "esk8_rmt_priv.h"
 
 #include <nvs_flash.h>
 #include <esp_log.h>
-#include <esp_bt.h>
-#include <esp_bt_main.h>
-#include <esp_gattc_api.h>
-#include <esp_gap_ble_api.h>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-#ifndef ESK8_ONBOARD_MAC_ADDR
-#error "ESK8_ONBOARD_MAC_ADDR not defined. Set it to the board's mac address"
-#endif
-
 
 esk8_rmt_t esk8_rmt = { 0 };
-
-void
-esk8_rmt_gattc_cb(
-    esp_gattc_cb_event_t      event,
-    esp_gatt_if_t             gattc_if,
-    esp_ble_gattc_cb_param_t* param
-);
-
-void
-esk8_rmt_gap_cb(
-    esp_gap_ble_cb_event_t event,
-    esp_ble_gap_cb_param_t *param
-);
 
 esk8_err_t
 esk8_rmt_start()
@@ -58,17 +38,7 @@ esk8_rmt_start()
     }
 
     if (ret)
-        return ESK8_NVS_NOT_AVAILABLE;
-
-    esp_bt_controller_config_t bt_cnfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-
-    esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
-    esp_bt_controller_init(&bt_cnfg);
-    esp_bt_controller_enable(ESP_BT_MODE_BLE);
-    esp_bluedroid_init();
-    esp_bluedroid_enable();
-    esp_ble_gap_register_callback(esk8_rmt_gap_cb);
-    esp_ble_gattc_register_callback(esk8_rmt_gattc_cb);
+        return ESK8_ERR_NVS_NOT_AVAILABLE;
 
     esk8_err_t err = esk8_pwm_sgnl_init_from_config_h(
         &esk8_rmt.hndl_pwm
@@ -177,63 +147,6 @@ esk8_rmt_incr_speed(
     return err;
 }
 
-void
-esk8_rmt_gap_cb(
-    esp_gap_ble_cb_event_t  event,
-    esp_ble_gap_cb_param_t *param
-)
-{
-    printf("[ GAP ] Got event: %d\n", event);
-
-    switch (event)
-    {
-    case ESP_GAP_BLE_SCAN_RESULT_EVT:
-    {
-        if (esk8_rmt.state != ESK8_REMOTE_STATE_SEARCHING)
-        {
-            esp_ble_gap_stop_scanning();
-            break;
-        }
-
-        if (param->scan_rst.search_evt != ESP_GAP_SEARCH_INQ_RES_EVT)
-            break;
-
-        printf("[ GAP ] Dev: ");
-        for (int i = 0; i < 6; i++)
-            printf("%s%02x", i==0 ? "":":", param->scan_rst.bda[i]);
-
-        printf(", RSSI: %d, evt: %d\n",
-            param->scan_rst.rssi,
-            param->scan_rst.search_evt
-        );
-
-        break;
-    }
-
-    default:
-        break;
-    }
-}
-
-void
-esk8_rmt_gattc_cb(
-    esp_gattc_cb_event_t        event,
-    esp_gatt_if_t               gattc_if,
-    esp_ble_gattc_cb_param_t*   param
-)
-{
-    switch (event)
-    {
-    case ESP_GATTC_DISCONNECT_EVT:
-        break;
-
-    case ESP_GATTC_CONNECT_EVT:
-        break;
-
-    default:
-        break;
-    }
-}
 
 esk8_err_t
 esk8_rmt_connect(
