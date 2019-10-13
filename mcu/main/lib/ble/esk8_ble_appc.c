@@ -1,4 +1,5 @@
 #include <esk8_err.h>
+#include <esk8_log.h>
 #include <esk8_ble_appc.h>
 
 #include "esk8_ble_appc_priv.h"
@@ -17,9 +18,10 @@ esk8_ble_appc_init(
     uint n_apps_max
 )
 {
-    if (esk8_ble_appc_hndl.app_ctx_l)
+    if (esk8_ble_appc_hndl.app_ctx_list)
         return ESK8_ERR_BLE_APPC_INIT_REINIT;
 
+    esk8_err_t err;
     esp_err_t ret = nvs_flash_init();
 
     if  (
@@ -46,11 +48,31 @@ esk8_ble_appc_init(
 
     esk8_ble_appc_hndl = (esk8_ble_appc_hndl_t) { 0 };
 
-    esk8_ble_appc_hndl.app_ctx_l = calloc(n_apps_max, sizeof(esk8_ble_appc_ctx_t));
-    if (!esk8_ble_appc_hndl.app_ctx_l)
-        return ESK8_ERR_OOM;
+    esk8_ble_appc_hndl.app_list = calloc(n_apps_max, sizeof(esk8_ble_appc_t*));
+    esk8_ble_appc_hndl.app_ctx_list = calloc(n_apps_max, sizeof(esk8_ble_appc_ctx_t));
+
+    if  (
+            !esk8_ble_appc_hndl.app_list ||
+            !esk8_ble_appc_hndl.app_ctx_list
+        )
+    {
+        err = ESK8_ERR_OOM;
+        goto fail;
+    }
+
+    esk8_ble_appc_hndl.n_apps_max = n_apps_max;
 
     return ESK8_OK;
+
+fail:
+
+    if (esk8_ble_appc_hndl.app_list)
+        free(esk8_ble_appc_hndl.app_list);
+
+    if (esk8_ble_appc_hndl.app_ctx_list)
+        free(esk8_ble_appc_hndl.app_ctx_list);
+
+    return err;
 }
 
 
@@ -59,31 +81,73 @@ esk8_ble_appc_app_reg(
     esk8_ble_appc_t* app
 )
 {
+    uint* app_n = &esk8_ble_appc_hndl.n_apps;
 
+    if (*app_n == esk8_ble_appc_hndl.n_apps_max)
+        return ESK8_ERR_BLE_APPC_INIT_MAXREG;
+
+    esk8_ble_appc_hndl.app_list[*app_n] = app;
+    app->app_init();
+    esp_ble_gattc_app_register(*app_n);
+
+    (*app_n)++;
+    return ESK8_OK;
 }
 
 
-esk8_err_t
+void
 esk8_ble_appc_deinit(
 )
 {
-    if (!esk8_ble_appc_hndl.app_ctx_l)
-        return ESK8_ERR_BLE_APPC_INIT_NOINIT;
-
-    for (int i = 0; i < esk8_ble_appc_hndl.n_apps; i++)
+    if (esk8_ble_appc_hndl.app_list)
     {
-        // TODO: (b.covas)
+        for (int i = 0; i < esk8_ble_appc_hndl.n_apps; i++)
+            esk8_ble_appc_hndl.app_list[i]->app_deinit();
+
+        free(esk8_ble_appc_hndl.app_list);
     }
+
+    if (esk8_ble_appc_hndl.app_ctx_list)
+        free(esk8_ble_appc_hndl.app_ctx_list);
 }
 
 void
 esk8_ble_appc_gattc_cb(
-    esp_gattc_cb_event_t event,
+    esp_gattc_cb_event_t evt,
     esp_gatt_if_t gattc_if,
     esp_ble_gattc_cb_param_t* param
 )
 {
+    esk8_ble_appc_t* app = NULL;
 
+    if (evt == ESP_GATTC_REG_EVT)
+    {
+        app = esk8_ble_appc_hndl.app_list[param->reg.app_id];
+        esk8_ble_appc_hndl.app_ctx_list[param->reg.app_id].ble_if = gattc_if;
+    }
+    else
+        for (int i = 0; i < esk8_ble_appc_hndl.n_apps; i++)
+        {
+            if (esk8_ble_appc_hndl.app_ctx_list[i].ble_if == gattc_if)
+            {
+                app = esk8_ble_appc_hndl.app_list[i];
+                break;
+            }
+        }
+
+    if (!app)
+    {
+        esk8_log_W(ESK8_TAG_BLE,
+            "Got event %d with no associated app.\n", evt
+        );
+        return;
+    }
+
+    esk8_log_I(ESK8_TAG_BLE,
+        "Got event %d, passing to app '%s'\n",
+        evt, app->app_name
+    );
+    app->app_evt_cb(evt, param);
 }
 
 

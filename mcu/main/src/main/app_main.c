@@ -6,12 +6,13 @@
 #include <esk8_pwm.h>
 #include <esk8_btn.h>
 #include <esk8_auth.h>
-#include <esk8_ble_apps.h>
 
 #ifdef ESK8_REMOTE
 #include <esk8_rmt.h>
+#include <esk8_ble_appc.h>
 #else
 #include <esk8_onboard.h>
+#include <esk8_ble_apps.h>
 #endif
 
 #include <stdint.h>
@@ -23,9 +24,13 @@
 void
 app_main()
 {
-    esk8_err_t err;
-    err = esk8_rmt_start();
 
+    esk8_err_t err;
+    err = esk8_ble_appc_init(2);
+    if (err)
+        goto fail;
+
+    err = esk8_rmt_start();
     if (err)
         goto fail;
 

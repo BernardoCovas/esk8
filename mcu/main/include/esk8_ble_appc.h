@@ -14,8 +14,6 @@ typedef struct
     void (*app_deinit    )();
 
     void (*app_evt_cb    )(esp_gattc_cb_event_t event, esp_ble_gattc_cb_param_t *param);
-
-    void* appc_ctx;
 }
 esk8_ble_appc_t;
 
@@ -24,7 +22,7 @@ esk8_ble_appc_init(
     uint n_apps_max
 );
 
-esk8_err_t
+void
 esk8_ble_appc_deinit(
 );
 

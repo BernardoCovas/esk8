@@ -4,7 +4,6 @@
 #include <esk8_ps2.h>
 #include <esk8_config.h>
 #include <esk8_rmt.h>
-#include <esk8_ble_appc.h>
 
 #include "esk8_rmt_priv.h"
 

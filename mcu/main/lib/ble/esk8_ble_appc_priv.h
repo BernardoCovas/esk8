@@ -11,18 +11,18 @@
 
 typedef struct
 {
-    uint8_t addr[6];
-    void** app_ctx_l;
-    uint n_apps;
-    uint n_apps_max;
-}
-esk8_ble_appc_hndl_t;
-
-typedef struct
-{
     uint16_t ble_if;
 }
 esk8_ble_appc_ctx_t;
+
+typedef struct
+{
+    uint n_apps;
+    uint n_apps_max;
+    esk8_ble_appc_t** app_list;
+    esk8_ble_appc_ctx_t* app_ctx_list;
+}
+esk8_ble_appc_hndl_t;
 
 void
 esk8_ble_appc_gattc_cb(
