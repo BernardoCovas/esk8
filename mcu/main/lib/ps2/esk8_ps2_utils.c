@@ -97,7 +97,7 @@ esk8_ps2_send_cmd(
             ) != pdTRUE
         )
     {
-        return ESK8_PS2_ERR_TIMEOUT;
+        return ESK8_ERR_PS2_TIMEOUT;
     }
 
     esk8_ps2_send_byte(hndl, (uint8_t)cmd);
@@ -118,18 +118,18 @@ esk8_ps2_send_cmd(
 
     if (resp == ESK8_PS2_RES_RESEND)
     {
-        err = ESK8_PS2_ERR_RESEND;
+        err = ESK8_ERR_PS2_RESEND;
         goto cleanup;
     }
 
     if (resp == ESK8_PS2_RES_ERROR)
     {
-        err = ESK8_PS2_ERR_ERROR;
+        err = ESK8_ERR_PS2_ERROR;
         goto cleanup;
     }
 
     if (resp != ESK8_PS2_RES_ACK)
-        err = ESK8_PS2_ERR_NO_ACK;
+        err = ESK8_ERR_PS2_NO_ACK;
 
 cleanup:
     esk8_ps2_reset_frame(&ps2_hndl->inflight);
@@ -157,7 +157,7 @@ esk8_ps2_await_rsp(
             ) != pdTRUE
         )
     {
-        return ESK8_PS2_ERR_RESP_TIMEOUT;
+        return ESK8_ERR_PS2_RESP_TIMEOUT;
     }
 
     if (frame.err)
@@ -220,7 +220,7 @@ esk8_ps2_await_mvmt(
         );
 
         if (recv != pdTRUE)
-            return ESK8_PS2_ERR_TIMEOUT;
+            return ESK8_ERR_PS2_TIMEOUT;
 
         if (frame.err)
         {
@@ -237,7 +237,7 @@ esk8_ps2_await_mvmt(
     }
 
     if (!(sqnc->mvmt[0] & (1 << 3)))
-        return ESK8_PS2_ERR_BAD_MVMT;
+        return ESK8_ERR_PS2_BAD_MVMT;
 
     bool sX, sY;
     sX = sqnc->mvmt[0] & (1 << 4);

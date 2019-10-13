@@ -22,7 +22,7 @@ esk8_err_t esk8_auth_init(
     ESK8_ERRCHECK_THROW(esk8_nvs_init());
 
     err_code = esk8_nvs_settings_get(ESK8_NVS_AUTH_HASH, &sttg_val);
-    if (err_code && err_code != ESK8_NVS_NO_VAL)
+    if (err_code && err_code != ESK8_ERR_NVS_NO_VAL)
         return err_code;
 
     esk8_auth_cntx_t* cntx = calloc(1, sizeof(esk8_auth_cntx_t));
@@ -58,13 +58,13 @@ esk8_err_t esk8_auth_register(
     esk8_nvs_val_t sttg_val;
 
     if (mbedtls_md_starts(&cntx->mbtls_cntx))
-        return ESK8_AUTH_ERR_HASH;
+        return ESK8_ERR_AUTH_HASH;
 
     if (mbedtls_md_update(&cntx->mbtls_cntx, key, sizeof(esk8_auth_key_t)))
-        return ESK8_AUTH_ERR_HASH;
+        return ESK8_ERR_AUTH_HASH;
 
     if (mbedtls_md_finish(&cntx->mbtls_cntx, cntx->hash))
-        return ESK8_AUTH_ERR_HASH;
+        return ESK8_ERR_AUTH_HASH;
 
     memcpy(sttg_val.auth_hash, cntx->hash, sizeof(esk8_auth_hash_t));
 
@@ -90,18 +90,18 @@ esk8_err_t esk8_auth_auth(
     esk8_auth_cntx_t* cntx = *hndl;
 
     if (mbedtls_md_starts(&cntx->mbtls_cntx))
-        return ESK8_AUTH_ERR_HASH;
+        return ESK8_ERR_AUTH_HASH;
 
     if (mbedtls_md_update(&cntx->mbtls_cntx, key, sizeof(esk8_auth_key_t)))
-        return ESK8_AUTH_ERR_HASH;
+        return ESK8_ERR_AUTH_HASH;
 
     if (mbedtls_md_finish(&cntx->mbtls_cntx, hash))
-        return ESK8_AUTH_ERR_HASH;
+        return ESK8_ERR_AUTH_HASH;
 
     if (memcmp(cntx->hash, hash, sizeof(esk8_auth_key_t)) == 0)
         return ESK8_OK;
 
-    return ESK8_AUTH_ERR_AUTH;
+    return ESK8_ERR_AUTH_AUTH;
 }
 
 esk8_err_t esk8_auth_chunk_auth(
@@ -116,7 +116,7 @@ esk8_err_t esk8_auth_chunk_auth(
 
     if ((auth_cntx->chunk_idx + chk_len) > sizeof(esk8_auth_key_t))
     {
-        return ESK8_AUTH_ERR_AUTH;
+        return ESK8_ERR_AUTH_AUTH;
     }
 
 

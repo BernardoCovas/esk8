@@ -27,16 +27,16 @@ esk8_err_t esk8_nvs_init()
     {
         esp_err = nvs_flash_erase();
         if (esp_err)
-            return ESK8_NVS_NOT_AVAILABLE;
+            return ESK8_ERR_NVS_NOT_AVAILABLE;
 
         esp_err = nvs_flash_init();
         if (esp_err)
-            return ESK8_NVS_NOT_AVAILABLE;
+            return ESK8_ERR_NVS_NOT_AVAILABLE;
     }
 
     esp_err = nvs_open(ESK8_NVS_STORAGE_NAME, NVS_READWRITE, &esk8_nvs_handle);
     if (esp_err)
-        return ESK8_NVS_NOT_AVAILABLE;
+        return ESK8_ERR_NVS_NOT_AVAILABLE;
 
     for (int i = 0; i < ESK8_NVS_IDX_MAX; i++)
     {
@@ -84,15 +84,15 @@ esk8_err_t esk8_nvs_settings_get(
 )
 {
     if (esk8_nvs_handle == 0)
-        return ESK8_NVS_NOT_INIT;
+        return ESK8_ERR_NVS_NOT_INIT;
 
     if (sttg_idx >= ESK8_NVS_IDX_MAX || sttg_idx < 0)
-        return ESK8_NVS_NO_IDX;
+        return ESK8_ERR_NVS_NO_IDX;
 
     esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[sttg_idx];
 
     if (!sttg->nvs_val)
-        return ESK8_NVS_NO_VAL;
+        return ESK8_ERR_NVS_NO_VAL;
 
     memcpy(out_val, sttg->nvs_val, sttg->nvs_len);
     return ESK8_OK;
@@ -107,10 +107,10 @@ esk8_err_t esk8_nvs_settings_set(
 )
 {
     if (esk8_nvs_handle == 0)
-        return ESK8_NVS_NOT_INIT;
+        return ESK8_ERR_NVS_NOT_INIT;
 
     if (sttg_idx >= ESK8_NVS_IDX_MAX || sttg_idx < 0)
-        return ESK8_NVS_NO_IDX;
+        return ESK8_ERR_NVS_NO_IDX;
 
     esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[sttg_idx];
 
@@ -129,10 +129,10 @@ esk8_err_t esk8_nvs_commit(
 )
 {
     if (esk8_nvs_handle == 0)
-        return ESK8_NVS_NOT_INIT;
+        return ESK8_ERR_NVS_NOT_INIT;
 
     if (sttg_idx > ESK8_NVS_IDX_MAX || sttg_idx < 0)
-        return ESK8_NVS_NO_IDX;
+        return ESK8_ERR_NVS_NO_IDX;
 
     if (sttg_idx == ESK8_NVS_IDX_MAX)
     {
@@ -141,7 +141,7 @@ esk8_err_t esk8_nvs_commit(
             esk8_nvs_setting_t* sttg = &esk8_nvs_setting_list[i];
 
             if (nvs_set_blob(esk8_nvs_handle, sttg->nvs_key, sttg->nvs_val, sttg->nvs_len))
-                return ESK8_NVS_ERR_WRITE;
+                return ESK8_ERR_NVS_ERR_WRITE;
         }
 
         goto __nvs_commit;
@@ -151,12 +151,12 @@ esk8_err_t esk8_nvs_commit(
     esp_err_t errCode = nvs_set_blob(esk8_nvs_handle, sttg->nvs_key, sttg->nvs_val, sttg->nvs_len);
 
     if (errCode)
-        return ESK8_NVS_ERR_WRITE;
+        return ESK8_ERR_NVS_ERR_WRITE;
 
 __nvs_commit:
 
     if (nvs_commit(esk8_nvs_handle))
-        return ESK8_NVS_ERR_WRITE;
+        return ESK8_ERR_NVS_ERR_WRITE;
 
     return ESK8_OK;
 }

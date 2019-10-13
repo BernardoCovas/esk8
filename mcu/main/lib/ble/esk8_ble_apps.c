@@ -62,7 +62,7 @@ esk8_ble_apps_init(
 )
 {
     if (esk8_ble_apps.apps_list)
-        return ESK8_BLE_INIT_REINIT;
+        return ESK8_ERR_BLE_INIT_REINIT;
 
     /**
      * NOTE: (b.covas) NVS Has to be initialized
@@ -78,24 +78,21 @@ esk8_ble_apps_init(
     }
 
     if (ret)
-        return ESK8_NVS_NOT_AVAILABLE;
+        return ESK8_ERR_NVS_NOT_AVAILABLE;
 
     esp_bt_controller_config_t bt_Cnfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     bt_Cnfg.scan_duplicate_mode = 1;
     bt_Cnfg.scan_duplicate_type = 1;
 
-    ESP_ERROR_CHECK(    ret                                                             );
-    ESP_ERROR_CHECK(    esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)           );
-    ESP_ERROR_CHECK(    esp_bt_controller_init(&bt_Cnfg)                                );
-    ESP_ERROR_CHECK(    esp_bt_controller_enable(ESP_BT_MODE_BLE)                       );
-
-    ESP_ERROR_CHECK(    esp_bluedroid_init()                                            );
-    ESP_ERROR_CHECK(    esp_bluedroid_enable()                                          );
-
-    ESP_ERROR_CHECK(    esp_ble_gap_register_callback(esk8_ble_apps_gap_evt_hndl)       );
-    ESP_ERROR_CHECK(    esp_ble_gap_set_device_name(ESK8_BLE_DEV_NAME)                  );
-    ESP_ERROR_CHECK(    esp_ble_gatts_register_callback(esk8_ble_apps_gatts_evt_hndl)   );
-    ESP_ERROR_CHECK(    esp_ble_gap_config_adv_data(&adv_data)                          );
+    ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)           );
+    ESP_ERROR_CHECK(esp_bt_controller_init(&bt_Cnfg)                                );
+    ESP_ERROR_CHECK(esp_bt_controller_enable(ESP_BT_MODE_BLE)                       );
+    ESP_ERROR_CHECK(esp_bluedroid_init()                                            );
+    ESP_ERROR_CHECK(esp_bluedroid_enable()                                          );
+    ESP_ERROR_CHECK(esp_ble_gap_register_callback(esk8_ble_apps_gap_evt_hndl)       );
+    ESP_ERROR_CHECK(esp_ble_gap_set_device_name(ESK8_BLE_DEV_NAME)                  );
+    ESP_ERROR_CHECK(esp_ble_gatts_register_callback(esk8_ble_apps_gatts_evt_hndl)   );
+    ESP_ERROR_CHECK(esp_ble_gap_config_adv_data(&adv_data)                          );
 
     ESK8_ERRCHECK_THROW(esk8_nvs_init());
 
@@ -115,7 +112,7 @@ esk8_ble_app_register(
 )
 {
     if (!esk8_ble_apps.apps_list)
-        return ESK8_BLE_INIT_NOINIT;
+        return ESK8_ERR_BLE_INIT_NOINIT;
 
     for (int i = 0; i < esk8_ble_apps.apps_num_max; i++)
     {
@@ -149,14 +146,14 @@ esk8_ble_app_register(
         return ESK8_OK;
     }
 
-    return ESK8_BLE_INIT_MAXREG;
+    return ESK8_ERR_BLE_INIT_MAXREG;
 }
 
 esk8_err_t
 esk8_ble_apps_deinit()
 {
     if (!esk8_ble_apps.apps_list)
-        return ESK8_BLE_INIT_NOINIT;
+        return ESK8_ERR_BLE_INIT_NOINIT;
 
     for (int i = 0; i < esk8_ble_apps.apps_num_max; i++)
     {

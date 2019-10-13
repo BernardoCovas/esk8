@@ -59,7 +59,7 @@ get_data_with_response(
 
         if (res_len_r != res_len)
         {
-            err = res_len_r<=0?ESK8_BMS_ERR_NO_RESPONSE:ESK8_BMS_ERR_INVALID_LEN;
+            err = res_len_r<=0?ESK8_ERR_BMS_NO_RESPONSE:ESK8_ERR_BMS_INVALID_LEN;
             continue;
         }
 
@@ -76,14 +76,14 @@ get_data_with_response(
         if (rspMsg.src_address != ESK8_ADDR_BMS)
         {
             esk8_uart_msg_free(rspMsg);
-            err = ESK8_BMS_ERR_WRONG_ADDRESS;
+            err = ESK8_ERR_BMS_WRONG_ADDRESS;
             continue;
         }
 
         if (rspMsg.cmd_argment != err)
         {
             esk8_uart_msg_free(rspMsg);
-            err = ESK8_BMS_ERR_WRONG_RESPONSE;
+            err = ESK8_ERR_BMS_WRONG_RESPONSE;
             continue;
         }
 

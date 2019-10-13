@@ -98,7 +98,7 @@ esk8_btn_await_press(
     esk8_btn_cnfg_t* btn_cnfg = &btn_hndl->btn_cnfg;
 
     if (!btn_hndl->que_hndl)
-        return ESK8_BTN_ERR_NOINIT;
+        return ESK8_ERR_BTN_NOINIT;
 
     BaseType_t rcv = xQueueReceive(
         btn_hndl->que_hndl,
@@ -107,7 +107,7 @@ esk8_btn_await_press(
     );
 
     if (rcv != pdPASS)
-        return ESK8_BTN_ERR_TIMEOUT;
+        return ESK8_ERR_BTN_TIMEOUT;
 
     return ESK8_OK;
 }

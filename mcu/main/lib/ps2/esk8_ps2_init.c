@@ -34,19 +34,19 @@ esk8_ps2_isr(
         {
         case 0:
             if (bit)
-                frame->err = ESK8_PS2_ERR_BAD_PCK_STRT;
+                frame->err = ESK8_ERR_PS2_BAD_PCK_STRT;
             break;
         case 9:
             if (bit != esk8_ps2_get_parity(frame->byte))
-                frame->err = ESK8_PS2_ERR_BAD_PCK_PRTY;
+                frame->err = ESK8_ERR_PS2_BAD_PCK_PRTY;
             break;
         case 10:
             if (!bit)
-                frame->err = ESK8_PS2_ERR_BAD_PCK_STOP;
+                frame->err = ESK8_ERR_PS2_BAD_PCK_STOP;
             break;
         case 11:
             if (bit)
-                frame->err = ESK8_PS2_ERR_BAD_PCK_ACKN;
+                frame->err = ESK8_ERR_PS2_BAD_PCK_ACKN;
             break;
         default:
             frame->byte |= bit << ((*idx) - 1);
