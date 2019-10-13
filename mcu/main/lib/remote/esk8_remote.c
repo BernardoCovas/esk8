@@ -2,6 +2,7 @@
 #include <esk8_log.h>
 #include <esk8_pwm.h>
 #include <esk8_ps2.h>
+#include <esk8_config.h>
 #include <esk8_remote.h>
 #include <esk8_remote_priv.h>
 
@@ -15,6 +16,10 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+
+#ifndef ESK8_ONBOARD_MAC_ADDR
+#error "ESK8_ONBOARD_MAC_ADDR not defined. Set it to the board's mac address"
+#endif
 
 
 esk8_remote_t esk8_remote = { 0 };
@@ -71,11 +76,7 @@ esk8_remote_start()
 
     if (err)
     {
-        esk8_log_E(ESK8_TAG_RMT,
-            "Could not start pwm: %s\n",
-            esk8_err_to_str(err)
-        );
-
+        esk8_remote_stop();
         return err;
     }
 
@@ -221,8 +222,6 @@ esk8_remote_gattc_cb(
     esp_ble_gattc_cb_param_t*   param
 )
 {
-    printf("[ GATTC ] Got event: %d\n", event);
-
     switch (event)
     {
     case ESP_GATTC_DISCONNECT_EVT:
@@ -242,10 +241,6 @@ esk8_remote_connect(
 )
 {
     if (esk8_remote.state != ESK8_REMOTE_STATE_NOT_CONNECTED)
-        return ESK8_ERR_REMT_BAD_STATE;
-
-    esp_err_t err = esp_ble_gap_start_scanning(sec);
-    if (err)
         return ESK8_ERR_REMT_BAD_STATE;
 
     return ESK8_OK;

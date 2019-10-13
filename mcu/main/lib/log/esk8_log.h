@@ -2,21 +2,6 @@
 #define _ESK8_LOG_H
 
 
-#define _ESK8_TAG(tag)    "[ " tag " ] "
-#define _ESK8_TAG_MAIN    ESK8_TAG("MAIN")
-#define _ESK8_TAG_PS2     ESK8_TAG("PS2")
-#define _ESK8_TAG_BTN     ESK8_TAG("BTN")
-#define _ESK8_TAG_BLE     ESK8_TAG("BLE")
-#define _ESK8_TAG_NVS     ESK8_TAG("NVS")
-#define _ESK8_TAG_ATH     ESK8_TAG("ATH")
-#define _ESK8_TAG_ONB     ESK8_TAG("ONB")
-#define _ESK8_TAG_RMT     ESK8_TAG("RMT")
-
-#define D "D:"
-#define I "I:"
-#define W "W:"
-#define E "E:"
-
 typedef enum
 {
     ESK8_TAG_MAIN,
