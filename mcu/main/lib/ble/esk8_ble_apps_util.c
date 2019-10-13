@@ -1,4 +1,5 @@
-#include "esk8_ble_apps.h"
+#include <esk8_ble_apps.h>
+
 #include "esk8_ble_apps_util.h"
 
 #include <esk8_err.h>

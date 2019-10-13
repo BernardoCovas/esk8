@@ -1,7 +1,7 @@
 #ifndef _ESK8_BTN_PRIV_H
 #define _ESK8_BTN_PRIV_H
 
-#include "esk8_btn.h"
+#include <esk8_btn.h>
 
 #include <stdint.h>
 

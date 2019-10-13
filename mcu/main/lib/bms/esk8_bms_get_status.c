@@ -1,7 +1,8 @@
 #include <esk8_config.h>
 #include <esk8_bms.h>
-#include <esk8_bms_utils.h>
 #include <esk8_uart.h>
+
+#include "esk8_bms_utils.h"
 
 #include <driver/uart.h>
 

@@ -2,6 +2,7 @@
 #include <esk8_log.h>
 #include <esk8_nvs.h>
 #include <esk8_auth.h>
+
 #include "esk8_auth_priv.h"
 
 #include <mbedtls/md.h>

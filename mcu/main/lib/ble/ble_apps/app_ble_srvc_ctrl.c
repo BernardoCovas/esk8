@@ -109,7 +109,7 @@ static esp_gatts_attr_db_t srvc_ctrl_attr_list[] =
     }
 };
 
-int conn_id = -1;
+static int conn_id = -1;
 
 static void app_init(
     );

@@ -1,6 +1,7 @@
 #include <esk8_err.h>
 #include <esk8_bms.h>
-#include <esk8_bms_utils.h>
+
+#include "esk8_bms_utils.h"
 
 
 esk8_err_t

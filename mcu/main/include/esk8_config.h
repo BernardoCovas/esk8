@@ -32,6 +32,7 @@
 #define ESK8_BLE_DEV_NAME                           "Esk8"              /* Advertized device name        */
 #define ESK8_ONBOARD_MAC_ADDR                       "XX:XX:XX:XX:XX:XX" /* mac address of onboard device */
 
+
 /* ========================================== BTN Configurations ========================================= */
 #define ESK8_BTN_GPIO                               GPIO_NUM_0
 #define ESK8_BTN_LONGPRESS_ms                       3000

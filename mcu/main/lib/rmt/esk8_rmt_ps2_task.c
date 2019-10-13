@@ -1,14 +1,14 @@
 #include <esk8_config.h>
 #include <esk8_log.h>
 #include <esk8_ps2.h>
-#include <esk8_remote.h>
-#include <esk8_remote_priv.h>
+#include <esk8_rmt.h>
+#include "esk8_rmt_priv.h"
 
 #include <unistd.h>
 
 
 void
-esk8_remote_task_ps2(
+esk8_rmt_task_ps2(
     void* param
 )
 {
@@ -17,7 +17,7 @@ esk8_remote_task_ps2(
 
     while (1)
     {
-        err = esk8_ps2_mvmt_sync(esk8_remote.hndl_ps2);
+        err = esk8_ps2_mvmt_sync(esk8_rmt.hndl_ps2);
         if (err)
         {
             esk8_log_E(ESK8_TAG_RMT,
@@ -47,7 +47,7 @@ esk8_remote_task_ps2(
         {
             esk8_ps2_mvmt_t mvmt;
             err = esk8_ps2_await_mvmt(
-                esk8_remote.hndl_ps2,
+                esk8_rmt.hndl_ps2,
                 &mvmt
             );
 
@@ -68,7 +68,7 @@ esk8_remote_task_ps2(
                 mvmt.lft_btn?"Yes":"No"
             );
 
-            esk8_remote_incr_speed(mvmt.x);
+            esk8_rmt_incr_speed(mvmt.x);
         }
     }
 }

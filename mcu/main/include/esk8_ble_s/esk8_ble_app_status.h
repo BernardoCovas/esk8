@@ -2,6 +2,9 @@
 #define _ESK8_BLE_APP_STATUS_H
 
 #include <esk8_err.h>
+#include <esk8_bms.h>
+
+#include <stdint.h>
 
 
 esk8_err_t

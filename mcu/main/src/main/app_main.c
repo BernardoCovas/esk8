@@ -7,10 +7,9 @@
 #include <esk8_btn.h>
 #include <esk8_auth.h>
 #include <esk8_ble_apps.h>
-#include <ble_apps/esk8_ble_app_status.h>
 
 #ifdef ESK8_REMOTE
-#include <esk8_remote.h>
+#include <esk8_rmt.h>
 #else
 #include <esk8_onboard.h>
 #endif
@@ -25,7 +24,7 @@ void
 app_main()
 {
     esk8_err_t err;
-    err = esk8_remote_start();
+    err = esk8_rmt_start();
 
     if (err)
         goto fail;

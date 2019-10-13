@@ -1,12 +1,13 @@
 #include <esk8_err.h>
 #include <esk8_log.h>
 #include <esk8_btn.h>
-#include <esk8_remote.h>
-#include <esk8_remote_priv.h>
+#include <esk8_rmt.h>
+
+#include "esk8_rmt_priv.h"
 
 
 void
-esk8_remote_task_btn(
+esk8_rmt_task_btn(
     void* param
 )
 {
@@ -16,7 +17,7 @@ esk8_remote_task_btn(
     while(1)
     {
         err = esk8_btn_await_press(
-            esk8_remote.hndl_btn,
+            esk8_rmt.hndl_btn,
             &press
         );
 

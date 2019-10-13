@@ -1,7 +1,8 @@
 #include <esk8_config.h>
 #include <esk8_err.h>
 #include <esk8_pwm.h>
-#include <esk8_pwm_priv.h>
+
+#include "esk8_pwm_priv.h"
 
 #include <driver/ledc.h>
 #include <driver/gpio.h>

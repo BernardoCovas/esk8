@@ -1,7 +1,7 @@
 #ifndef _ESK8_REMOTE_PRIV_H
 #define _ESK8_REMOTE_PRIV_H
 
-#include <esk8_remote.h>
+#include <esk8_rmt.h>
 
 
 typedef enum
@@ -13,11 +13,11 @@ typedef enum
     ESK8_REMOTE_STATE_CONNECTED,
     ESK8_REMOTE_STATE_RUNNING,
 }
-esk8_remote_state_t;
+esk8_rmt_state_t;
 
 typedef struct
 {
-    esk8_remote_state_t state;
+    esk8_rmt_state_t state;
     int   speed;
 
     void* hndl_btn;
@@ -27,9 +27,9 @@ typedef struct
     void* task_ble;
     void* task_ps2;
 }
-esk8_remote_t;
+esk8_rmt_t;
 
-extern esk8_remote_t
-esk8_remote;
+extern esk8_rmt_t
+esk8_rmt;
 
 #endif /* _ESK8_REMOTE_PRIV_H */

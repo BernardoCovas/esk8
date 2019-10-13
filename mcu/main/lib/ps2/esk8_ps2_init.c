@@ -2,7 +2,8 @@
 #include <esk8_err.h>
 #include <esk8_log.h>
 #include <esk8_ps2.h>
-#include <esk8_ps2_priv.h>
+
+#include "esk8_ps2_priv.h"
 
 #include <driver/gpio.h>
 #include <esp_log.h>

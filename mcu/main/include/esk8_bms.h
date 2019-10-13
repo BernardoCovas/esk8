@@ -5,8 +5,6 @@
 #include <esk8_uart.h>
 #include <esk8_err.h>
 
-#include <driver/uart.h>
-
 
 typedef struct __attribute__((__packed__))
 {

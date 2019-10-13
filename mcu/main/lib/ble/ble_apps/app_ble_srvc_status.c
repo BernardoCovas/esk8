@@ -1,7 +1,8 @@
 #include <esk8_log.h>
 #include <esk8_bms.h>
 #include <esk8_ble_apps.h>
-#include <esk8_ble_apps_util.h>
+
+#include "../esk8_ble_apps_util.h"
 
 #include <esp_gatts_api.h>
 #include <esp_bt.h>

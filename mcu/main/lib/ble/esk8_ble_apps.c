@@ -1,4 +1,5 @@
-#include "esk8_ble_apps.h"
+#include <esk8_ble_apps.h>
+
 #include "esk8_ble_apps_util.h"
 
 #include <esk8_log.h>
@@ -110,7 +111,7 @@ esk8_ble_apps_init(
 
 esk8_err_t
 esk8_ble_app_register(
-    esk8_ble_app_t*     app
+    esk8_ble_app_t* app
 )
 {
     if (!esk8_ble_apps.apps_list)

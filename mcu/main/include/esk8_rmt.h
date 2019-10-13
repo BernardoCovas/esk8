@@ -10,39 +10,39 @@
 
 
 esk8_err_t
-esk8_remote_start(
+esk8_rmt_start(
 );
 
 esk8_err_t
-esk8_remote_stop(
+esk8_rmt_stop(
 );
 
 esk8_err_t
-esk8_remote_incr_speed(
+esk8_rmt_incr_speed(
     int incr
 );
 
 esk8_err_t
-esk8_remote_await_notif(
+esk8_rmt_await_notif(
 );
 
 esk8_err_t
-esk8_remote_connect(
+esk8_rmt_connect(
     uint32_t sec
 );
 
 void
-esk8_remote_task_ps2(
+esk8_rmt_task_ps2(
     void* param
 );
 
 void
-esk8_remote_task_btn(
+esk8_rmt_task_btn(
     void* param
 );
 
 void
-esk8_remote_task_ble(
+esk8_rmt_task_ble(
     void* param
 );
 

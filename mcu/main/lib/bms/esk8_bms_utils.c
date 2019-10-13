@@ -1,6 +1,8 @@
 #include <esk8_err.h>
 #include <esk8_bms.h>
 
+#include <driver/uart.h>
+
 
 esk8_err_t
 get_data_with_response(

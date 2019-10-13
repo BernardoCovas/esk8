@@ -1,10 +1,13 @@
 #include <esk8_bms.h>
 #include <esk8_btn.h>
 #include <esk8_log.h>
-
-#include <ble_apps/esk8_ble_app_status.h>
 #include <esk8_onboard.h>
-#include <esk8_onboard_priv.h>
+#include <esk8_ble_s/esk8_ble_app_status.h>
+
+#include "esk8_onboard_priv.h"
+
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 
 void
