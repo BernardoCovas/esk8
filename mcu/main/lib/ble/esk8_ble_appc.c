@@ -1,6 +1,6 @@
 #include <esk8_err.h>
 #include <esk8_log.h>
-#include <esk8_ble_appc.h>
+#include <esk8_blec_apps.h>
 
 #include "esk8_ble_appc_priv.h"
 

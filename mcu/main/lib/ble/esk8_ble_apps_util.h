@@ -1,7 +1,7 @@
 #ifndef _ESK8_BLE_APPS_UTIL_H
 #define _ESK8_BLE_APPS_UTIL_H
 
-#include "esk8_ble_apps.h"
+#include <esk8_bles_apps.h>
 #include <esk8_err.h>
 
 

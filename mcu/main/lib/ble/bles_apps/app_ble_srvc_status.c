@@ -1,7 +1,7 @@
 #include <esk8_log.h>
 #include <esk8_bms.h>
-#include <esk8_ble_apps.h>
 #include <esk8_ble_defs.h>
+#include <esk8_bles_apps.h>
 
 #include "../esk8_ble_apps_util.h"
 

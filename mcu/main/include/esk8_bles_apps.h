@@ -1,5 +1,5 @@
-#ifndef _ESK8_BLE_APPS_H
-#define _ESK8_BLE_APPS_H
+#ifndef _ESK8_BLES_APPS_H
+#define _ESK8_BLES_APPS_H
 
 #include <esk8_err.h>
 
@@ -66,4 +66,4 @@ esk8_ble_apps_deinit(
 );
 
 
-#endif /*_ESK8_BLE_APPS_H */
+#endif /*_ESK8_BLES_APPS_H */

@@ -1,15 +1,10 @@
 #include <esk8_config.h>
 #include <esk8_log.h>
 #include <esk8_err.h>
-#include <esk8_bms.h>
-#include <esk8_ps2.h>
-#include <esk8_pwm.h>
-#include <esk8_btn.h>
-#include <esk8_auth.h>
 
 #ifdef ESK8_REMOTE
 #include <esk8_rmt.h>
-#include <esk8_ble_appc.h>
+#include <esk8_blec_apps.h>
 #else
 #include <esk8_onboard.h>
 #include <esk8_ble_apps.h>

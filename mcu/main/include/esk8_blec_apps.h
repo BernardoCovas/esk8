@@ -1,5 +1,5 @@
-#ifndef _ESK8_BLE_APPC_H
-#define _ESK8_BLE_APPC_H
+#ifndef _ESK8_BLEC_APPS_H
+#define _ESK8_BLEC_APPS_H
 
 #include <esk8_err.h>
 
@@ -32,4 +32,4 @@ esk8_ble_appc_app_reg(
 );
 
 
-#endif /* _ESK8_BLE_APPC_H */
+#endif /* _ESK8_BLEC_APPS_H */
