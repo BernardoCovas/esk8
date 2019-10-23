@@ -19,12 +19,12 @@ typedef struct
 {
     const char* app_name;
 
-    void (*app_init      )();
-    void (*app_deinit    )();
-    void (*app_conn_add  )(esk8_ble_conn_ctx_t* conn_ctx);
-    void (*app_conn_del  )(esk8_ble_conn_ctx_t* conn_ctx);
-    void (*app_conn_write)(esk8_ble_conn_ctx_t* conn_ctx, int attr_idx, size_t  len, uint8_t* val);
-    void (*app_evt_cb    )(esp_gatts_cb_event_t event, esp_ble_gatts_cb_param_t *param);
+    esk8_err_t (*app_init      )();
+    esk8_err_t (*app_deinit    )();
+    esk8_err_t (*app_conn_add  )(esk8_ble_conn_ctx_t* conn_ctx);
+    esk8_err_t (*app_conn_del  )(esk8_ble_conn_ctx_t* conn_ctx);
+    esk8_err_t (*app_conn_write)(esk8_ble_conn_ctx_t* conn_ctx, int attr_idx, size_t  len, uint8_t* val);
+    esk8_err_t (*app_evt_cb    )(esp_gatts_cb_event_t event, esp_ble_gatts_cb_param_t *param);
 
     esp_gatts_attr_db_t*    attr_db;
     uint16_t                attr_num;
@@ -34,21 +34,22 @@ typedef struct
     uint16_t*               _attr_hndl_list;
     uint16_t                _ble_if;
 }
-esk8_ble_app_t;
+esk8_blec_app_t;
 
 typedef struct
 {
-    esk8_ble_app_t** apps_list;
+    esk8_blec_app_t** apps_list;
     uint apps_num_max;
     uint conn_num_max;
     uint curr_app_id;
 }
 esk8_ble_apps_t;
 
-extern esk8_ble_apps_t esk8_ble_apps;
-extern esk8_ble_app_t  esk8_app_srvc_auth;
-extern esk8_ble_app_t  esk8_app_srvc_status;
-extern esk8_ble_app_t  esk8_app_srvc_ctrl;
+extern esk8_ble_apps_t
+    esk8_ble_apps,
+    esk8_app_srvc_auth,
+    esk8_app_srvc_status,
+    esk8_app_srvc_ctrl;
 
 esk8_err_t
 esk8_ble_apps_init(
@@ -58,7 +59,7 @@ esk8_ble_apps_init(
 
 esk8_err_t
 esk8_ble_app_register(
-    esk8_ble_app_t* app
+    esk8_blec_app_t* app
 );
 
 esk8_err_t

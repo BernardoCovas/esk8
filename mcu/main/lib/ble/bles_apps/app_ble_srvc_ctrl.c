@@ -112,29 +112,39 @@ static esp_gatts_attr_db_t srvc_ctrl_attr_list[] =
 
 static int conn_id = -1;
 
-static void app_init(
-    );
+static esk8_err_t
+app_init(
+);
 
-static void app_deinit(
-    );
+static esk8_err_t
+app_deinit(
+);
 
-static void app_conn_add(
-    esk8_ble_conn_ctx_t* conn_ctx);
+static esk8_err_t
+app_conn_add(
+    esk8_ble_conn_ctx_t* conn_ctx
+);
 
-static void app_conn_del(
-    esk8_ble_conn_ctx_t* conn_ctx);
+static esk8_err_t
+app_conn_del(
+    esk8_ble_conn_ctx_t* conn_ctx
+);
 
-static void app_conn_write(
+static esk8_err_t
+app_conn_write(
     esk8_ble_conn_ctx_t* conn_ctx,
     int                  attr_idx,
     size_t               len,
-    uint8_t*             val);
+    uint8_t*             val
+);
 
-static void app_evt_cb(
+static esk8_err_t
+app_evt_cb(
     esp_gatts_cb_event_t event,
-    esp_ble_gatts_cb_param_t *param);
+    esp_ble_gatts_cb_param_t *param
+);
 
-esk8_ble_app_t esk8_app_srvc_ctrl =
+esk8_blec_app_t esk8_app_srvc_ctrl =
 {
     .app_name = SRVC_CTRL_NAME,
 
@@ -149,18 +159,23 @@ esk8_ble_app_t esk8_app_srvc_ctrl =
     .attr_num = SRVC_CTRL_NUM_ATTR
 };
 
-static void app_init()
+static esk8_err_t
+app_init(
+)
 {
     esk8_log_D(ESK8_TAG_BLE, "app_init()\n");
     conn_id = -1;
 }
 
-static void app_deinit()
+static esk8_err_t
+app_deinit(
+)
 {
     esk8_log_D(ESK8_TAG_BLE, "app_deinit()\n");
 }
 
-static void app_conn_add(
+static esk8_err_t
+app_conn_add(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
@@ -174,7 +189,8 @@ static void app_conn_add(
     );
 }
 
-static void app_conn_del(
+static esk8_err_t
+app_conn_del(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
@@ -187,7 +203,8 @@ static void app_conn_del(
     esk8_onboard_set_speed(0);
 }
 
-static void app_conn_write(
+static esk8_err_t
+app_conn_write(
     esk8_ble_conn_ctx_t* conn_ctx,
     int                  attr_idx,
     size_t               len,
@@ -227,7 +244,7 @@ static void app_conn_write(
     }
 }
 
-static void
+static esk8_err_t
 app_evt_cb(
     esp_gatts_cb_event_t event,
     esp_ble_gatts_cb_param_t *param

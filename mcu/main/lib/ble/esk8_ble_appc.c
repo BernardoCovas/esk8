@@ -48,7 +48,7 @@ esk8_ble_appc_init(
 
     esk8_ble_appc_hndl = (esk8_ble_appc_hndl_t) { 0 };
 
-    esk8_ble_appc_hndl.app_list = calloc(n_apps_max, sizeof(esk8_ble_appc_t*));
+    esk8_ble_appc_hndl.app_list = calloc(n_apps_max, sizeof(esk8_blec_app_t*));
     esk8_ble_appc_hndl.app_ctx_list = calloc(n_apps_max, sizeof(esk8_ble_appc_ctx_t));
 
     if  (
@@ -72,13 +72,14 @@ fail:
     if (esk8_ble_appc_hndl.app_ctx_list)
         free(esk8_ble_appc_hndl.app_ctx_list);
 
+    esp_ble_gap_start_scanning(~0);
     return err;
 }
 
 
 esk8_err_t
 esk8_ble_appc_app_reg(
-    esk8_ble_appc_t* app
+    esk8_blec_app_t* app
 )
 {
     uint* app_n = &esk8_ble_appc_hndl.n_apps;
@@ -87,7 +88,10 @@ esk8_ble_appc_app_reg(
         return ESK8_ERR_BLE_APPC_INIT_MAXREG;
 
     esk8_ble_appc_hndl.app_list[*app_n] = app;
-    app->app_init();
+
+    if (app->app_init)
+        app->app_init();
+
     esp_ble_gattc_app_register(*app_n);
 
     (*app_n)++;
@@ -102,7 +106,8 @@ esk8_ble_appc_deinit(
     if (esk8_ble_appc_hndl.app_list)
     {
         for (int i = 0; i < esk8_ble_appc_hndl.n_apps; i++)
-            esk8_ble_appc_hndl.app_list[i]->app_deinit();
+            if (esk8_ble_appc_hndl.app_list[i]->app_deinit)
+                esk8_ble_appc_hndl.app_list[i]->app_deinit();
 
         free(esk8_ble_appc_hndl.app_list);
     }
@@ -118,7 +123,7 @@ esk8_ble_appc_gattc_cb(
     esp_ble_gattc_cb_param_t* param
 )
 {
-    esk8_ble_appc_t* app = NULL;
+    esk8_blec_app_t* app = NULL;
 
     if (evt == ESP_GATTC_REG_EVT)
     {
@@ -147,7 +152,9 @@ esk8_ble_appc_gattc_cb(
         "Got event %d, passing to app '%s'\n",
         evt, app->app_name
     );
-    app->app_evt_cb(evt, param);
+
+    if (app->app_evt_cb)
+        app->app_evt_cb(evt, param);
 }
 
 
@@ -157,5 +164,4 @@ esk8_ble_appc_gap_cb(
     esp_ble_gap_cb_param_t *param
 )
 {
-
 }

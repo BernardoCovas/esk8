@@ -44,7 +44,7 @@ void
 app_main()
 {
     esk8_err_t  err;
-    static esk8_ble_app_t* apps[] = {
+    static esk8_blec_app_t* apps[] = {
         &esk8_app_srvc_auth,
         &esk8_app_srvc_ctrl,
         &esk8_app_srvc_status

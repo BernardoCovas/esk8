@@ -120,7 +120,7 @@ static void app_evt_cb(
     esp_gatts_cb_event_t event,
     esp_ble_gatts_cb_param_t *param);
 
-esk8_ble_app_t esk8_app_srvc_auth =
+esk8_blec_app_t esk8_app_srvc_auth =
 {
     .app_name = SRVC_AUTH_NAME,
 

@@ -99,7 +99,7 @@ esk8_ble_apps_init(
     esk8_ble_apps.apps_num_max = n_apps_max;
     esk8_ble_apps.conn_num_max = n_conn_max;
 
-    esk8_ble_apps.apps_list = calloc(n_apps_max, sizeof(esk8_ble_app_t*));
+    esk8_ble_apps.apps_list = calloc(n_apps_max, sizeof(esk8_blec_app_t*));
     if (!esk8_ble_apps.apps_list)
         return ESK8_ERR_OOM;
 
@@ -108,7 +108,7 @@ esk8_ble_apps_init(
 
 esk8_err_t
 esk8_ble_app_register(
-    esk8_ble_app_t* app
+    esk8_blec_app_t* app
 )
 {
     if (!esk8_ble_apps.apps_list)
@@ -116,7 +116,7 @@ esk8_ble_app_register(
 
     for (int i = 0; i < esk8_ble_apps.apps_num_max; i++)
     {
-        esk8_ble_app_t** _app = &esk8_ble_apps.apps_list[i];
+        esk8_blec_app_t** _app = &esk8_ble_apps.apps_list[i];
         if (*_app)
             continue;
 
@@ -157,7 +157,7 @@ esk8_ble_apps_deinit()
 
     for (int i = 0; i < esk8_ble_apps.apps_num_max; i++)
     {
-        esk8_ble_app_t* app = esk8_ble_apps.apps_list[i];
+        esk8_blec_app_t* app = esk8_ble_apps.apps_list[i];
 
         if (!app)
             continue;
@@ -217,7 +217,7 @@ esk8_ble_apps_gatts_evt_hndl(
             if (param->reg.app_id >= esk8_ble_apps.apps_num_max)
                 return;
 
-            esk8_ble_app_t* app = esk8_ble_apps.apps_list[param->reg.app_id];
+            esk8_blec_app_t* app = esk8_ble_apps.apps_list[param->reg.app_id];
             if (!app)
                 return;
 
@@ -237,10 +237,10 @@ esk8_ble_apps_gatts_evt_hndl(
             break;
     }
 
-    esk8_ble_app_t* app = NULL;
+    esk8_blec_app_t* app = NULL;
     for (int i = 0; i < esk8_ble_apps.apps_num_max; i++)
     {
-        esk8_ble_app_t* _app = esk8_ble_apps.apps_list[i];
+        esk8_blec_app_t* _app = esk8_ble_apps.apps_list[i];
         if (!_app)
             continue;
 

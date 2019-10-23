@@ -19,7 +19,7 @@ typedef struct
 {
     uint n_apps;
     uint n_apps_max;
-    esk8_ble_appc_t** app_list;
+    esk8_blec_app_t** app_list;
     esk8_ble_appc_ctx_t* app_ctx_list;
 }
 esk8_ble_appc_hndl_t;
