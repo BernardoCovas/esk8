@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-RUN apt update -y; apt upgrade -y; apt install -y \
+RUN sudo apt update -y; sudo apt upgrade -y; sudo apt install -y \
     git                 \
     wget                \
     unzip               \
@@ -22,8 +22,8 @@ RUN apt update -y; apt upgrade -y; apt install -y \
     ninja-build         \
     ccache              \
     gawk                \
-    gperf               \ 
-    grep                \ 
+    gperf               \
+    grep                \
     gettext             \
     python              \
     python-dev          \
@@ -41,7 +41,11 @@ RUN useradd -G sudo -ms /bin/bash dev && echo "dev:docker" | chpasswd
 USER dev
 WORKDIR /home/dev
 
-RUN mkdir -p ~/source/espressif && cd ~/source/espressif                    && \
+RUN mkdir -p ~/source/b.covas   && \
+    cd ~/source/b.covas         && \
+    git clone https://github.com/BernardoCovas/esk8.git
+
+RUN mkdir ~/source/espressif && cd ~/source/espressif                    && \
     git clone https://github.com/espressif/crosstool-NG.git                 && \
     cd crosstool-NG && git checkout tags/esp32-2019r1                       && \
     ./bootstrap && ./configure --enable-local && make -j                    && \
