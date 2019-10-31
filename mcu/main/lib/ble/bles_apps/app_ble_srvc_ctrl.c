@@ -224,7 +224,7 @@ app_conn_write(
     {
     case SRVC_IDX_CTRL_SPEED_CHAR_VAL:
         if (len != 1)
-            return;
+            return ESK8_ERR_BLE_WRITE_BAD_LEN;
 
         if (conn_id != conn_ctx->conn_id)
         {
@@ -235,7 +235,7 @@ app_conn_write(
                 conn_id
             );
 
-            break;
+            return ESK8_ERR_BLES_APP_CTRL_NO_PERM;
         }
 
         err = esk8_onboard_set_speed(*val);
@@ -249,6 +249,8 @@ app_conn_write(
     default:
         break;
     }
+
+    return ESP_OK;
 }
 
 static esk8_err_t
@@ -257,4 +259,5 @@ app_evt_cb(
     esp_ble_gatts_cb_param_t *param
 )
 {
+	return ESP_OK;
 }

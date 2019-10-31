@@ -2,7 +2,7 @@
 #include <esk8_log.h>
 
 #include <esk8_onboard.h>
-#include <esk8_bles/esk8_ble_app_status.h>
+#include <esk8_bles/esk8_bles_app_status.h>
 
 #include "esk8_onboard_priv.h"
 
