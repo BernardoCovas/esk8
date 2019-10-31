@@ -144,7 +144,7 @@ app_evt_cb(
     esp_ble_gatts_cb_param_t *param
 );
 
-esk8_blec_app_t esk8_app_srvc_ctrl =
+esk8_bles_app_t esk8_app_srvc_ctrl =
 {
     .app_name = SRVC_CTRL_NAME,
 
@@ -165,6 +165,7 @@ app_init(
 {
     esk8_log_D(ESK8_TAG_BLE, "app_init()\n");
     conn_id = -1;
+    return ESP_OK;
 }
 
 static esk8_err_t
@@ -172,6 +173,7 @@ app_deinit(
 )
 {
     esk8_log_D(ESK8_TAG_BLE, "app_deinit()\n");
+    return ESP_OK;
 }
 
 static esk8_err_t
@@ -180,13 +182,16 @@ app_conn_add(
 )
 {
     if (conn_id > 0)
-        return;
+        goto done;
 
     conn_id = conn_ctx->conn_id;
     esk8_log_D(ESK8_TAG_BLE,
         "Registering conn id %d as controller.\n",
         conn_id
     );
+
+done:
+    return ESP_OK;
 }
 
 static esk8_err_t
@@ -195,12 +200,14 @@ app_conn_del(
 )
 {
     if (conn_ctx->conn_id != conn_id)
-        return;
+        goto done;
 
     conn_id = -1;
 
     esk8_log_D(ESK8_TAG_BLE, "Controller disconnected. Resetting speed.\n");
     esk8_onboard_set_speed(0);
+done:
+    return ESP_OK;
 }
 
 static esk8_err_t

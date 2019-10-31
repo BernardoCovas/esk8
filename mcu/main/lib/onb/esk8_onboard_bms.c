@@ -2,7 +2,7 @@
 #include <esk8_btn.h>
 #include <esk8_log.h>
 #include <esk8_onboard.h>
-#include <esk8_bles/esk8_ble_app_status.h>
+#include <esk8_bles/esk8_bles_app_status.h>
 
 #include "esk8_onboard_priv.h"
 
@@ -37,7 +37,7 @@ esk8_onboard_task_bms(
                 esk8_err_to_str(err), i
             );
 
-            err = esk8_ble_app_status_bms_shallow(
+            err = esk8_bles_app_status_bms_shallow(
                 &esk8_onboard.bms_stat[i],
                 err, i
             );
@@ -57,7 +57,7 @@ esk8_onboard_task_bms(
                 esk8_err_to_str(err), i
             );
 
-            err = esk8_ble_app_status_bms_deep(
+            err = esk8_bles_app_status_bms_deep(
                 &esk8_onboard.bms_deep_stat[i],
                 err, i
             );

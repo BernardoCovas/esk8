@@ -34,36 +34,38 @@ typedef struct
     uint16_t*               _attr_hndl_list;
     uint16_t                _ble_if;
 }
-esk8_blec_app_t;
+esk8_bles_app_t;
 
 typedef struct
 {
-    esk8_blec_app_t** apps_list;
+    esk8_bles_app_t** apps_list;
     uint apps_num_max;
     uint conn_num_max;
     uint curr_app_id;
 }
-esk8_ble_apps_t;
+esk8_bles_apps_t;
 
-extern esk8_ble_apps_t
-    esk8_ble_apps,
+extern esk8_bles_apps_t
+    esk8_bles_apps;
+
+extern esk8_bles_app_t
     esk8_app_srvc_auth,
     esk8_app_srvc_status,
     esk8_app_srvc_ctrl;
 
 esk8_err_t
-esk8_ble_apps_init(
+esk8_bles_apps_init(
     uint n_apps_max,
     uint n_conn_max
 );
 
 esk8_err_t
-esk8_ble_app_register(
-    esk8_blec_app_t* app
+esk8_bles_app_register(
+    esk8_bles_app_t* app
 );
 
 esk8_err_t
-esk8_ble_apps_deinit(
+esk8_bles_apps_deinit(
 );
 
 

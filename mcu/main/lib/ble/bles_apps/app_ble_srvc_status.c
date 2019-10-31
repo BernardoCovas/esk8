@@ -136,27 +136,40 @@ static esp_gatts_attr_db_t srvc_status_attr_list[] =
 
 };
 
-static void app_init();
+static esk8_err_t
+app_init(
+);
 
-static void app_deinit();
+static esk8_err_t
+app_deinit(
+);
 
-static void app_conn_add(
-    esk8_ble_conn_ctx_t* conn_ctx);
+static esk8_err_t
+app_conn_add(
+    esk8_ble_conn_ctx_t* conn_ctx
+);
 
-static void app_conn_del(
-    esk8_ble_conn_ctx_t* conn_ctx);
+static esk8_err_t
+app_conn_del(
+    esk8_ble_conn_ctx_t* conn_ctx
+);
 
-static void app_conn_write(
+static esk8_err_t
+app_conn_write(
     esk8_ble_conn_ctx_t* conn_ctx,
     int                  attr_idx,
     size_t               len,
-    uint8_t*             val);
+    uint8_t*             val
+);
 
-static void app_evt_cb(
+static esk8_err_t
+app_evt_cb(
     esp_gatts_cb_event_t event,
-    esp_ble_gatts_cb_param_t *param);
+    esp_ble_gatts_cb_param_t *param
+);
 
-esk8_blec_app_t esk8_app_srvc_status =
+esk8_bles_app_t
+esk8_app_srvc_status =
 {
     .app_name       = SRVC_STATUS_NAME,
     .app_init       = app_init,
@@ -175,12 +188,12 @@ esk8_ble_app_status_speed(
     uint8_t speed_val
 )
 {
-    ESK8_ERRCHECK_THROW(esk8_ble_apps_update(
+    ESK8_ERRCHECK_THROW(esk8_bles_apps_update(
         &esk8_app_srvc_status,
         SRVC_IDX_STATUS_SPEED_CHAR_VAL,
         1, &speed_val));
 
-    ESK8_ERRCHECK_THROW(esk8_ble_apps_notify_all(
+    ESK8_ERRCHECK_THROW(esk8_bles_apps_notify_all(
         &esk8_app_srvc_status,
         SRVC_IDX_STATUS_SPEED_CHAR_VAL,
         1, &speed_val));
@@ -212,7 +225,7 @@ esk8_ble_app_status_bms_shallow(
     *((esk8_err_t*)msg) = bms_err_code;
     *((int*)&msg[sizeof(esk8_err_t)]) = bms_idx;
 
-    esk8_err_t err_code = esk8_ble_apps_notify_all(
+    esk8_err_t err_code = esk8_bles_apps_notify_all(
         &esk8_app_srvc_status,
         SRVC_IDX_STATUS_BMS_SHALLOW_CHAR_VAL,
         msg_size, msg
@@ -231,7 +244,7 @@ esk8_ble_app_status_bms_deep(
 {
     SRVC_STATUS_BMS_DEEP_VAL[bms_idx] = (*stat);
 
-    esk8_ble_apps_update(
+    esk8_bles_apps_update(
         &esk8_app_srvc_status,
         SRVC_IDX_STATUS_BMS_DEEP_CHAR_VAL,
         sizeof(SRVC_STATUS_BMS_DEEP_VAL),
@@ -247,7 +260,7 @@ esk8_ble_app_status_bms_deep(
     *((esk8_err_t*)msg) = bms_err_code;
     *((int*)&msg[sizeof(esk8_err_t)]) = bms_idx;
 
-    esk8_err_t err_code = esk8_ble_apps_notify_all(
+    esk8_err_t err_code = esk8_bles_apps_notify_all(
         &esk8_app_srvc_status,
         SRVC_IDX_STATUS_BMS_DEEP_CHAR_VAL,
         msg_size, msg
@@ -257,49 +270,60 @@ esk8_ble_app_status_bms_deep(
     return err_code;
 }
 
-static void
+static esk8_err_t
 app_init()
 {
     esk8_log_D(ESK8_TAG_BLE, "app_init()\n");
     memset(SRVC_STATUS_BMS_SHALLOW_VAL, 0, sizeof(SRVC_STATUS_BMS_SHALLOW_VAL));
     memset(SRVC_STATUS_BMS_DEEP_VAL   , 0, sizeof(SRVC_STATUS_BMS_DEEP_VAL   ));
+    
+    return ESK8_OK;
 }
 
-static void
+static esk8_err_t
 app_deinit()
 {
     esk8_log_D(ESK8_TAG_BLE, "app_deinit() \n");
+    return ESK8_OK;
 }
 
-static void
+static esk8_err_t
 app_conn_add(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
     esk8_log_D(ESK8_TAG_BLE, "app_conn_add() \n");
+    
+    return ESK8_OK;
 }
 
-static void
+static esk8_err_t
 app_conn_del(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
     esk8_log_D(ESK8_TAG_BLE, "app_conn_del() \n");
+    
+    return ESK8_OK;
 }
 
-static void app_conn_write(
+static esk8_err_t
+app_conn_write(
     esk8_ble_conn_ctx_t* conn_ctx,
     int                  attr_idx,
     size_t               len,
     uint8_t*             val)
 {
     esk8_log_D(ESK8_TAG_BLE, "app_conn_write() on idx: %d\n", attr_idx);
+    
+    return ESK8_OK;
 }
 
-static void
+static esk8_err_t
 app_evt_cb(
     esp_gatts_cb_event_t event,
     esp_ble_gatts_cb_param_t *param
 )
-{
+{ 
+    return ESK8_OK;
 }

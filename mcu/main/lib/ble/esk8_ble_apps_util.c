@@ -7,13 +7,13 @@
 
 
 esk8_err_t
-esk8_ble_apps_get_ctx(
-    esk8_blec_app_t*       app,
+esk8_bles_apps_get_ctx(
+    esk8_bles_app_t*      app,
     uint16_t              conn_id,
     esk8_ble_conn_ctx_t** out_ctx_p
 )
 {
-    for (int i = 0; i < esk8_ble_apps.conn_num_max; i++)
+    for (int i = 0; i < esk8_bles_apps.conn_num_max; i++)
         if (app->_conn_ctx_list[i].conn_id == conn_id)
         {
             (*out_ctx_p) = &app->_conn_ctx_list[i];
@@ -25,8 +25,8 @@ esk8_ble_apps_get_ctx(
 }
 
 esk8_err_t
-esk8_ble_apps_get_attr_idx(
-    esk8_blec_app_t* app,
+esk8_bles_apps_get_attr_idx(
+    esk8_bles_app_t* app,
     uint16_t        handle,
     int*            out_idx
 )
@@ -42,8 +42,8 @@ esk8_ble_apps_get_attr_idx(
 }
 
 esk8_err_t
-esk8_ble_apps_update(
-    esk8_blec_app_t* app,
+esk8_bles_apps_update(
+    esk8_bles_app_t* app,
     int             attr_idx,
     size_t          val_len,
     uint8_t*        val
@@ -64,21 +64,23 @@ esk8_ble_apps_update(
 }
 
 esk8_err_t
-esk8_ble_apps_notify_all(
-    esk8_blec_app_t* app,
+esk8_bles_apps_notify_all(
+    esk8_bles_app_t* app,
     int             attr_idx,
     size_t          val_len,
     uint8_t*        val
 )
 {
-    for (int i = 0; i < esk8_ble_apps.conn_num_max; i++)
+    for (int i = 0; i < esk8_bles_apps.conn_num_max; i++)
     {
         int conn_id = app->_conn_ctx_list[i].conn_id;
         if (conn_id < 0)
             continue;
 
-        esk8_log_D(ESK8_TAG_BLE, "Notifying conn id %d, from '%s'\n",
-            conn_id, app->app_name);
+        esk8_log_D(ESK8_TAG_BLE,
+	    "Notifying conn id %d, from '%s'\n",
+            conn_id, app->app_name
+	);
 
         esp_ble_gatts_send_indicate(
             app->_ble_if,

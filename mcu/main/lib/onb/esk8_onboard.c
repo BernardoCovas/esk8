@@ -4,7 +4,7 @@
 #include <esk8_btn.h>
 #include <esk8_pwm.h>
 #include <esk8_onboard.h>
-#include <esk8_bles/esk8_ble_app_status.h>
+#include <esk8_bles/esk8_bles_app_status.h>
 
 #include "esk8_onboard_priv.h"
 
@@ -115,7 +115,7 @@ esk8_onboard_set_speed(
         esk8_err_to_str(esk8_onboard.err)
     );
 
-    esk8_ble_app_status_speed(speed);
+    esk8_bles_app_status_speed(speed);
 
     return esk8_onboard.err;
 }

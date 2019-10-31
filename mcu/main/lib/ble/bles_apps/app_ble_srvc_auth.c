@@ -1,3 +1,4 @@
+#include <esk8_err.h>
 #include <esk8_ble_defs.h>
 #include <esk8_bles_apps.h>
 #include <esk8_log.h>
@@ -98,29 +99,29 @@ static esp_gatts_attr_db_t srvc_auth_attr_list[] =
     }
 };
 
-static void app_init(
+static esk8_err_t app_init(
     );
 
-static void app_deinit(
+static esk8_err_t app_deinit(
     );
 
-static void app_conn_add(
+static esk8_err_t app_conn_add(
     esk8_ble_conn_ctx_t* conn_ctx);
 
-static void app_conn_del(
+static esk8_err_t app_conn_del(
     esk8_ble_conn_ctx_t* conn_ctx);
 
-static void app_conn_write(
+static esk8_err_t app_conn_write(
     esk8_ble_conn_ctx_t* conn_ctx,
     int                  attr_idx,
     size_t               len,
     uint8_t*             val);
 
-static void app_evt_cb(
+static esk8_err_t app_evt_cb(
     esp_gatts_cb_event_t event,
     esp_ble_gatts_cb_param_t *param);
 
-esk8_blec_app_t esk8_app_srvc_auth =
+esk8_bles_app_t esk8_app_srvc_auth =
 {
     .app_name = SRVC_AUTH_NAME,
 
@@ -135,17 +136,22 @@ esk8_blec_app_t esk8_app_srvc_auth =
     .attr_num = SRVC_AUTH_NUM_ATTR
 };
 
-static void app_init()
+static esk8_err_t
+app_init()
 {
     esk8_log_D(ESK8_TAG_BLE, "app_init()\n");
+    return ESP_OK;
 }
 
-static void app_deinit()
+static esk8_err_t
+app_deinit()
 {
     esk8_log_D(ESK8_TAG_BLE, "app_deinit() \n");
+    return ESK8_OK;
 }
 
-static void app_conn_add(
+static esk8_err_t
+app_conn_add(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
@@ -158,20 +164,24 @@ static void app_conn_add(
         esk8_log_D(ESK8_TAG_BLE, "Got '%s' on auth init.\n",
             esk8_err_to_str(err));
         conn_ctx->ctx = NULL;
-        return;
+        return err;
     }
 
     conn_ctx->ctx = (void*)hndl;
+    return ESP_OK;
 }
 
-static void app_conn_del(
+static esk8_err_t
+app_conn_del(
     esk8_ble_conn_ctx_t* conn_ctx
 )
 {
     esk8_log_D(ESK8_TAG_BLE, "app_conn_del() \n");
+    return ESP_OK;
 }
 
-static void app_conn_write(
+static esk8_err_t
+app_conn_write(
     esk8_ble_conn_ctx_t* conn_ctx,
     int                  attr_idx,
     size_t               len,
@@ -179,13 +189,14 @@ static void app_conn_write(
 )
 {
     esk8_log_D(ESK8_TAG_BLE, "app_conn_write() on idx: %d\n", attr_idx);
+    return ESP_OK;
 }
 
-static void
+static esk8_err_t
 app_evt_cb(
     esp_gatts_cb_event_t event,
     esp_ble_gatts_cb_param_t *param
 )
 {
-
+    return ESP_OK;
 }
