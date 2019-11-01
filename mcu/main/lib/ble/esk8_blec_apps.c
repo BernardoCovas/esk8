@@ -43,7 +43,7 @@ esk8_blec_apps_init(
     esp_bt_controller_enable(ESP_BT_MODE_BLE);
     esp_bluedroid_init();
     esp_bluedroid_enable();
-    esp_ble_gap_register_callback(esk8_ble_appc_gap_cb);
+    esp_ble_gap_register_callback(esk8_blec_apps_gap_cb);
     esp_ble_gattc_register_callback(esk8_ble_appc_gattc_cb);
 
     esk8_ble_appc_hndl = (esk8_ble_appc_hndl_t) { 0 };
@@ -158,9 +158,12 @@ esk8_ble_appc_gattc_cb(
 
 
 void
-esk8_ble_appc_gap_cb(
+esk8_blec_apps_gap_cb(
     esp_gap_ble_cb_event_t event,
     esp_ble_gap_cb_param_t *param
 )
 {
+    esk8_log_D(ESK8_TAG_BLE,
+        "Got event: %d\n", event
+    );
 }

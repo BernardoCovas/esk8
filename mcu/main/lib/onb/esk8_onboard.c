@@ -3,7 +3,7 @@
 #include <esk8_bms.h>
 #include <esk8_btn.h>
 #include <esk8_pwm.h>
-#include <esk8_onboard.h>
+#include <esk8_onb.h>
 #include <esk8_bles/esk8_bles_app_status.h>
 
 #include "esk8_onboard_priv.h"

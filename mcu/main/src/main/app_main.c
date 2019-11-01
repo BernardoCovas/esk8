@@ -6,7 +6,7 @@
 #include <esk8_rmt.h>
 #include <esk8_blec_apps.h>
 #else
-#include <esk8_onboard.h>
+#include <esk8_onb.h>
 #include <esk8_ble_apps.h>
 #endif
 

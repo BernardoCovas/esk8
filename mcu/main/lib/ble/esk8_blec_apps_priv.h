@@ -32,7 +32,7 @@ esk8_ble_appc_gattc_cb(
 );
 
 void
-esk8_ble_appc_gap_cb(
+esk8_blec_apps_gap_cb(
     esp_gap_ble_cb_event_t event,
     esp_ble_gap_cb_param_t *param
 );
