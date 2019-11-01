@@ -13,7 +13,7 @@ typedef struct
     int     conn_id;
     void*   ctx;
 }
-esk8_ble_conn_ctx_t;
+esk8_bles_conn_ctx_t;
 
 typedef struct
 {
@@ -21,15 +21,15 @@ typedef struct
 
     esk8_err_t (*app_init      )();
     esk8_err_t (*app_deinit    )();
-    esk8_err_t (*app_conn_add  )(esk8_ble_conn_ctx_t* conn_ctx);
-    esk8_err_t (*app_conn_del  )(esk8_ble_conn_ctx_t* conn_ctx);
-    esk8_err_t (*app_conn_write)(esk8_ble_conn_ctx_t* conn_ctx, int attr_idx, size_t  len, uint8_t* val);
+    esk8_err_t (*app_conn_add  )(esk8_bles_conn_ctx_t* conn_ctx);
+    esk8_err_t (*app_conn_del  )(esk8_bles_conn_ctx_t* conn_ctx);
+    esk8_err_t (*app_conn_write)(esk8_bles_conn_ctx_t* conn_ctx, int attr_idx, size_t  len, uint8_t* val);
     esk8_err_t (*app_evt_cb    )(esp_gatts_cb_event_t event, esp_ble_gatts_cb_param_t *param);
 
     esp_gatts_attr_db_t*    attr_db;
     uint16_t                attr_num;
 
-    esk8_ble_conn_ctx_t*    _conn_ctx_list;
+    esk8_bles_conn_ctx_t*    _conn_ctx_list;
     esp_gatts_attr_db_t*    _attr_list;
     uint16_t*               _attr_hndl_list;
     uint16_t                _ble_if;

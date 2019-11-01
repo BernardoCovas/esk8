@@ -131,7 +131,7 @@ esk8_bles_app_register(
             return ESK8_ERR_OOM;
 
         app->_conn_ctx_list = calloc(
-            esk8_bles_apps.conn_num_max, sizeof(esk8_ble_conn_ctx_t));
+            esk8_bles_apps.conn_num_max, sizeof(esk8_bles_conn_ctx_t));
 
         if (!app->_conn_ctx_list)
         {
@@ -296,7 +296,7 @@ esk8_bles_apps_gatts_evt_hndl(
         {
             ESP_ERROR_CHECK(esp_ble_gap_start_advertising(&adv_params));
 
-            esk8_ble_conn_ctx_t* ctx = NULL;
+            esk8_bles_conn_ctx_t* ctx = NULL;
             for (int i = 0; i < esk8_bles_apps.conn_num_max; i++)
             {
                 if (app->_conn_ctx_list[i].conn_id < 0)
@@ -366,7 +366,7 @@ esk8_bles_apps_gatts_evt_hndl(
                 break;
             }
 
-            esk8_ble_conn_ctx_t* ctx;
+            esk8_bles_conn_ctx_t* ctx;
             err_code = esk8_bles_apps_get_ctx(
                 app, param->write.conn_id, &ctx);
 

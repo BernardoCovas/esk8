@@ -122,17 +122,17 @@ app_deinit(
 
 static esk8_err_t
 app_conn_add(
-    esk8_ble_conn_ctx_t* conn_ctx
+    esk8_bles_conn_ctx_t* conn_ctx
 );
 
 static esk8_err_t
 app_conn_del(
-    esk8_ble_conn_ctx_t* conn_ctx
+    esk8_bles_conn_ctx_t* conn_ctx
 );
 
 static esk8_err_t
 app_conn_write(
-    esk8_ble_conn_ctx_t* conn_ctx,
+    esk8_bles_conn_ctx_t* conn_ctx,
     int                  attr_idx,
     size_t               len,
     uint8_t*             val
@@ -178,7 +178,7 @@ app_deinit(
 
 static esk8_err_t
 app_conn_add(
-    esk8_ble_conn_ctx_t* conn_ctx
+    esk8_bles_conn_ctx_t* conn_ctx
 )
 {
     if (conn_id > 0)
@@ -196,7 +196,7 @@ done:
 
 static esk8_err_t
 app_conn_del(
-    esk8_ble_conn_ctx_t* conn_ctx
+    esk8_bles_conn_ctx_t* conn_ctx
 )
 {
     if (conn_ctx->conn_id != conn_id)
@@ -212,7 +212,7 @@ done:
 
 static esk8_err_t
 app_conn_write(
-    esk8_ble_conn_ctx_t* conn_ctx,
+    esk8_bles_conn_ctx_t* conn_ctx,
     int                  attr_idx,
     size_t               len,
     uint8_t*             val)
