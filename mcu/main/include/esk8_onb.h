@@ -1,5 +1,5 @@
-#ifndef _ESK8_ONBOARD_H
-#define _ESK8_ONBOARD_H
+#ifndef _ESK8_ONB_H
+#define _ESK8_ONB_H
 
 #include <esk8_config.h>
 #include <esk8_err.h>
@@ -34,4 +34,4 @@ esk8_onboard_set_speed(
 );
 
 
-#endif /* _ESK8_ONBOARD_H */
+#endif /* _ESK8_ONB_H */
