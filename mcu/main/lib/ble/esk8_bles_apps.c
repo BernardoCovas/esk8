@@ -379,7 +379,7 @@ esk8_bles_apps_gatts_evt_hndl(
                 break;
             }
 
-            if ( app->app_conn_write)
+            if (app->app_conn_write)
                 app->app_conn_write(
                     ctx, attr_idx, param->write.len,
                     param->write.value);

@@ -2,7 +2,7 @@
 #include <esk8_log.h>
 #include <esk8_blec_apps.h>
 
-#include "esk8_ble_appc_priv.h"
+#include "esk8_blec_apps_priv.h"
 
 #include <esp_bt.h>
 #include <nvs_flash.h>

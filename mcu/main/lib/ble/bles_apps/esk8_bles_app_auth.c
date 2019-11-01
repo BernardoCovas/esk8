@@ -99,29 +99,40 @@ static esp_gatts_attr_db_t srvc_auth_attr_list[] =
     }
 };
 
-static esk8_err_t app_init(
-    );
+static esk8_err_t
+app_init(
+);
 
-static esk8_err_t app_deinit(
-    );
+static esk8_err_t
+app_deinit(
+);
 
-static esk8_err_t app_conn_add(
-    esk8_ble_conn_ctx_t* conn_ctx);
+static esk8_err_t
+app_conn_add(
+    esk8_ble_conn_ctx_t* conn_ctx
+);
 
-static esk8_err_t app_conn_del(
-    esk8_ble_conn_ctx_t* conn_ctx);
+static esk8_err_t
+app_conn_del(
+    esk8_ble_conn_ctx_t* conn_ctx
+);
 
-static esk8_err_t app_conn_write(
+static esk8_err_t
+app_conn_write(
     esk8_ble_conn_ctx_t* conn_ctx,
     int                  attr_idx,
     size_t               len,
-    uint8_t*             val);
+    uint8_t*             val
+);
 
-static esk8_err_t app_evt_cb(
+static esk8_err_t
+app_evt_cb(
     esp_gatts_cb_event_t event,
-    esp_ble_gatts_cb_param_t *param);
+    esp_ble_gatts_cb_param_t *param
+);
 
-esk8_bles_app_t esk8_app_srvc_auth =
+esk8_bles_app_t
+esk8_app_srvc_auth =
 {
     .app_name = SRVC_AUTH_NAME,
 

@@ -1,5 +1,5 @@
-#ifndef _ESK8_BLE_APPC_PRIV_H
-#define _ESK8_BLE_APPC_PRIV_H
+#ifndef _ESK8_BLEC_APPS_PRIV_H
+#define _ESK8_BLEC_APPS_PRIV_H
 
 #include <esp_bt.h>
 #include <esp_bt_main.h>
@@ -38,4 +38,4 @@ esk8_ble_appc_gap_cb(
 );
 
 
-#endif /* _ESK8_BLE_APPC_PRIV_H */
+#endif /* _ESK8_BLEC_APPS_PRIV_H */
