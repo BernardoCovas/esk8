@@ -145,15 +145,3 @@ esk8_rmt_incr_speed(
 
     return err;
 }
-
-
-esk8_err_t
-esk8_rmt_connect(
-    uint32_t sec
-)
-{
-    if (esk8_rmt.state != ESK8_REMOTE_STATE_NOT_CONNECTED)
-        return ESK8_ERR_REMT_BAD_STATE;
-
-    return ESK8_OK;
-}

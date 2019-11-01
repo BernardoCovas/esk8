@@ -30,6 +30,21 @@ typedef struct
 esk8_rmt_t;
 
 extern esk8_rmt_t
-esk8_rmt;
+    esk8_rmt;
+
+void
+esk8_rmt_task_ps2(
+    void* param
+);
+
+void
+esk8_rmt_task_btn(
+    void* param
+);
+
+void
+esk8_rmt_task_ble(
+    void* param
+);
 
 #endif /* _ESK8_REMOTE_PRIV_H */

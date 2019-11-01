@@ -7,7 +7,7 @@
 #include <esk8_blec_apps.h>
 #else
 #include <esk8_onb.h>
-#include <esk8_ble_apps.h>
+#include <esk8_bles_apps.h>
 #endif
 
 #include <stdint.h>
@@ -44,13 +44,13 @@ void
 app_main()
 {
     esk8_err_t  err;
-    static esk8_blec_app_t* apps[] = {
+    static esk8_bles_app_t* apps[] = {
         &esk8_app_srvc_auth,
         &esk8_app_srvc_ctrl,
         &esk8_app_srvc_status
     };
 
-    err = esk8_ble_apps_init(3, 10);
+    err = esk8_bles_apps_init(3, 10);
 
     if (err)
         esk8_log_E(ESK8_TAG_MAIN,
@@ -60,7 +60,7 @@ app_main()
 
     for (int i = 0; i < sizeof(apps) / sizeof(apps[0]); i++)
     {
-        err = esk8_ble_app_register(apps[i]);
+        err = esk8_bles_app_register(apps[i]);
         if (err)
             esk8_log_E(ESK8_TAG_MAIN,
                 "Got %s on ble app '%s'\n",

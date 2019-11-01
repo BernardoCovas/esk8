@@ -184,7 +184,7 @@ esk8_app_srvc_status =
 };
 
 esk8_err_t
-esk8_ble_app_status_speed(
+esk8_bles_app_status_speed(
     uint8_t speed_val
 )
 {
@@ -202,7 +202,7 @@ esk8_ble_app_status_speed(
 }
 
 esk8_err_t
-esk8_ble_app_status_bms_shallow(
+esk8_bles_app_status_bms_shallow(
     esk8_bms_status_t* stat,
     esk8_err_t         bms_err_code,
     int                bms_idx
@@ -236,7 +236,7 @@ esk8_ble_app_status_bms_shallow(
 }
 
 esk8_err_t
-esk8_ble_app_status_bms_deep(
+esk8_bles_app_status_bms_deep(
     esk8_bms_deep_status_t* stat,
     esk8_err_t              bms_err_code,
     int                     bms_idx
