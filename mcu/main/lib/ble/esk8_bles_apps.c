@@ -1,6 +1,6 @@
 #include <esk8_bles_apps.h>
 
-#include "esk8_ble_apps_util.h"
+#include "esk8_bles_apps_util.h"
 
 #include <esk8_log.h>
 #include <esk8_config.h>
@@ -18,15 +18,17 @@
 
 
 void
-esk8_ble_apps_gap_evt_hndl(
+esk8_bles_apps_gap_evt_hndl(
     esp_gap_ble_cb_event_t event,
-    esp_ble_gap_cb_param_t *param);
+    esp_ble_gap_cb_param_t *param
+);
 
 void
-esk8_ble_apps_gatts_evt_hndl(
+esk8_bles_apps_gatts_evt_hndl(
     esp_gatts_cb_event_t event,
     esp_gatt_if_t gatts_if,
-    esp_ble_gatts_cb_param_t *param);
+    esp_ble_gatts_cb_param_t *param
+);
 
 static esp_ble_adv_params_t adv_params = {
     .adv_int_min        = 0x20,
@@ -89,9 +91,9 @@ esk8_bles_apps_init(
     ESP_ERROR_CHECK(esp_bt_controller_enable(ESP_BT_MODE_BLE)                       );
     ESP_ERROR_CHECK(esp_bluedroid_init()                                            );
     ESP_ERROR_CHECK(esp_bluedroid_enable()                                          );
-    ESP_ERROR_CHECK(esp_ble_gap_register_callback(esk8_ble_apps_gap_evt_hndl)       );
+    ESP_ERROR_CHECK(esp_ble_gap_register_callback(esk8_bles_apps_gap_evt_hndl)       );
     ESP_ERROR_CHECK(esp_ble_gap_set_device_name(ESK8_BLE_DEV_NAME)                  );
-    ESP_ERROR_CHECK(esp_ble_gatts_register_callback(esk8_ble_apps_gatts_evt_hndl)   );
+    ESP_ERROR_CHECK(esp_ble_gatts_register_callback(esk8_bles_apps_gatts_evt_hndl)   );
     ESP_ERROR_CHECK(esp_ble_gap_config_adv_data(&adv_data)                          );
 
     ESK8_ERRCHECK_THROW(esk8_nvs_init());
@@ -185,7 +187,7 @@ esk8_bles_apps_deinit()
 }
 
 void
-esk8_ble_apps_gap_evt_hndl(
+esk8_bles_apps_gap_evt_hndl(
     esp_gap_ble_cb_event_t event,
     esp_ble_gap_cb_param_t *param
 )
@@ -203,7 +205,7 @@ esk8_ble_apps_gap_evt_hndl(
 }
 
 void
-esk8_ble_apps_gatts_evt_hndl(
+esk8_bles_apps_gatts_evt_hndl(
     esp_gatts_cb_event_t event,
     esp_gatt_if_t gatts_if,
     esp_ble_gatts_cb_param_t *param
@@ -321,7 +323,9 @@ esk8_ble_apps_gatts_evt_hndl(
                 param->connect.conn_id,
                 app->app_name);
 
-            app->app_conn_add(ctx);
+            if (app->app_conn_add)
+                app->app_conn_add(ctx);
+
             break;
         }
 
@@ -337,7 +341,9 @@ esk8_ble_apps_gatts_evt_hndl(
                         param->disconnect.conn_id
                     );
 
-                    app->app_conn_del(&app->_conn_ctx_list[i]);
+                    if (app->app_conn_del)
+                        app->app_conn_del(&app->_conn_ctx_list[i]);
+
                     app->_conn_ctx_list[i].conn_id = -1;
                     break;
                 }
@@ -373,9 +379,10 @@ esk8_ble_apps_gatts_evt_hndl(
                 break;
             }
 
-            app->app_conn_write(
-                ctx, attr_idx, param->write.len,
-                param->write.value);
+            if ( app->app_conn_write)
+                app->app_conn_write(
+                    ctx, attr_idx, param->write.len,
+                    param->write.value);
 
             break;
         }
@@ -384,6 +391,7 @@ esk8_ble_apps_gatts_evt_hndl(
             break;
     }
 
-    app->app_evt_cb(event, param);
+    if (app->app_evt_cb)
+        app->app_evt_cb(event, param);
 }
 

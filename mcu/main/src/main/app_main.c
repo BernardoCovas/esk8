@@ -21,7 +21,7 @@ app_main()
 {
 
     esk8_err_t err;
-    err = esk8_ble_appc_init(2);
+    err = esk8_blec_apps_init(2);
     if (err)
         goto fail;
 

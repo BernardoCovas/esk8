@@ -14,7 +14,7 @@
 static esk8_ble_appc_hndl_t esk8_ble_appc_hndl = { 0 };
 
 esk8_err_t
-esk8_ble_appc_init(
+esk8_blec_apps_init(
     uint n_apps_max
 )
 {

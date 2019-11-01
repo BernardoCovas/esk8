@@ -3,7 +3,7 @@
 #include <esk8_ble_defs.h>
 #include <esk8_bles_apps.h>
 
-#include "../esk8_ble_apps_util.h"
+#include "../esk8_bles_apps_util.h"
 
 #include <esp_gatts_api.h>
 #include <esp_bt.h>
