@@ -20,7 +20,7 @@ extern esk8_bles_apps_t
 esk8_err_t
 esk8_bles_apps_get_ctx(
     esk8_bles_app_t*       app,
-    uint16_t              conn_id,
+    uint16_t               conn_id,
     esk8_bles_conn_ctx_t** out_ctx_p
 );
 

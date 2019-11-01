@@ -11,21 +11,16 @@
 
 typedef struct
 {
-    uint16_t ble_if;
-}
-esk8_ble_appc_ctx_t;
-
-typedef struct
-{
     uint n_apps;
     uint n_apps_max;
+    uint n_conn_max;
     esk8_blec_app_t** app_list;
-    esk8_ble_appc_ctx_t* app_ctx_list;
+    esk8_blec_conn_ctx_t* app_ctx_list;
 }
-esk8_ble_appc_hndl_t;
+esk8_blec_apps_hndl_t;
 
 void
-esk8_ble_appc_gattc_cb(
+esk8_blec_apps_gattc_cb(
     esp_gattc_cb_event_t event,
     esp_gatt_if_t gattc_if,
     esp_ble_gattc_cb_param_t* param

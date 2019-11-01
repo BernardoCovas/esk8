@@ -9,6 +9,7 @@
 
 typedef struct
 {
+    int     gattc_if;
     int     conn_id;
     void*   ctx;
 }
@@ -34,7 +35,8 @@ extern esk8_blec_app_t
 
 esk8_err_t
 esk8_blec_apps_init(
-    uint n_apps_max
+    uint n_apps_max,
+    uint n_conn_max
 );
 
 void
@@ -46,5 +48,9 @@ esk8_blec_apps_app_reg(
     esk8_blec_app_t* app
 );
 
+esk8_err_t
+esk8_blec_apps_connect(
+    uint8_t addr[6]
+);
 
 #endif /* _ESK8_BLEC_APPS_H */
