@@ -38,11 +38,11 @@ esk8_blec_apps_init(
 );
 
 void
-esk8_ble_appc_deinit(
+esk8_blec_apps_deinit(
 );
 
 esk8_err_t
-esk8_ble_appc_app_reg(
+esk8_blec_apps_app_reg(
     esk8_blec_app_t* app
 );
 

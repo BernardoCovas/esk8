@@ -62,6 +62,7 @@ esk8_blec_apps_init(
 
     esk8_ble_appc_hndl.n_apps_max = n_apps_max;
 
+    esp_ble_gap_start_scanning(~0);
     return ESK8_OK;
 
 fail:
@@ -72,13 +73,12 @@ fail:
     if (esk8_ble_appc_hndl.app_ctx_list)
         free(esk8_ble_appc_hndl.app_ctx_list);
 
-    esp_ble_gap_start_scanning(~0);
     return err;
 }
 
 
 esk8_err_t
-esk8_ble_appc_app_reg(
+esk8_blec_apps_app_reg(
     esk8_blec_app_t* app
 )
 {
@@ -100,8 +100,7 @@ esk8_ble_appc_app_reg(
 
 
 void
-esk8_ble_appc_deinit(
-)
+esk8_blec_apps_deinit()
 {
     if (esk8_ble_appc_hndl.app_list)
     {

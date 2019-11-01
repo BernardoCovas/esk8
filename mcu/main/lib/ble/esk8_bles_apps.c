@@ -1,6 +1,6 @@
 #include <esk8_bles_apps.h>
 
-#include "esk8_bles_apps_util.h"
+#include "esk8_bles_apps_priv.h"
 
 #include <esk8_log.h>
 #include <esk8_config.h>

@@ -36,18 +36,6 @@ typedef struct
 }
 esk8_bles_app_t;
 
-typedef struct
-{
-    esk8_bles_app_t** apps_list;
-    uint apps_num_max;
-    uint conn_num_max;
-    uint curr_app_id;
-}
-esk8_bles_apps_t;
-
-extern esk8_bles_apps_t
-    esk8_bles_apps;
-
 extern esk8_bles_app_t
     esk8_app_srvc_auth,
     esk8_app_srvc_status,
