@@ -11,16 +11,19 @@
 
 typedef struct
 {
+    uint n_dev;
     uint n_apps;
+    uint n_conn;
     uint n_apps_max;
     uint n_conn_max;
+    esk8_blec_dev_t** dev_list;
     esk8_blec_app_t** app_list;
     esk8_blec_conn_ctx_t* app_ctx_list;
 }
-esk8_blec_apps_hndl_t;
+esk8_blec_apps_t;
 
-extern esk8_blec_apps_hndl_t
-    esk8_ble_appc_hndl;
+extern esk8_blec_apps_t
+    esk8_blec_apps;
 
 esk8_blec_conn_ctx_t*
 esk8_blec_apps_get_ctx(

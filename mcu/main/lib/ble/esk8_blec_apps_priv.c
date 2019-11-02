@@ -3,6 +3,8 @@
 
 #include "esk8_blec_apps_priv.h"
 
+#include <string.h>
+
 
 esk8_blec_conn_ctx_t*
 esk8_blec_apps_get_ctx(
@@ -25,15 +27,15 @@ esk8_blec_apps_gattc_cb(
 
     if (event == ESP_GATTC_REG_EVT)
     {
-        app = esk8_ble_appc_hndl.app_list[param->reg.app_id];
-        esk8_ble_appc_hndl.app_ctx_list[param->reg.app_id].gattc_if = gattc_if;
+        app = esk8_blec_apps.app_list[param->reg.app_id];
+        esk8_blec_apps.app_ctx_list[param->reg.app_id].gattc_if = gattc_if;
     }
     else
-        for (int i = 0; i < esk8_ble_appc_hndl.n_apps; i++)
+        for (int i = 0; i < esk8_blec_apps.n_apps; i++)
         {
-            if (esk8_ble_appc_hndl.app_ctx_list[i].gattc_if == gattc_if)
+            if (esk8_blec_apps.app_ctx_list[i].gattc_if == gattc_if)
             {
-                app = esk8_ble_appc_hndl.app_list[i];
+                app = esk8_blec_apps.app_list[i];
                 break;
             }
         }
@@ -90,14 +92,32 @@ esk8_blec_apps_gap_cb(
             ESP_BLE_AD_TYPE_NAME_CMPL,
             &ble_name_len
         );
-        dev_name[ble_name_len] = 0;
 
+        if (!dev_name)
+            dev_name = (uint8_t*)"(no name)";
+        else
+            dev_name[ble_name_len] = 0;
 
         esk8_log_I(ESK8_TAG_BLE,
             "Found '%s': " MAC_STR "\n",
             dev_name,
             MAC_STR_PARAM(param->scan_rst.bda)
         );
+
+        for (int i = 0; i < esk8_blec_apps.n_dev; i++)
+        {
+            esk8_blec_dev_t* dev = esk8_blec_apps.dev_list[i];
+            if  (
+                    memcmp(dev->addr, param->scan_rst.bda, 6) == 0 &&
+                    strcmp(dev->name, dev_name) == 0
+                )
+            {
+                esk8_log_I(ESK8_TAG_BLE,
+                    "Connecting to %s\n",
+                    dev_name
+                );
+            }
+        }
 
         break;
     }

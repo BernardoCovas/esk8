@@ -11,8 +11,8 @@
 #include <esp_gap_ble_api.h>
 
 
-esk8_blec_apps_hndl_t
-    esk8_ble_appc_hndl = { 0 };
+esk8_blec_apps_t
+    esk8_blec_apps = { 0 };
 
 esk8_err_t
 esk8_blec_apps_init(
@@ -20,7 +20,7 @@ esk8_blec_apps_init(
     uint n_conn_max
 )
 {
-    if (esk8_ble_appc_hndl.app_ctx_list)
+    if (esk8_blec_apps.app_ctx_list)
         return ESK8_ERR_BLE_APPC_INIT_REINIT;
 
     esk8_err_t err;
@@ -48,30 +48,38 @@ esk8_blec_apps_init(
     esp_ble_gap_register_callback(esk8_blec_apps_gap_cb);
     esp_ble_gattc_register_callback(esk8_blec_apps_gattc_cb);
 
-    esk8_ble_appc_hndl = (esk8_blec_apps_hndl_t) { 0 };
+    esk8_blec_apps = (esk8_blec_apps_t) { 0 };
 
-    esk8_ble_appc_hndl.app_list = calloc(
+    esk8_blec_apps.app_list = calloc(
         n_apps_max,
         sizeof(esk8_blec_app_t*)
     );
 
-    esk8_ble_appc_hndl.app_ctx_list = calloc(
+    esk8_blec_apps.app_ctx_list = calloc(
         n_apps_max * n_conn_max,
         sizeof(esk8_blec_conn_ctx_t)
     );
 
+    esk8_blec_apps.dev_list = calloc(
+        n_conn_max,
+        sizeof(esk8_blec_dev_t)
+    );
+
     if  (
-            !esk8_ble_appc_hndl.app_list ||
-            !esk8_ble_appc_hndl.app_ctx_list
+            !esk8_blec_apps.app_list ||
+            !esk8_blec_apps.dev_list ||
+            !esk8_blec_apps.app_ctx_list
         )
     {
         err = ESK8_ERR_OOM;
         goto fail;
     }
 
-    esk8_ble_appc_hndl.n_apps_max = n_apps_max;
-    esk8_ble_appc_hndl.n_conn_max = n_conn_max;
-    esk8_ble_appc_hndl.n_apps = 0;
+    esk8_blec_apps.n_apps_max = n_apps_max;
+    esk8_blec_apps.n_conn_max = n_conn_max;
+    esk8_blec_apps.n_apps = 0;
+    esk8_blec_apps.n_conn = 0;
+    esk8_blec_apps.n_dev  = 0;
 
     esp_ble_gap_start_scanning(~0);
     return ESK8_OK;
@@ -87,19 +95,19 @@ esk8_blec_apps_app_reg(
     esk8_blec_app_t* app
 )
 {
-    uint* app_n = &esk8_ble_appc_hndl.n_apps;
+    uint* app_n = &esk8_blec_apps.n_apps;
 
-    if (*app_n == esk8_ble_appc_hndl.n_apps_max)
+    if (*app_n == esk8_blec_apps.n_apps_max)
         return ESK8_ERR_BLE_APPC_INIT_MAXREG;
 
-    esk8_ble_appc_hndl.app_list[*app_n] = app;
+    esk8_blec_apps.app_list[*app_n] = app;
 
     if (app->app_init)
         app->app_init();
 
     esp_ble_gattc_app_register(*app_n);
-
     (*app_n)++;
+
     return ESK8_OK;
 }
 
@@ -107,15 +115,35 @@ esk8_blec_apps_app_reg(
 void
 esk8_blec_apps_deinit()
 {
-    if (esk8_ble_appc_hndl.app_list)
+    if (esk8_blec_apps.app_list)
     {
-        for (int i = 0; i < esk8_ble_appc_hndl.n_apps; i++)
-            if (esk8_ble_appc_hndl.app_list[i]->app_deinit)
-                esk8_ble_appc_hndl.app_list[i]->app_deinit();
+        for (int i = 0; i < esk8_blec_apps.n_apps; i++)
+            if (esk8_blec_apps.app_list[i]->app_deinit)
+                esk8_blec_apps.app_list[i]->app_deinit();
 
-        free(esk8_ble_appc_hndl.app_list);
+        free(esk8_blec_apps.app_list);
     }
 
-    if (esk8_ble_appc_hndl.app_ctx_list)
-        free(esk8_ble_appc_hndl.app_ctx_list);
+    if (esk8_blec_apps.app_ctx_list)
+        free(esk8_blec_apps.app_ctx_list);
+
+    if (esk8_blec_apps.dev_list)
+        free(esk8_blec_apps.dev_list);
+}
+
+
+esk8_err_t
+esk8_blec_apps_dev_reg(
+    esk8_blec_dev_t* dev
+)
+{
+    uint* n_dev = &esk8_blec_apps.n_dev;
+
+    if (*n_dev >= esk8_blec_apps.n_conn_max)
+        return ESK8_ERR_BLE_APPC_DEV_MAXREG;
+
+    esk8_blec_apps.dev_list[*n_dev] = dev;
+    ++(*n_dev);
+
+    return ESK8_OK;
 }
