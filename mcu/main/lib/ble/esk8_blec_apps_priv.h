@@ -19,6 +19,15 @@ typedef struct
 }
 esk8_blec_apps_hndl_t;
 
+extern esk8_blec_apps_hndl_t
+    esk8_ble_appc_hndl;
+
+esk8_blec_conn_ctx_t*
+esk8_blec_apps_get_ctx(
+    uint gattc_if,
+    uint conn_id
+);
+
 void
 esk8_blec_apps_gattc_cb(
     esp_gattc_cb_event_t event,

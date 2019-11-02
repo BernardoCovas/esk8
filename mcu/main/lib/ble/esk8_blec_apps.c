@@ -11,7 +11,7 @@
 #include <esp_gap_ble_api.h>
 
 
-static esk8_blec_apps_hndl_t
+esk8_blec_apps_hndl_t
     esk8_ble_appc_hndl = { 0 };
 
 esk8_err_t
@@ -73,6 +73,7 @@ esk8_blec_apps_init(
     esk8_ble_appc_hndl.n_conn_max = n_conn_max;
     esk8_ble_appc_hndl.n_apps = 0;
 
+    esp_ble_gap_start_scanning(~0);
     return ESK8_OK;
 
 fail:
@@ -117,67 +118,4 @@ esk8_blec_apps_deinit()
 
     if (esk8_ble_appc_hndl.app_ctx_list)
         free(esk8_ble_appc_hndl.app_ctx_list);
-}
-
-void
-esk8_blec_apps_gattc_cb(
-    esp_gattc_cb_event_t event,
-    esp_gatt_if_t gattc_if,
-    esp_ble_gattc_cb_param_t* param
-)
-{
-    esk8_blec_app_t* app = NULL;
-
-    if (event == ESP_GATTC_REG_EVT)
-    {
-        app = esk8_ble_appc_hndl.app_list[param->reg.app_id];
-        esk8_ble_appc_hndl.app_ctx_list[param->reg.app_id].gattc_if = gattc_if;
-    }
-    else
-        for (int i = 0; i < esk8_ble_appc_hndl.n_apps; i++)
-        {
-            if (esk8_ble_appc_hndl.app_ctx_list[i].gattc_if == gattc_if)
-            {
-                app = esk8_ble_appc_hndl.app_list[i];
-                break;
-            }
-        }
-
-    if (!app)
-    {
-        esk8_log_W(ESK8_TAG_BLE,
-            "Got event %d with no associated app.\n", event
-        );
-        return;
-    }
-
-    switch (event)
-    {
-    case ESP_GATTC_CONNECT_EVT:
-        // TODO
-        break;
-    
-    default:
-        break;
-    }
-
-    esk8_log_I(ESK8_TAG_BLE,
-        "Got event %d, passing to app '%s'\n",
-        event, app->app_name
-    );
-
-    if (app->app_evt_cb)
-        app->app_evt_cb(event, param);
-}
-
-
-void
-esk8_blec_apps_gap_cb(
-    esp_gap_ble_cb_event_t event,
-    esp_ble_gap_cb_param_t *param
-)
-{
-    esk8_log_D(ESK8_TAG_BLE,
-        "Got event: %d\n", event
-    );
 }
