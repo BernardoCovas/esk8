@@ -14,5 +14,9 @@ if(ESK8_REMOTE)
     add_definitions(-DESK8_REMOTE)
 endif(ESK8_REMOTE)
 
+if (ESK8_LOG_LEVEL)
+    add_definitions(-DESK8_LOG_LEVEL=${ESK8_LOG_LEVEL})
+endif(ESK8_LOG_LEVEL)
+
 
 register_component()
