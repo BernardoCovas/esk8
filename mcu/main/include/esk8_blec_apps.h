@@ -9,6 +9,13 @@
 
 typedef struct
 {
+    const char* name;
+    uint8_t addr[6];
+}
+esk8_blec_dev_t;
+
+typedef struct
+{
     int     gattc_if;
     int     conn_id;
     void*   ctx;
@@ -49,8 +56,16 @@ esk8_blec_apps_app_reg(
 );
 
 esk8_err_t
-esk8_blec_apps_connect(
-    uint8_t addr[6]
+esk8_blec_apps_dev_reg(
+    esk8_blec_dev_t* dev
+);
+
+esk8_err_t
+esk8_blec_search_start(
+);
+
+esk8_err_t
+esk8_blec_search_stop(
 );
 
 #endif /* _ESK8_BLEC_APPS_H */
