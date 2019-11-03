@@ -10,6 +10,7 @@
 typedef struct
 {
     const char* name;
+    esk8_ble_dev_state_t state;
     uint8_t addr[6];
 }
 esk8_blec_dev_t;
@@ -24,8 +25,7 @@ esk8_blec_conn_ctx_t;
 
 typedef struct
 {
-    const char*         app_name;
-    esk8_ble_app_stat_t stat;
+    const char*           app_name;
 
     esk8_err_t (*app_init      )();
     esk8_err_t (*app_deinit    )();

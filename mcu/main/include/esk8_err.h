@@ -45,6 +45,7 @@ typedef enum esk8_err_t
     ESK8_ERR_BLE_APPC_INIT_REINIT,          /* Already had been initialized */
     ESK8_ERR_BLE_APPC_INIT_FAILED,
     ESK8_ERR_BLE_APPC_INIT_MAXREG,          /* Maximum number of registed apps reached */
+    ESK8_ERR_BLE_APPC_SCAN_FAILED,          /* Not initialized */
     ESK8_ERR_BLE_APPC_DEV_MAXREG,           /* Maximum number of registed devices reached */
     ESK8_ERR_BLE_APPC_NOTF_TIMEOUT,
     ESK8_ERR_BLE_APPC_APP_NOREG,            /* App not registered */

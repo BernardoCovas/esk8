@@ -11,6 +11,17 @@
 #include <esp_gap_ble_api.h>
 
 
+
+static esp_ble_scan_params_t
+esk8_blec_scan_params = {
+    .scan_type              = BLE_SCAN_TYPE_ACTIVE,
+    .own_addr_type          = BLE_ADDR_TYPE_PUBLIC,
+    .scan_filter_policy     = BLE_SCAN_FILTER_ALLOW_ALL,
+    .scan_interval          = 0x50,
+    .scan_window            = 0x30,
+    .scan_duplicate         = BLE_SCAN_DUPLICATE_ENABLE
+};
+
 esk8_blec_apps_t
     esk8_blec_apps = { 0 };
 
@@ -20,7 +31,7 @@ esk8_blec_apps_init(
     uint n_conn_max
 )
 {
-    if (esk8_blec_apps.app_ctx_list)
+    if (esk8_blec_apps.state)
         return ESK8_ERR_BLE_APPC_INIT_REINIT;
 
     esk8_err_t err;
@@ -45,6 +56,7 @@ esk8_blec_apps_init(
     esp_bt_controller_enable(ESP_BT_MODE_BLE);
     esp_bluedroid_init();
     esp_bluedroid_enable();
+    esp_ble_gap_set_scan_params(&esk8_blec_scan_params);
     esp_ble_gap_register_callback(esk8_blec_apps_gap_cb);
     esp_ble_gattc_register_callback(esk8_blec_apps_gattc_cb);
 
@@ -83,6 +95,7 @@ esk8_blec_apps_init(
     esk8_blec_apps.n_apps = 0;
     esk8_blec_apps.n_conn = 0;
     esk8_blec_apps.n_dev  = 0;
+    esk8_blec_apps.state  = ESK8_BLEC_STATE_INIT;
 
     return ESK8_OK;
 
@@ -144,6 +157,7 @@ esk8_blec_apps_dev_reg(
     if (*n_dev >= esk8_blec_apps.n_conn_max)
         return ESK8_ERR_BLE_APPC_DEV_MAXREG;
 
+    dev->state = ESK8_BLE_DEV_NOTFOUND;
     esk8_blec_apps.dev_list[*n_dev] = dev;
     ++(*n_dev);
 
@@ -161,11 +175,21 @@ esk8_err_t
 esk8_blec_search_start(
 )
 {
-    esp_ble_gap_start_scanning(~0);
+    esp_err_t err = esp_ble_gap_start_scanning(~0);
+    if (err)
+    {
+        esk8_log_E(ESK8_TAG_BLE,
+            "Err: '%s' starting scan.\n",
+            esp_err_to_name(err)
+        );
+        return ESK8_ERR_BLE_APPC_SCAN_FAILED;
+    }
+
     esk8_log_I(ESK8_TAG_BLE,
         "Started scanning.\n"
     );
 
+    esk8_blec_apps.state = ESK8_BLEC_STATE_SEARCHING;
     return ESK8_OK;
 }
 
@@ -173,10 +197,29 @@ esk8_err_t
 esk8_blec_search_stop(
 )
 {
-    esp_ble_gap_stop_scanning();
-    esk8_log_I(ESK8_TAG_BLE,
-        "Stopped scanning.\n"
-    );
+    if (!esk8_blec_apps.state)
+        return ESK8_ERR_BLE_APPC_INIT_NOINIT;
+
+    switch (esk8_blec_apps.state)
+    {
+    case ESK8_BLEC_STATE_SEARCHING:
+        esk8_blec_apps.state = ESK8_BLEC_STATE_RUNNING;
+        esp_ble_gap_stop_scanning();
+        esk8_log_I(ESK8_TAG_BLE,"Stopped scanning.\n");
+        break;
+    
+    case ESK8_BLEC_STATE_CONNECTING:
+        esk8_log_W(ESK8_TAG_BLE,
+            "Tried to stop scanning, but was connecting. Wait."
+        );
+        break;
+
+    default:
+        esk8_log_W(ESK8_TAG_BLE,
+            "Tried to stop scanning without an active scan.\n"
+        );
+        break;
+    }
 
     return ESK8_OK;
 }
@@ -185,17 +228,16 @@ esk8_err_t
 esk8_blec_dscn(
 )
 {
-    for (int i = 0; i < esk8_blec_apps.n_conn; i++)
-    {
-        esk8_log_I(ESK8_TAG_BLE,
-            "Disconnecting: %s\n",
-            esk8_blec_apps.app_ctx_list[i].conn_id
-        );
+    if (!esk8_blec_apps.state)
+        return ESK8_ERR_BLE_APPC_INIT_NOINIT;
 
-        esp_ble_gattc_close(
-            esk8_blec_apps.app_ctx_list[i].gattc_if,
-            esk8_blec_apps.app_ctx_list[i].conn_id
-        );
+    for (int i=0; i<esk8_blec_apps.n_dev; i++)
+    {
+        esk8_blec_dev_t* dev = esk8_blec_apps.dev_list[i];
+        if (dev->state > ESK8_BLE_DEV_CONNECTING)
+            esp_ble_gap_disconnect(dev->addr);
+
+        esk8_blec_apps.dev_list[i]->state = ESK8_BLE_DEV_NOTFOUND;
     }
 
     return ESK8_OK;

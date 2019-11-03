@@ -8,6 +8,16 @@
 
 #include <stdint.h>
 
+typedef
+enum esk8_ble_app_stat
+{
+    ESK8_BLEC_STATE_NOINIT = 0,
+    ESK8_BLEC_STATE_INIT,
+    ESK8_BLEC_STATE_SEARCHING,
+    ESK8_BLEC_STATE_CONNECTING,
+    ESK8_BLEC_STATE_RUNNING,
+}
+esk8_blec_apps_state_t;
 
 typedef struct
 {
@@ -16,20 +26,15 @@ typedef struct
     uint n_conn;
     uint n_apps_max;
     uint n_conn_max;
-    esk8_blec_dev_t** dev_list;
-    esk8_blec_app_t** app_list;
-    esk8_blec_conn_ctx_t* app_ctx_list;
+    esk8_blec_dev_t**      dev_list;
+    esk8_blec_app_t**      app_list;
+    esk8_blec_conn_ctx_t*  app_ctx_list;
+    esk8_blec_apps_state_t state;
 }
 esk8_blec_apps_t;
 
 extern esk8_blec_apps_t
     esk8_blec_apps;
-
-esk8_blec_conn_ctx_t*
-esk8_blec_apps_get_ctx(
-    uint gattc_if,
-    uint conn_id
-);
 
 void
 esk8_blec_apps_gattc_cb(
@@ -44,5 +49,9 @@ esk8_blec_apps_gap_cb(
     esp_ble_gap_cb_param_t *param
 );
 
+esk8_blec_dev_t*
+esk8_blec_apps_get_dev(
+    uint8_t addr[6]
+);
 
 #endif /* _ESK8_BLEC_APPS_PRIV_H */

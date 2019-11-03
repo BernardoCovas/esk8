@@ -30,8 +30,8 @@ app_main()
     static esk8_blec_dev_t
         devices[] = {
         {
-            .name = "OnePlus 5",
-            .addr = { 0x02, 0x02, 0x02, 0xFF, 0xFF, 0xFF }
+            .name = "Esk8",
+            .addr = { 0x3C, 0x71, 0xBF, 0x4F, 0x0C, 0xA2 }
         }
     };
 
