@@ -75,6 +75,9 @@ esk8_blec_apps_init(
         goto fail;
     }
 
+    for (int i=0; i < n_conn_max; i++)
+        esk8_blec_apps.app_ctx_list[i].conn_id = -1;
+
     esk8_blec_apps.n_apps_max = n_apps_max;
     esk8_blec_apps.n_conn_max = n_conn_max;
     esk8_blec_apps.n_apps = 0;
