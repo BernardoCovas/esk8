@@ -58,7 +58,17 @@ skip_search:
     switch (event)
     {
         case ESP_GATTC_CONNECT_EVT:
-            // TODO
+            break;
+
+        case ESP_GATTC_DISCONNECT_EVT:
+            break;
+
+        case ESP_GATTC_OPEN_EVT:
+            esk8_log_D(
+                ESK8_TAG_BLE,
+                "Gattc open. Status: 0x%02x\n",
+                param->open.status
+            );
             break;
 
         default:

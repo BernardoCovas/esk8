@@ -1,6 +1,8 @@
 #include <esk8_err.h>
+#include <esk8_log.h>
 #include <esk8_ble_defs.h>
 #include <esk8_blec_apps.h>
+
 
 static esk8_err_t
 app_init(
@@ -121,8 +123,8 @@ app_evt_cb(
     esp_ble_gattc_cb_param_t *param
 )
 {
-    printf("[BLE] %s: Evt %d\n",
-        esk8_blec_app_ctrl.app_name,
+    esk8_log_D(ESK8_TAG_BLE,
+        "(blec_app_ctrl) Evt %d\n",
         event
     );
 
