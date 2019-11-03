@@ -24,6 +24,18 @@ app_main()
     err = esk8_blec_apps_init(2, 10);
     if (err)
         goto fail;
+    
+    esk8_blec_apps_app_reg(&esk8_blec_app_ctrl);
+
+    static esk8_blec_dev_t
+        devices[] = {
+        {
+            .name = "OnePlus 5",
+            .addr = { 0x02, 0x02, 0x02, 0xFF, 0xFF, 0xFF }
+        }
+    };
+
+    esk8_blec_apps_dev_reg(&devices[0]);
 
     err = esk8_rmt_start();
     if (err)

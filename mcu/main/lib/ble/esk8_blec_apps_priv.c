@@ -24,21 +24,28 @@ esk8_blec_apps_gattc_cb(
 )
 {
     esk8_blec_app_t* app = NULL;
+    int app_idx = -1;
 
     if (event == ESP_GATTC_REG_EVT)
     {
-        app = esk8_blec_apps.app_list[param->reg.app_id];
+        app_idx = param->reg.app_id;
+        app = esk8_blec_apps.app_list[app_idx];
         esk8_blec_apps.app_ctx_list[param->reg.app_id].gattc_if = gattc_if;
+
+        goto skip_search;
     }
-    else
-        for (int i = 0; i < esk8_blec_apps.n_apps; i++)
+
+    for (int i = 0; i < esk8_blec_apps.n_apps; i++)
+    {
+        if (esk8_blec_apps.app_ctx_list[i].gattc_if == gattc_if)
         {
-            if (esk8_blec_apps.app_ctx_list[i].gattc_if == gattc_if)
-            {
-                app = esk8_blec_apps.app_list[i];
-                break;
-            }
+            app = esk8_blec_apps.app_list[i];
+            app_idx = i;
+            break;
         }
+    }
+
+skip_search:
 
     if (!app)
     {
@@ -50,12 +57,12 @@ esk8_blec_apps_gattc_cb(
 
     switch (event)
     {
-    case ESP_GATTC_CONNECT_EVT:
-        // TODO
-        break;
-    
-    default:
-        break;
+        case ESP_GATTC_CONNECT_EVT:
+            // TODO
+            break;
+
+        default:
+            break;
     }
 
     esk8_log_I(ESK8_TAG_BLE,
@@ -94,7 +101,10 @@ esk8_blec_apps_gap_cb(
         );
 
         if (!dev_name)
+        {
             dev_name = (uint8_t*)"(no name)";
+            ble_name_len = strlen((const char*)dev_name);
+        }
         else
             dev_name[ble_name_len] = 0;
 
@@ -108,13 +118,21 @@ esk8_blec_apps_gap_cb(
         {
             esk8_blec_dev_t* dev = esk8_blec_apps.dev_list[i];
             if  (
-                    memcmp(dev->addr, param->scan_rst.bda, 6) == 0 &&
-                    strcmp(dev->name, dev_name) == 0
+                    // memcmp(dev->addr, param->scan_rst.bda, 6) == 0 &&
+                    strncmp(dev->name, (char*)dev_name, ble_name_len) == 0
                 )
             {
                 esk8_log_I(ESK8_TAG_BLE,
-                    "Connecting to %s\n",
+                    "Connecting to '%s'\n",
                     dev_name
+                );
+
+                esp_ble_gap_stop_scanning();
+                esp_ble_gattc_open(
+                    esk8_blec_apps.app_ctx_list[0].gattc_if,
+                    dev->addr,
+                    param->scan_rst.ble_addr_type,
+                    true
                 );
             }
         }

@@ -43,7 +43,8 @@ app_evt_cb(
 );
 
 
-esk8_blec_app_t app_ctrl = {
+esk8_blec_app_t 
+esk8_blec_app_ctrl = {
     .app_name = "ble_client_ctrl",
 
     .app_init = app_init,
@@ -121,7 +122,7 @@ app_evt_cb(
 )
 {
     printf("[BLE] %s: Evt %d\n",
-        app_ctrl.app_name,
+        esk8_blec_app_ctrl.app_name,
         event
     );
 

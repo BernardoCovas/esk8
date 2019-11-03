@@ -81,7 +81,6 @@ esk8_blec_apps_init(
     esk8_blec_apps.n_conn = 0;
     esk8_blec_apps.n_dev  = 0;
 
-    esp_ble_gap_start_scanning(~0);
     return ESK8_OK;
 
 fail:
@@ -144,6 +143,57 @@ esk8_blec_apps_dev_reg(
 
     esk8_blec_apps.dev_list[*n_dev] = dev;
     ++(*n_dev);
+
+    esk8_log_I(ESK8_TAG_BLE,
+        "Registered: %s, %02x:%02x:%02x:%02x:%02x:%02x\n",
+        dev->name,
+        dev->addr[0], dev->addr[1], dev->addr[2],
+        dev->addr[3], dev->addr[4], dev->addr[5]
+    );
+
+    return ESK8_OK;
+}
+
+esk8_err_t
+esk8_blec_search_start(
+)
+{
+    esp_ble_gap_start_scanning(~0);
+    esk8_log_I(ESK8_TAG_BLE,
+        "Started scanning.\n"
+    );
+
+    return ESK8_OK;
+}
+
+esk8_err_t
+esk8_blec_search_stop(
+)
+{
+    esp_ble_gap_stop_scanning();
+    esk8_log_I(ESK8_TAG_BLE,
+        "Stopped scanning.\n"
+    );
+
+    return ESK8_OK;
+}
+
+esk8_err_t
+esk8_blec_dscn(
+)
+{
+    for (int i = 0; i < esk8_blec_apps.n_conn; i++)
+    {
+        esk8_log_I(ESK8_TAG_BLE,
+            "Disconnecting: %s\n",
+            esk8_blec_apps.app_ctx_list[i].conn_id
+        );
+
+        esp_ble_gattc_close(
+            esk8_blec_apps.app_ctx_list[i].gattc_if,
+            esk8_blec_apps.app_ctx_list[i].conn_id
+        );
+    }
 
     return ESK8_OK;
 }

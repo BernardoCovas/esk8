@@ -68,4 +68,12 @@ esk8_err_t
 esk8_blec_search_stop(
 );
 
+
+/**
+ * Close conn
+ */
+esk8_err_t
+esk8_blec_dscn(
+);
+
 #endif /* _ESK8_BLEC_APPS_H */
