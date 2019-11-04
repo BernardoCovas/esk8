@@ -14,28 +14,32 @@ app_deinit(
 
 static esk8_err_t
 app_conn_add(
-    esk8_blec_conn_ctx_t* conn_ctx
+    esk8_blec_dev_t*    dev,
+    void**              conn_ctx_p
 );
 
 static esk8_err_t
 app_conn_del(
-    esk8_blec_conn_ctx_t* conn_ctx
+    esk8_blec_dev_t*    dev,
+    void**              conn_ctx_p
 );
 
 static esk8_err_t
 app_conn_notif(
-    esk8_blec_conn_ctx_t* conn_ctx,
-    int                  attr_idx,
-    size_t               len,
-    uint8_t*             val
+    esk8_blec_dev_t*    dev,
+    void**              conn_ctx_p,
+    int                 attr_idx,
+    size_t              len,
+    uint8_t*            val
 );
 
 static esk8_err_t
 app_conn_read(
-    esk8_blec_conn_ctx_t* conn_ctx,
-    int                  attr_idx,
-    size_t               len,
-    uint8_t*             val
+    esk8_blec_dev_t*    dev,
+    void**              conn_ctx_p,
+    int                 attr_idx,
+    size_t              len,
+    uint8_t*            val
 );
 
 static esk8_err_t
@@ -77,7 +81,8 @@ app_deinit(
 
 static esk8_err_t
 app_conn_add(
-    esk8_blec_conn_ctx_t* conn_ctx
+    esk8_blec_dev_t* dev,
+    void** conn_ctx_p
 )
 {
     return ESK8_OK;
@@ -86,7 +91,8 @@ app_conn_add(
 
 static esk8_err_t
 app_conn_del(
-    esk8_blec_conn_ctx_t* conn_ctx
+    esk8_blec_dev_t* dev,
+    void** conn_ctx_p
 )
 {
     return ESK8_OK;
@@ -95,10 +101,11 @@ app_conn_del(
 
 static esk8_err_t
 app_conn_notif(
-    esk8_blec_conn_ctx_t* conn_ctx,
-    int                  attr_idx,
-    size_t               len,
-    uint8_t*             val
+    esk8_blec_dev_t* dev,
+    void** conn_ctx_p,
+    int attr_idx,
+    size_t len,
+    uint8_t* val
 )
 {
     return ESK8_OK;
@@ -107,10 +114,11 @@ app_conn_notif(
 
 static esk8_err_t
 app_conn_read(
-    esk8_blec_conn_ctx_t* conn_ctx,
-    int                  attr_idx,
-    size_t               len,
-    uint8_t*             val
+    esk8_blec_dev_t*    dev,
+    void**              conn_ctx_p,
+    int                 attr_idx,
+    size_t              len,
+    uint8_t*            val
 )
 {
     return ESK8_OK;

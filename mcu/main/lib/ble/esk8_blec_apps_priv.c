@@ -226,13 +226,14 @@ esk8_blec_apps_gap_cb(
 
         for (int i = 0; i < esk8_blec_apps.n_dev; i++)
         {
-            esk8_blec_dev_t* dev = esk8_blec_apps_get_dev(param->scan_rst.bda);
+            esk8_blec_dev_hndl_t* dev_hndl = esk8_blec_apps_get_dev_hndl(param->scan_rst.bda);
+
             if  (
-                    dev &&
-                    strncmp(dev->name, (char*)dev_name, ble_name_len) == 0
+                    dev_hndl &&
+                    strncmp(dev_hndl->dev_p->name, (char*)dev_name, ble_name_len) == 0
                 )
             {
-                if (dev->state > ESK8_BLE_DEV_NOTFOUND)
+                if (dev_hndl->state > ESK8_BLE_DEV_NOTFOUND)
                     break;
 
                 esk8_log_I(ESK8_TAG_BLE,
@@ -240,14 +241,14 @@ esk8_blec_apps_gap_cb(
                     dev_name
                 );
 
-                dev->state = ESK8_BLE_DEV_CONNECTING;
+                dev_hndl->state = ESK8_BLE_DEV_CONNECTING;
                 esk8_blec_apps.state = ESK8_BLEC_STATE_CONNECTING;
 
                 esp_ble_gap_stop_scanning();
                 for (int j=0; j<esk8_blec_apps.n_apps; j++)
                 esp_ble_gattc_open(
-                    esk8_blec_apps.app_ctx_list[j].gattc_if,
-                    dev->addr,
+                    esk8_blec_apps.app_l[j].gatt_if,
+                    (uint8_t*)dev_hndl->dev_p->addr,
                     param->scan_rst.ble_addr_type,
                     true
                 );

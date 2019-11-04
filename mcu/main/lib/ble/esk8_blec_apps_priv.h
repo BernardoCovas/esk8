@@ -68,7 +68,7 @@ esk8_blec_apps_gap_cb(
 );
 
 esk8_blec_dev_hndl_t*
-esk8_blec_apps_get_dev(
+esk8_blec_apps_get_dev_hndl(
     uint8_t addr[6]
 );
 

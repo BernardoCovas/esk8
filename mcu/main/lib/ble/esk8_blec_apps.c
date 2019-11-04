@@ -262,7 +262,7 @@ esk8_blec_dscn(
                 MAC2STR(dev_hndl->dev_p->addr)
             );
 
-            esp_ble_gap_disconnect(dev_hndl->dev_p->addr);
+            esp_ble_gap_disconnect((uint8_t*)dev_hndl->dev_p->addr);
         }
 
         dev_hndl->state = ESK8_BLE_DEV_NOTFOUND;
