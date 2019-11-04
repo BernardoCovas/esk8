@@ -19,6 +19,14 @@ enum esk8_ble_app_stat
 }
 esk8_blec_apps_state_t;
 
+struct
+{
+    int gatt_if;
+    esk8_blec_app_t* app;
+    esk8_blec_conn_ctx_t* conn_ctx_list;
+}
+esk8_blec_app_hndl_t;
+
 typedef struct
 {
     uint n_dev;
@@ -28,7 +36,7 @@ typedef struct
     uint n_conn_max;
     esk8_blec_dev_t**      dev_list;
     esk8_blec_app_t**      app_list;
-    esk8_blec_conn_ctx_t*  app_ctx_list;
+    esk8_blec_conn_ctx_t*  conn_ctx_list;
     esk8_blec_apps_state_t state;
 }
 esk8_blec_apps_t;

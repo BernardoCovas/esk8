@@ -162,10 +162,9 @@ esk8_blec_apps_dev_reg(
     ++(*n_dev);
 
     esk8_log_I(ESK8_TAG_BLE,
-        "Registered: %s, %02x:%02x:%02x:%02x:%02x:%02x\n",
+        "Registered: %s, " MACSTR "\n",
         dev->name,
-        dev->addr[0], dev->addr[1], dev->addr[2],
-        dev->addr[3], dev->addr[4], dev->addr[5]
+        MAC2STR(dev->addr)
     );
 
     return ESK8_OK;
@@ -179,8 +178,9 @@ esk8_blec_search_start(
     if (err)
     {
         esk8_log_E(ESK8_TAG_BLE,
-            "Err: '%s' starting scan.\n",
-            esp_err_to_name(err)
+            "Err: '%s' (%d) starting scan.\n",
+            esp_err_to_name(err),
+            err
         );
         return ESK8_ERR_BLE_APPC_SCAN_FAILED;
     }
@@ -234,7 +234,7 @@ esk8_blec_dscn(
     for (int i=0; i<esk8_blec_apps.n_dev; i++)
     {
         esk8_blec_dev_t* dev = esk8_blec_apps.dev_list[i];
-        if (dev->state > ESK8_BLE_DEV_CONNECTING)
+        if (dev->state >= ESK8_BLE_DEV_CONNECTING)
             esp_ble_gap_disconnect(dev->addr);
 
         esk8_blec_apps.dev_list[i]->state = ESK8_BLE_DEV_NOTFOUND;
