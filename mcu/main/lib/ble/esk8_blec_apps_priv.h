@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 
+
 typedef
 enum esk8_ble_app_stat
 {
@@ -19,24 +20,33 @@ enum esk8_ble_app_stat
 }
 esk8_blec_apps_state_t;
 
-struct
+typedef
+struct esk8_blec_app_hndl
 {
     int gatt_if;
     esk8_blec_app_t* app;
-    esk8_blec_conn_ctx_t* conn_ctx_list;
+    void** conn_ctx_list;
 }
 esk8_blec_app_hndl_t;
 
-typedef struct
+typedef
+struct esk8_blec_dev_hndl
+{
+    int conn_id;
+    esk8_blec_dev_t* dev_p;
+    esk8_ble_dev_state_t state;
+}
+esk8_blec_dev_hndl_t;
+
+typedef
+struct esk8_blec_apps
 {
     uint n_dev;
     uint n_apps;
-    uint n_conn;
     uint n_apps_max;
     uint n_conn_max;
-    esk8_blec_dev_t**      dev_list;
-    esk8_blec_app_t**      app_list;
-    esk8_blec_conn_ctx_t*  conn_ctx_list;
+    esk8_blec_dev_hndl_t* dev_l;
+    esk8_blec_app_hndl_t* app_l;
     esk8_blec_apps_state_t state;
 }
 esk8_blec_apps_t;
@@ -57,7 +67,7 @@ esk8_blec_apps_gap_cb(
     esp_ble_gap_cb_param_t *param
 );
 
-esk8_blec_dev_t*
+esk8_blec_dev_hndl_t*
 esk8_blec_apps_get_dev(
     uint8_t addr[6]
 );

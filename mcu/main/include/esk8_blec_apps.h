@@ -11,26 +11,19 @@ typedef struct
 {
     const char*   name;
     const uint8_t addr[6];
-    esk8_ble_dev_state_t state;
 }
 esk8_blec_dev_t;
 
 typedef struct
 {
-    void* app_conn_ctx; /* Can be allocated and freed by the app */
-}
-esk8_blec_conn_ctx_t;
-
-typedef struct
-{
     const char* app_name;
 
-    esk8_err_t (*app_init      )(int gatt_if);
+    esk8_err_t (*app_init      )();
     esk8_err_t (*app_deinit    )();
-    esk8_err_t (*app_conn_add  )(void** conn_ctx_p);
-    esk8_err_t (*app_conn_del  )(void** conn_ctx_p);
-    esk8_err_t (*app_conn_notif)(void** conn_ctx_p, int attr_idx, size_t  len, uint8_t* val);
-    esk8_err_t (*app_conn_read )(void** conn_ctx_p, int attr_idx, size_t  len, uint8_t* val);
+    esk8_err_t (*app_conn_add  )(esk8_blec_dev_t* dev, void** conn_ctx_p);
+    esk8_err_t (*app_conn_del  )(esk8_blec_dev_t* dev, void** conn_ctx_p);
+    esk8_err_t (*app_conn_notif)(esk8_blec_dev_t* dev, void** conn_ctx_p, int attr_idx, size_t  len, uint8_t* val);
+    esk8_err_t (*app_conn_read )(esk8_blec_dev_t* dev, void** conn_ctx_p, int attr_idx, size_t  len, uint8_t* val);
     esk8_err_t (*app_evt_cb    )(esp_gattc_cb_event_t event, esp_ble_gattc_cb_param_t *param);
 }
 esk8_blec_app_t;

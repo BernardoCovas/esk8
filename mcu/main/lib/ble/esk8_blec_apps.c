@@ -62,38 +62,52 @@ esk8_blec_apps_init(
 
     esk8_blec_apps = (esk8_blec_apps_t) { 0 };
 
-    esk8_blec_apps.app_list = calloc(
+    esk8_blec_apps.app_l = calloc(
         n_apps_max,
-        sizeof(esk8_blec_app_t*)
+        sizeof(esk8_blec_app_hndl_t*)
     );
 
-    esk8_blec_apps.app_ctx_list = calloc(
-        n_apps_max * n_conn_max,
-        sizeof(esk8_blec_conn_ctx_t)
-    );
-
-    esk8_blec_apps.dev_list = calloc(
+    esk8_blec_apps.dev_l = calloc(
         n_conn_max,
-        sizeof(esk8_blec_dev_t)
+        sizeof(esk8_blec_dev_hndl_t)
     );
+
+    err = ESK8_ERR_OOM;
 
     if  (
-            !esk8_blec_apps.app_list ||
-            !esk8_blec_apps.dev_list ||
-            !esk8_blec_apps.app_ctx_list
+            !esk8_blec_apps.app_l ||
+            !esk8_blec_apps.dev_l
         )
-    {
-        err = ESK8_ERR_OOM;
         goto fail;
+
+    for (int i=0; i<n_apps_max; i++)
+    {
+        esk8_blec_apps.app_l[i].conn_ctx_list = calloc(
+            n_conn_max,
+            sizeof(void*)
+        );
+
+        if (!esk8_blec_apps.app_l[i].conn_ctx_list)
+            goto fail;
     }
 
+    esk8_log_D(ESK8_TAG_BLE,
+        "Allocated mem. for %d apps and %d connections.\n",
+        n_apps_max,
+        n_conn_max
+    );
+
     for (int i=0; i < n_conn_max; i++)
-        esk8_blec_apps.app_ctx_list[i].conn_id = -1;
+    {
+        esk8_blec_apps.dev_l[i].conn_id = -1;
+        esk8_blec_apps.dev_l[i].state = 0;
+        esk8_blec_apps.dev_l[i].dev_p = NULL;
+    }
+
 
     esk8_blec_apps.n_apps_max = n_apps_max;
     esk8_blec_apps.n_conn_max = n_conn_max;
     esk8_blec_apps.n_apps = 0;
-    esk8_blec_apps.n_conn = 0;
     esk8_blec_apps.n_dev  = 0;
     esk8_blec_apps.state  = ESK8_BLEC_STATE_INIT;
 
@@ -115,7 +129,7 @@ esk8_blec_apps_app_reg(
     if (*app_n == esk8_blec_apps.n_apps_max)
         return ESK8_ERR_BLE_APPC_INIT_MAXREG;
 
-    esk8_blec_apps.app_list[*app_n] = app;
+    esk8_blec_apps.app_l[*app_n].app = app;
 
     if (app->app_init)
         app->app_init();
@@ -130,20 +144,24 @@ esk8_blec_apps_app_reg(
 void
 esk8_blec_apps_deinit()
 {
-    if (esk8_blec_apps.app_list)
+    if (esk8_blec_apps.app_l)
     {
         for (int i = 0; i < esk8_blec_apps.n_apps; i++)
-            if (esk8_blec_apps.app_list[i]->app_deinit)
-                esk8_blec_apps.app_list[i]->app_deinit();
+        {
+            esk8_blec_app_hndl_t* app_hndl = &esk8_blec_apps.app_l[i];
+            if (app_hndl->app->app_deinit)
+                app_hndl->app->app_deinit();
+            if (app_hndl->conn_ctx_list)
+                free(app_hndl->conn_ctx_list);
+        }
 
-        free(esk8_blec_apps.app_list);
+        free(esk8_blec_apps.app_l);
     }
 
-    if (esk8_blec_apps.app_ctx_list)
-        free(esk8_blec_apps.app_ctx_list);
+    if (esk8_blec_apps.dev_l)
+        free(esk8_blec_apps.dev_l);
 
-    if (esk8_blec_apps.dev_list)
-        free(esk8_blec_apps.dev_list);
+    esk8_blec_apps = (esk8_blec_apps_t) { 0 };
 }
 
 
@@ -157,8 +175,10 @@ esk8_blec_apps_dev_reg(
     if (*n_dev >= esk8_blec_apps.n_conn_max)
         return ESK8_ERR_BLE_APPC_DEV_MAXREG;
 
-    dev->state = ESK8_BLE_DEV_NOTFOUND;
-    esk8_blec_apps.dev_list[*n_dev] = dev;
+    esk8_blec_apps.dev_l[*n_dev].dev_p = dev;
+    esk8_blec_apps.dev_l[*n_dev].state = ESK8_BLE_DEV_NOTFOUND;
+    esk8_blec_apps.dev_l[*n_dev].conn_id = -1;
+
     ++(*n_dev);
 
     esk8_log_I(ESK8_TAG_BLE,
@@ -233,11 +253,19 @@ esk8_blec_dscn(
 
     for (int i=0; i<esk8_blec_apps.n_dev; i++)
     {
-        esk8_blec_dev_t* dev = esk8_blec_apps.dev_list[i];
-        if (dev->state >= ESK8_BLE_DEV_CONNECTING)
-            esp_ble_gap_disconnect(dev->addr);
+        esk8_blec_dev_hndl_t* dev_hndl = &esk8_blec_apps.dev_l[i];
+        if (dev_hndl->state >= ESK8_BLE_DEV_CONNECTING)
+        {
+            esk8_log_D(ESK8_TAG_BLE,
+                "Disconnecting %s: " MACSTR "\n",
+                dev_hndl->dev_p->name,
+                MAC2STR(dev_hndl->dev_p->addr)
+            );
 
-        esk8_blec_apps.dev_list[i]->state = ESK8_BLE_DEV_NOTFOUND;
+            esp_ble_gap_disconnect(dev_hndl->dev_p->addr);
+        }
+
+        dev_hndl->state = ESK8_BLE_DEV_NOTFOUND;
     }
 
     return ESK8_OK;
