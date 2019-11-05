@@ -34,7 +34,7 @@ extern esk8_blec_app_t
 esk8_err_t
 esk8_blec_apps_init(
     uint n_apps_max,
-    uint n_conn_max
+    uint n_dev
 );
 
 void

@@ -43,8 +43,8 @@ struct esk8_blec_apps
 {
     uint n_dev;
     uint n_apps;
+    uint n_dev_max;
     uint n_apps_max;
-    uint n_conn_max;
     esk8_blec_dev_hndl_t* dev_l;
     esk8_blec_app_hndl_t* app_l;
     esk8_blec_apps_state_t state;
@@ -64,7 +64,7 @@ esk8_blec_apps_gattc_cb(
 void
 esk8_blec_apps_gap_cb(
     esp_gap_ble_cb_event_t event,
-    esp_ble_gap_cb_param_t *param
+    esp_ble_gap_cb_param_t* param
 );
 
 esk8_blec_dev_hndl_t*

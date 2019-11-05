@@ -32,7 +32,7 @@ esk8_blec_apps_gattc_cb(
     int app_idx = -1;
 
     esk8_log_D(ESK8_TAG_BLE,
-        "(GATTC) Got event: %d\n",
+        "Got gattc event: %d\n",
         event
     );
 
@@ -41,7 +41,7 @@ esk8_blec_apps_gattc_cb(
         if (param->reg.status)
         {
             esk8_log_E(ESK8_TAG_BLE,
-                "(GATTC) Error in app_reg. Status: 0x%02x, name: '%s'\n",
+                "gattc error in app_reg. Status: 0x%02x, name: '%s'\n",
                 param->reg.status,
                 app_hndl->app->app_name
             );
@@ -70,7 +70,7 @@ skip_search:
     if (!app_hndl)
     {
         esk8_log_W(ESK8_TAG_BLE,
-            "(GATTC) Got event %d with no associated app.\n", event
+            "Got gattc event %d with no associated app.\n", event
         );
         return;
     }
@@ -84,8 +84,12 @@ skip_search:
     switch (event)
     {
         case ESP_GATTC_CONNECT_EVT:
+        {
+            esk8_blec_dev_hndl_t* dev_hndl = esk8_blec_apps_get_dev_hndl(
+                param->connect.remote_bda
+            );
 
-            if (param->connect.conn_id >= esk8_blec_apps.n_dev)
+            if (!dev_hndl)
             {
                 esk8_log_E(ESK8_TAG_BLE,
                     "Connected to unknown dev: " MACSTR ". Was given conn_id: %d. Bye.\n",
@@ -96,15 +100,18 @@ skip_search:
                 break;
             }
 
-            esk8_blec_dev_hndl_t* dev = &esk8_blec_apps.dev_l[param->connect.conn_id];
-            dev->conn_id = param->connect.conn_id;
-            dev->state = ESK8_BLE_DEV_CONNECTED;
+            dev_hndl->conn_id = param->connect.conn_id;
+            dev_hndl->state = ESK8_BLE_DEV_CONNECTED;
             break;
+        }
 
         case ESP_GATTC_OPEN_EVT:
         {
+            esk8_blec_dev_hndl_t* dev_hndl = esk8_blec_apps_get_dev_hndl(
+                param->open.remote_bda
+            );
 
-            if (param->connect.conn_id >= esk8_blec_apps.n_dev)
+            if (!dev_hndl)
             {
                 esk8_log_E(ESK8_TAG_BLE,
                     "Opened gattc to an unknown dev: " MACSTR ". Was given conn_id: %d. Bye.\n",
@@ -114,8 +121,6 @@ skip_search:
                 esp_ble_gap_disconnect(param->connect.remote_bda);
                 break;
             }
-
-            esk8_blec_dev_hndl_t* dev_hndl = &esk8_blec_apps.dev_l[param->open.conn_id];
 
             if(param->open.status)
             {
@@ -147,8 +152,11 @@ skip_search:
 
         case ESP_GATTC_DISCONNECT_EVT:
         {
+            esk8_blec_dev_hndl_t* dev_hndl = esk8_blec_apps_get_dev_hndl(
+                param->disconnect.remote_bda
+            );
 
-            if (param->connect.conn_id >= esk8_blec_apps.n_dev)
+            if (!dev_hndl)
             {
                 esk8_log_E(ESK8_TAG_BLE,
                     "Closed conn to an unknown dev: " MACSTR ". Was given conn_id: %d.\n",
@@ -158,7 +166,6 @@ skip_search:
                 break;
             }
 
-            esk8_blec_dev_hndl_t* dev_hndl = &esk8_blec_apps.dev_l[param->open.conn_id];
             void** conn_ctx = &app_hndl->conn_ctx_list[param->disconnect.conn_id];
 
             esk8_log_I(ESK8_TAG_BLE,

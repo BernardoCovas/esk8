@@ -28,7 +28,7 @@ esk8_blec_apps_t
 esk8_err_t
 esk8_blec_apps_init(
     uint n_apps_max,
-    uint n_conn_max
+    uint n_dev_max
 )
 {
     if (esk8_blec_apps.state)
@@ -68,7 +68,7 @@ esk8_blec_apps_init(
     );
 
     esk8_blec_apps.dev_l = calloc(
-        n_conn_max,
+        n_dev_max,
         sizeof(esk8_blec_dev_hndl_t)
     );
 
@@ -83,7 +83,7 @@ esk8_blec_apps_init(
     for (int i=0; i<n_apps_max; i++)
     {
         esk8_blec_apps.app_l[i].conn_ctx_list = calloc(
-            n_conn_max,
+            n_dev_max,
             sizeof(void*)
         );
 
@@ -92,12 +92,12 @@ esk8_blec_apps_init(
     }
 
     esk8_log_D(ESK8_TAG_BLE,
-        "Allocated mem. for %d apps and %d connections.\n",
+        "Allocated mem. for %d apps and %d dev.\n",
         n_apps_max,
-        n_conn_max
+        n_dev_max
     );
 
-    for (int i=0; i < n_conn_max; i++)
+    for (int i=0; i < n_dev_max; i++)
     {
         esk8_blec_apps.dev_l[i].conn_id = -1;
         esk8_blec_apps.dev_l[i].state = 0;
@@ -105,11 +105,11 @@ esk8_blec_apps_init(
     }
 
 
-    esk8_blec_apps.n_apps_max = n_apps_max;
-    esk8_blec_apps.n_conn_max = n_conn_max;
     esk8_blec_apps.n_apps = 0;
-    esk8_blec_apps.n_dev  = 0;
-    esk8_blec_apps.state  = ESK8_BLEC_STATE_INIT;
+    esk8_blec_apps.n_dev = 0;
+    esk8_blec_apps.n_apps_max = n_apps_max;
+    esk8_blec_apps.n_dev_max = n_dev_max;
+    esk8_blec_apps.state = ESK8_BLEC_STATE_INIT;
 
     return ESK8_OK;
 
@@ -172,12 +172,14 @@ esk8_blec_apps_dev_reg(
 {
     uint* n_dev = &esk8_blec_apps.n_dev;
 
-    if (*n_dev >= esk8_blec_apps.n_conn_max)
+    if (*n_dev >= esk8_blec_apps.n_dev_max)
         return ESK8_ERR_BLE_APPC_DEV_MAXREG;
 
-    esk8_blec_apps.dev_l[*n_dev].dev_p = dev;
-    esk8_blec_apps.dev_l[*n_dev].state = ESK8_BLE_DEV_NOTFOUND;
-    esk8_blec_apps.dev_l[*n_dev].conn_id = -1;
+    esk8_blec_dev_hndl_t* dev_hndl = &esk8_blec_apps.dev_l[*n_dev];
+
+    dev_hndl->dev_p = dev;
+    dev_hndl->state = ESK8_BLE_DEV_NOTFOUND;
+    dev_hndl->conn_id = -1;
 
     ++(*n_dev);
 
@@ -189,6 +191,7 @@ esk8_blec_apps_dev_reg(
 
     return ESK8_OK;
 }
+
 
 esk8_err_t
 esk8_blec_search_start(
