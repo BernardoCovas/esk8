@@ -75,16 +75,12 @@ skip_search:
         return;
     }
 
-    if  (
-            esk8_blec_apps.state == ESK8_BLEC_STATE_CONNECTING ||
-            esk8_blec_apps.state == ESK8_BLEC_STATE_SEARCHING
-        )
-        esp_ble_gap_start_scanning(~0);
-
     switch (event)
     {
         case ESP_GATTC_CONNECT_EVT:
         {
+            esp_ble_gap_start_scanning(~0);
+
             esk8_blec_dev_hndl_t* dev_hndl = esk8_blec_apps_get_dev_hndl(
                 param->connect.remote_bda
             );
@@ -102,6 +98,8 @@ skip_search:
 
             dev_hndl->conn_id = param->connect.conn_id;
             dev_hndl->state = ESK8_BLE_DEV_CONNECTED;
+            esk8_blec_apps.state = ESK8_BLEC_STATE_SEARCHING;
+
             break;
         }
 
@@ -115,10 +113,10 @@ skip_search:
             {
                 esk8_log_E(ESK8_TAG_BLE,
                     "Opened gattc to an unknown dev: " MACSTR ". Was given conn_id: %d. Bye.\n",
-                    MAC2STR(param->connect.remote_bda),
-                    param->connect.conn_id
+                    MAC2STR(param->open.remote_bda),
+                    param->open.conn_id
                 );
-                esp_ble_gap_disconnect(param->connect.remote_bda);
+                esp_ble_gap_disconnect(param->open.remote_bda);
                 break;
             }
 
@@ -138,7 +136,7 @@ skip_search:
                 "(GATTC) Adding conn_id: %d (%s, " MACSTR ") to app '%s'\n",
                 param->open.conn_id,
                 dev_hndl->dev_p->name,
-                MAC2STR(param->connect.remote_bda),
+                MAC2STR(param->open.remote_bda),
                 app_hndl->app->app_name
             );
 
@@ -160,8 +158,18 @@ skip_search:
             {
                 esk8_log_E(ESK8_TAG_BLE,
                     "Closed conn to an unknown dev: " MACSTR ". Was given conn_id: %d.\n",
-                    MAC2STR(param->connect.remote_bda),
+                    MAC2STR(param->disconnect.remote_bda),
                     param->connect.conn_id
+                );
+                break;
+            }
+
+            if (dev_hndl->state != ESK8_BLE_DEV_CONNECTED)
+            {
+                esk8_log_E(ESK8_TAG_BLE,
+                    "Got gattc event 'close' with a disconnected device: " MACSTR ". Was given conn_id: %d.\n",
+                    MAC2STR(param->disconnect.remote_bda),
+                    param->disconnect.conn_id
                 );
                 break;
             }

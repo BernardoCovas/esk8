@@ -233,7 +233,7 @@ esk8_blec_search_stop(
     
     case ESK8_BLEC_STATE_CONNECTING:
         esk8_log_W(ESK8_TAG_BLE,
-            "Tried to stop scanning, but was connecting. Wait."
+            "Tried to stop scanning, but was connecting. Wait.\n"
         );
         break;
 
@@ -267,8 +267,6 @@ esk8_blec_dscn(
 
             esp_ble_gap_disconnect((uint8_t*)dev_hndl->dev_p->addr);
         }
-
-        dev_hndl->state = ESK8_BLE_DEV_NOTFOUND;
     }
 
     return ESK8_OK;
