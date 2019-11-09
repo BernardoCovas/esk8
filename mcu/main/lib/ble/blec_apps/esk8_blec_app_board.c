@@ -50,8 +50,8 @@ app_evt_cb(
 
 
 esk8_blec_app_t 
-esk8_blec_app_ctrl = {
-    .app_name = "ble_client_ctrl",
+esk8_blec_app_board = {
+    .app_name = "blec_app_board",
 
     .app_init = app_init,
     .app_deinit = app_deinit,
@@ -132,7 +132,7 @@ app_evt_cb(
 )
 {
     esk8_log_D(ESK8_TAG_BLE,
-        "(blec_app_ctrl) Evt %d\n",
+        "(blec_app_stat) Evt %d\n",
         event
     );
 
@@ -141,8 +141,7 @@ app_evt_cb(
 
 
 esk8_err_t
-esk8_blec_app_ctrl_incr(
-    uint8_t incr
+esk8_blec_app_stat_await_stat(
 )
 {
     return ESK8_OK;
@@ -150,8 +149,7 @@ esk8_blec_app_ctrl_incr(
 
 
 esk8_err_t
-esk8_blec_app_ctrl_pwr(
-    int prw
+esk8_blec_app_stat_read_stat(
 )
 {
     return ESK8_OK;

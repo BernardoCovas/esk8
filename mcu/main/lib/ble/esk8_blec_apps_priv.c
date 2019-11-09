@@ -6,19 +6,24 @@
 #include <string.h>
 
 
-esk8_blec_dev_hndl_t*
+int
 esk8_blec_apps_get_dev_hndl(
-    uint8_t addr[6]
+    uint8_t dev_addr[6],
+    esk8_blec_dev_hndl_t** out_dev_hndl
 )
 {
     for (int i=0; i< esk8_blec_apps.n_dev; i++)
     {
         esk8_blec_dev_hndl_t* dev_hndl = &esk8_blec_apps.dev_l[i];
-        if (memcmp(dev_hndl->dev_p->addr, addr, 6) == 0)
-            return dev_hndl;
+        if (memcmp(dev_hndl->dev_p->addr, dev_addr, 6) == 0)
+        {
+            (*out_dev_hndl) = dev_hndl;
+            return i;
+        }
     }
 
-    return NULL;
+    (*out_dev_hndl) = NULL;
+    return -1;
 }
 
 void
@@ -43,7 +48,7 @@ esk8_blec_apps_gattc_cb(
             esk8_log_E(ESK8_TAG_BLE,
                 "gattc error in app_reg. Status: 0x%02x, name: '%s'\n",
                 param->reg.status,
-                app_hndl->app->app_name
+                app_hndl->app_p->app_name
             );
             goto skip_search;
         }
@@ -51,6 +56,13 @@ esk8_blec_apps_gattc_cb(
         app_idx = param->reg.app_id;
         app_hndl = &esk8_blec_apps.app_l[app_idx];
         app_hndl->gatt_if = gattc_if;
+
+        esk8_log_I(ESK8_TAG_BLE,
+            "Registered app %s, idx: %d, gattc_if: %d\n",
+            app_hndl->app_p->app_name,
+            app_idx,
+            app_hndl->gatt_if
+        );
 
         goto skip_search;
     }
@@ -61,6 +73,12 @@ esk8_blec_apps_gattc_cb(
         {
             app_hndl = &esk8_blec_apps.app_l[i];
             app_idx = i;
+
+            esk8_log_D(ESK8_TAG_BLE,
+                "Gattc if resolved to app %s\n",
+                app_hndl->app_p->app_name
+            );
+
             break;
         }
     }
@@ -79,10 +97,10 @@ skip_search:
     {
         case ESP_GATTC_CONNECT_EVT:
         {
-            esp_ble_gap_start_scanning(~0);
-
-            esk8_blec_dev_hndl_t* dev_hndl = esk8_blec_apps_get_dev_hndl(
-                param->connect.remote_bda
+            esk8_blec_dev_hndl_t* dev_hndl = NULL;
+            esk8_blec_apps_get_dev_hndl(
+                param->connect.remote_bda,
+                &dev_hndl
             );
 
             if (!dev_hndl)
@@ -100,13 +118,20 @@ skip_search:
             dev_hndl->state = ESK8_BLE_DEV_CONNECTED;
             esk8_blec_apps.state = ESK8_BLEC_STATE_SEARCHING;
 
+            esk8_log_I(ESK8_TAG_BLE,
+                "Connected to %s " MACSTR "\n",
+                dev_hndl->dev_p->name,
+                MAC2STR(dev_hndl->dev_p->addr)
+            );
             break;
         }
 
         case ESP_GATTC_OPEN_EVT:
         {
-            esk8_blec_dev_hndl_t* dev_hndl = esk8_blec_apps_get_dev_hndl(
-                param->open.remote_bda
+            esk8_blec_dev_hndl_t* dev_hndl = NULL;
+            int dev_idx = esk8_blec_apps_get_dev_hndl(
+                param->open.remote_bda,
+                &dev_hndl
             );
 
             if (!dev_hndl)
@@ -137,21 +162,23 @@ skip_search:
                 param->open.conn_id,
                 dev_hndl->dev_p->name,
                 MAC2STR(param->open.remote_bda),
-                app_hndl->app->app_name
+                app_hndl->app_p->app_name
             );
 
-            if (app_hndl->app->app_conn_add)
-                app_hndl->app->app_conn_add(
+            if (app_hndl->app_p->app_conn_add)
+                app_hndl->app_p->app_conn_add(
                     dev_hndl->dev_p,
-                    &app_hndl->conn_ctx_list[param->open.conn_id]
+                    &app_hndl->conn_ctx_list[dev_idx]
                 );
             break;
         }
 
         case ESP_GATTC_DISCONNECT_EVT:
         {
-            esk8_blec_dev_hndl_t* dev_hndl = esk8_blec_apps_get_dev_hndl(
-                param->disconnect.remote_bda
+            esk8_blec_dev_hndl_t* dev_hndl = NULL;
+            int dev_idx = esk8_blec_apps_get_dev_hndl(
+                param->disconnect.remote_bda,
+                &dev_hndl
             );
 
             if (!dev_hndl)
@@ -174,15 +201,18 @@ skip_search:
                 break;
             }
 
-            void** conn_ctx = &app_hndl->conn_ctx_list[param->disconnect.conn_id];
-
             esk8_log_I(ESK8_TAG_BLE,
-                "Removing %s " MACSTR " from app '%s'\n",
-                MAC2STR(param->disconnect.remote_bda)
+                "Removing '%s' " MACSTR " from app '%s'\n",
+                dev_hndl->dev_p->name,
+                MAC2STR(param->disconnect.remote_bda),
+                app_hndl->app_p->app_name
             );
 
-            if (app_hndl->app->app_conn_del)
-                app_hndl->app->app_conn_del(dev_hndl->dev_p, conn_ctx);
+            if (app_hndl->app_p->app_conn_del)
+                app_hndl->app_p->app_conn_del(
+                    dev_hndl->dev_p,
+                    &app_hndl->conn_ctx_list[dev_idx]
+                );
 
             dev_hndl->conn_id = -1;
             dev_hndl->state = ESK8_BLE_DEV_NOTFOUND;
@@ -195,11 +225,11 @@ skip_search:
 
     esk8_log_I(ESK8_TAG_BLE,
         "(GATTC) Got event %d, passing to app '%s'\n",
-        event, app_hndl->app->app_name
+        event, app_hndl->app_p->app_name
     );
 
-    if (app_hndl->app->app_evt_cb)
-        app_hndl->app->app_evt_cb(event, param);
+    if (app_hndl->app_p->app_evt_cb)
+        app_hndl->app_p->app_evt_cb(event, param);
 }
 
 
@@ -241,11 +271,15 @@ esk8_blec_apps_gap_cb(
 
         for (int i = 0; i < esk8_blec_apps.n_dev; i++)
         {
-            esk8_blec_dev_hndl_t* dev_hndl = esk8_blec_apps_get_dev_hndl(param->scan_rst.bda);
+            esk8_blec_dev_hndl_t* dev_hndl = NULL;
+            esk8_blec_apps_get_dev_hndl(
+                param->scan_rst.bda,
+                &dev_hndl
+            );
 
             if  (
                     dev_hndl &&
-                    strncmp(dev_hndl->dev_p->name, (char*)dev_name, ble_name_len) == 0
+                    strncmp(dev_hndl->dev_p->name, (char*)dev_name, strlen(dev_hndl->dev_p->name)) == 0
                 )
             {
                 if (dev_hndl->state > ESK8_BLE_DEV_NOTFOUND)
@@ -260,13 +294,25 @@ esk8_blec_apps_gap_cb(
                 esk8_blec_apps.state = ESK8_BLEC_STATE_CONNECTING;
 
                 esp_ble_gap_stop_scanning();
+
                 for (int j=0; j<esk8_blec_apps.n_apps; j++)
-                esp_ble_gattc_open(
-                    esk8_blec_apps.app_l[j].gatt_if,
-                    (uint8_t*)dev_hndl->dev_p->addr,
-                    param->scan_rst.ble_addr_type,
-                    true
-                );
+                {
+                    esk8_log_I(ESK8_TAG_BLE,
+                        "Openning gattc to dev %s " MACSTR ", app idx %d (%s), on gattc_if %d\n",
+                        dev_hndl->dev_p->name,
+                        MAC2STR(dev_hndl->dev_p->addr),
+                        j,
+                        esk8_blec_apps.app_l[j].app_p->app_name,
+                        esk8_blec_apps.app_l[j].gatt_if
+                    );
+
+                    esp_ble_gattc_open(
+                        esk8_blec_apps.app_l[j].gatt_if,
+                        (uint8_t*)dev_hndl->dev_p->addr,
+                        param->scan_rst.ble_addr_type,
+                        true
+                    );
+                }
             }
         }
 

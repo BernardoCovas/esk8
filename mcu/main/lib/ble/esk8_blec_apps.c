@@ -11,7 +11,6 @@
 #include <esp_gap_ble_api.h>
 
 
-
 static esp_ble_scan_params_t
 esk8_blec_scan_params = {
     .scan_type              = BLE_SCAN_TYPE_ACTIVE,
@@ -64,7 +63,7 @@ esk8_blec_apps_init(
 
     esk8_blec_apps.app_l = calloc(
         n_apps_max,
-        sizeof(esk8_blec_app_hndl_t*)
+        sizeof(esk8_blec_app_hndl_t)
     );
 
     esk8_blec_apps.dev_l = calloc(
@@ -126,10 +125,10 @@ esk8_blec_apps_app_reg(
 {
     uint* app_n = &esk8_blec_apps.n_apps;
 
-    if (*app_n == esk8_blec_apps.n_apps_max)
+    if (*app_n >= esk8_blec_apps.n_apps_max)
         return ESK8_ERR_BLE_APPC_INIT_MAXREG;
 
-    esk8_blec_apps.app_l[*app_n].app = app;
+    esk8_blec_apps.app_l[*app_n].app_p = app;
 
     if (app->app_init)
         app->app_init();
@@ -149,8 +148,8 @@ esk8_blec_apps_deinit()
         for (int i = 0; i < esk8_blec_apps.n_apps; i++)
         {
             esk8_blec_app_hndl_t* app_hndl = &esk8_blec_apps.app_l[i];
-            if (app_hndl->app->app_deinit)
-                app_hndl->app->app_deinit();
+            if (app_hndl->app_p->app_deinit)
+                app_hndl->app_p->app_deinit();
             if (app_hndl->conn_ctx_list)
                 free(app_hndl->conn_ctx_list);
         }
@@ -216,6 +215,7 @@ esk8_blec_search_start(
     return ESK8_OK;
 }
 
+
 esk8_err_t
 esk8_blec_search_stop(
 )
@@ -246,6 +246,7 @@ esk8_blec_search_stop(
 
     return ESK8_OK;
 }
+
 
 esk8_err_t
 esk8_blec_dscn(

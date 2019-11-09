@@ -16,26 +16,35 @@
 
 #ifdef ESK8_REMOTE
 
+static esk8_blec_dev_t
+devices[] = {
+    {
+        .name = "Esk8",
+        .addr = { 0x3C, 0x71, 0xBF, 0x4F, 0x0C, 0xA2 }
+    }
+};
+
+
 void
 app_main()
 {
 
     esk8_err_t err;
-    err = esk8_blec_apps_init(2, 10);
+    err = esk8_blec_apps_init(2, 1);
     if (err)
         goto fail;
-    
-    esk8_blec_apps_app_reg(&esk8_blec_app_ctrl);
 
-    static esk8_blec_dev_t
-        devices[] = {
-        {
-            .name = "Esk8",
-            .addr = { 0x3C, 0x71, 0xBF, 0x4F, 0x0C, 0xA2 }
-        }
-    };
+    err = esk8_blec_apps_app_reg(&esk8_blec_app_ctrl);
+    if (err)
+        goto fail;
 
-    esk8_blec_apps_dev_reg(&devices[0]);
+    err = esk8_blec_apps_app_reg(&esk8_blec_app_stat);
+    if (err)
+        goto fail;
+
+    err = esk8_blec_apps_dev_reg(&devices[0]);
+    if (err)
+        goto fail;
 
     err = esk8_rmt_start();
     if (err)

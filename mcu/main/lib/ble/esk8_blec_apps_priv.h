@@ -24,7 +24,7 @@ typedef
 struct esk8_blec_app_hndl
 {
     int gatt_if;
-    esk8_blec_app_t* app;
+    esk8_blec_app_t* app_p;
     void** conn_ctx_list;
 }
 esk8_blec_app_hndl_t;
@@ -67,9 +67,10 @@ esk8_blec_apps_gap_cb(
     esp_ble_gap_cb_param_t* param
 );
 
-esk8_blec_dev_hndl_t*
+int
 esk8_blec_apps_get_dev_hndl(
-    uint8_t addr[6]
+    uint8_t dev_addr[6],
+    esk8_blec_dev_hndl_t** out_dev_hndl
 );
 
 #endif /* _ESK8_BLEC_APPS_PRIV_H */

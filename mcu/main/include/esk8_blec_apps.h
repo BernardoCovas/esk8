@@ -29,12 +29,12 @@ typedef struct
 esk8_blec_app_t;
 
 extern esk8_blec_app_t
-    esk8_blec_app_ctrl;
+    esk8_blec_app_board;
 
 esk8_err_t
 esk8_blec_apps_init(
     uint n_apps_max,
-    uint n_dev
+    uint n_dev_max
 );
 
 void
