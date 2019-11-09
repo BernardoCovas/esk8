@@ -30,15 +30,11 @@ app_main()
 {
 
     esk8_err_t err;
-    err = esk8_blec_apps_init(2, 1);
+    err = esk8_blec_apps_init(1, 1);
     if (err)
         goto fail;
 
-    err = esk8_blec_apps_app_reg(&esk8_blec_app_ctrl);
-    if (err)
-        goto fail;
-
-    err = esk8_blec_apps_app_reg(&esk8_blec_app_stat);
+    err = esk8_blec_apps_app_reg(&esk8_blec_app_board);
     if (err)
         goto fail;
 
