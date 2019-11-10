@@ -6,6 +6,10 @@
 
 #include <esp_gattc_api.h>
 
+#ifndef ESK8_CONFIG_BLEC_SCAN_DURATION_s
+#define ESK8_CONFIG_BLEC_SCAN_DURATION_s 10
+#endif
+
 
 typedef struct
 {
@@ -28,27 +32,13 @@ typedef struct
 }
 esk8_blec_app_t;
 
-extern esk8_blec_app_t
-    esk8_blec_app_board;
-
 esk8_err_t
-esk8_blec_apps_init(
-    uint n_apps_max,
-    uint n_dev_max
-);
-
-void
-esk8_blec_apps_deinit(
+esk8_blec_init(
+    uint16_t app_n_max
 );
 
 esk8_err_t
-esk8_blec_apps_app_reg(
-    esk8_blec_app_t* app
-);
-
-esk8_err_t
-esk8_blec_apps_dev_reg(
-    esk8_blec_dev_t* dev
+esk8_blec_deinit(
 );
 
 esk8_err_t
@@ -59,12 +49,8 @@ esk8_err_t
 esk8_blec_search_stop(
 );
 
-
-/**
- * Close conn
- */
 esk8_err_t
-esk8_blec_dscn(
+esk8_blec_close(
 );
 
 #endif /* _ESK8_BLEC_APPS_H */
