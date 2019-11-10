@@ -42,11 +42,21 @@ esk8_blec_deinit(
 );
 
 esk8_err_t
+esk8_blec_app_reg(
+    esk8_blec_app_t* app_p,
+    esk8_blec_dev_t* dev_p
+);
+
+esk8_err_t
 esk8_blec_search_start(
 );
 
 esk8_err_t
 esk8_blec_search_stop(
+);
+
+esk8_err_t
+esk8_blec_conn(
 );
 
 esk8_err_t

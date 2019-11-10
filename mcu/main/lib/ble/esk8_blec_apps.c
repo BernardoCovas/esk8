@@ -18,7 +18,7 @@ esk8_blec_scan_params = {
     .scan_filter_policy     = BLE_SCAN_FILTER_ALLOW_ALL,
     .scan_interval          = 0x50,
     .scan_window            = 0x30,
-    .scan_duplicate         = BLE_SCAN_DUPLICATE_DISABLE
+    .scan_duplicate         = BLE_SCAN_DUPLICATE_ENABLE
 };
 
 esk8_blec_apps_t
@@ -85,6 +85,31 @@ esk8_blec_deinit(
     return ESK8_OK;
 }
 
+esk8_err_t
+esk8_blec_app_reg(
+    esk8_blec_app_t* app_p,
+    esk8_blec_dev_t* dev_p
+)
+{
+    if (!(esk8_blec_apps.state & ESK8_BLEC_APPS_STATE_INIT))
+        return ESK8_ERR_BLE_APPC_INIT_NOINIT;
+    
+    int app_n = esk8_blec_apps.app_n;
+    if (app_n >= esk8_blec_apps.app_n_max)
+        return ESK8_ERR_BLE_APPC_MAXREG;
+
+    if (app_p->app_init)
+        app_p->app_init();
+
+    esk8_blec_apps.app_hndl_l[app_n].app_p = app_p;
+    esk8_blec_apps.app_hndl_l[app_n].dev_p = dev_p;
+    esk8_blec_apps.app_hndl_l[app_n].state |= ESK8_BLEC_APP_HNDL_STATE_INIT;
+
+    esp_ble_gattc_app_register(app_n);
+
+    esk8_blec_apps.app_n++;
+    return ESK8_OK;
+}
 
 esk8_err_t
 esk8_blec_search_start(
@@ -127,8 +152,46 @@ esk8_blec_search_stop(
 }
 
 esk8_err_t
+esk8_blec_conn(
+)
+{
+    if (!(esk8_blec_apps.state & ESK8_BLEC_APPS_STATE_INIT))
+        return ESK8_ERR_BLE_APPC_INIT_NOINIT;
+    if (esk8_blec_apps.state & ESK8_BLEC_APPS_STATE_SEARCHING)
+        esp_ble_gap_stop_scanning();
+
+    for (int i = 0; i < esk8_blec_apps.app_n; i++)
+    {
+        esk8_blec_app_hndl_t* app_hndl = &esk8_blec_apps.app_hndl_l[i];
+        esk8_log_I(ESK8_TAG_BLE,
+            "Openning gattc to %s " MACSTR ", with app %s\n",
+            app_hndl->dev_p->name,
+            MAC2STR(app_hndl->dev_p->addr),
+            app_hndl->app_p->app_name
+        );
+
+        esp_ble_gattc_open(
+            app_hndl->gattc_if,
+            app_hndl->dev_p->addr,
+            BLE_ADDR_TYPE_PUBLIC,
+            true
+        );
+    }
+}
+
+esk8_err_t
 esk8_blec_close(
 )
 {
+    if (!(esk8_blec_apps.state & ESK8_BLEC_APPS_STATE_INIT))
+        return ESK8_ERR_BLE_APPC_INIT_NOINIT;
+    if (esk8_blec_apps.state & ESK8_BLEC_APPS_STATE_SEARCHING)
+        esp_ble_gap_stop_scanning();
+
+    for (int i = 0; i < esk8_blec_apps.app_n; i++)
+    {
+        // TODO
+    }
+
     return ESK8_OK;
 }

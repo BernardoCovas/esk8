@@ -41,11 +41,11 @@ esk8_rmt_task_btn(
         switch (press)
         {
         case ESK8_BTN_LONGPRESS:
-            esk8_blec_search_start();
+            esk8_blec_conn();
             break;
 
         case ESK8_BTN_PRESS:
-            esk8_blec_search_stop();
+            esk8_blec_close();
             break;
 
         default:

@@ -9,9 +9,10 @@
 enum
 {
     ESK8_BLEC_APP_HNDL_STATE_INIT       = (1 << 0), /* Init func was called */
-    ESK8_BLEC_APP_HNDL_STATE_DEV_FOUND  = (1 << 1), /* Device was found while searching */
-    ESK8_BLEC_APP_HNDL_STATE_CONN       = (1 << 2), /* Connected to device */
-    ESK8_BLEC_APP_HNDL_STATE_BROKEN     = (1 << 3), /* If the device disconnected after being connected (pipe broken), resets if reconnected  */
+    ESK8_BLEC_APP_HNDL_STATE_REG        = (1 << 1), /* App is registered */
+    ESK8_BLEC_APP_HNDL_STATE_DEV_FOUND  = (1 << 2), /* Device was found while searching */
+    ESK8_BLEC_APP_HNDL_STATE_CONN       = (1 << 3), /* Connected to device */
+    ESK8_BLEC_APP_HNDL_STATE_BROKEN     = (1 << 4), /* If the device disconnected after being connected (pipe broken), resets if reconnected  */
 };
 
 enum

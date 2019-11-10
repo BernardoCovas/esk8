@@ -5,6 +5,7 @@
 #ifdef ESK8_REMOTE
 #include <esk8_rmt.h>
 #include <esk8_blec_apps.h>
+#include <esk8_blec/esk8_blec_app_board.h>
 #else
 #include <esk8_onb.h>
 #include <esk8_bles_apps.h>
@@ -33,6 +34,11 @@ app_main()
     err = esk8_blec_init(1);
     if (err)
         goto fail;
+
+    err = esk8_blec_app_reg(
+        &esk8_blec_app_board,
+        &devices[0]
+    );
 
     err = esk8_rmt_start();
     if (err)
