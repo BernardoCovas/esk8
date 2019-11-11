@@ -26,6 +26,7 @@ typedef struct
 {
     uint gattc_if;
     uint16_t state;
+    uint16_t conn_id;
     esk8_blec_app_t* app_p;
     esk8_blec_dev_t* dev_p;
 }

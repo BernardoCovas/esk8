@@ -172,11 +172,13 @@ esk8_blec_conn(
 
         esp_ble_gattc_open(
             app_hndl->gattc_if,
-            app_hndl->dev_p->addr,
+(uint8_t*)  app_hndl->dev_p->addr,
             BLE_ADDR_TYPE_PUBLIC,
             true
         );
     }
+
+    return ESK8_OK;
 }
 
 esk8_err_t
@@ -185,12 +187,19 @@ esk8_blec_close(
 {
     if (!(esk8_blec_apps.state & ESK8_BLEC_APPS_STATE_INIT))
         return ESK8_ERR_BLE_APPC_INIT_NOINIT;
+
     if (esk8_blec_apps.state & ESK8_BLEC_APPS_STATE_SEARCHING)
         esp_ble_gap_stop_scanning();
 
     for (int i = 0; i < esk8_blec_apps.app_n; i++)
     {
-        // TODO
+        esk8_blec_app_hndl_t* app_hndl = &esk8_blec_apps.app_hndl_l[i];
+
+        if (app_hndl->state & ESK8_BLEC_APP_HNDL_STATE_CONN)
+            esp_ble_gattc_close(
+                app_hndl->gattc_if,
+                app_hndl->conn_id
+            );
     }
 
     return ESK8_OK;
