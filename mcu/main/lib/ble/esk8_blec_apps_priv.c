@@ -150,6 +150,15 @@ void esk8_blec_apps_gattc_cb(
             app_hndl = &esk8_blec_apps.app_hndl_l[i];
     }
 
+    if (!app_hndl)
+    {
+        esk8_log_E(ESK8_TAG_BLE,
+            "Got event %d, with no associated app\n",
+            event
+        );
+        return;
+    }
+
 skip_search:
 
     switch (event)
@@ -168,8 +177,32 @@ skip_search:
 
     case ESP_GATTC_OPEN_EVT:
         esp_ble_gattc_search_service(gattc_if, param->open.conn_id, NULL);
+        app_hndl->state |= ESK8_BLEC_APP_HNDL_STATE_CONN;
+        app_hndl->conn_id = param->open.conn_id;
         break;
-    
+
+    case ESP_GATTC_CLOSE_EVT:
+        app_hndl->state &= ~ESK8_BLEC_APP_HNDL_STATE_CONN;
+        if (param->close.status)
+            esk8_log_E(ESK8_TAG_BLE,
+                "Got status %d closing conn to %s\n",
+                param->close.status,
+                app_hndl->dev_p->name
+            );
+        break;
+
+
+    case ESP_GATTC_SEARCH_CMPL_EVT:
+        if (param->search_cmpl.status)
+        {
+            esk8_log_E(ESK8_TAG_BLE,
+                "Got bad status: %d\n"
+                , param->search_cmpl.status
+            );
+        }
+
+        break;
+
     case ESP_GATTC_SEARCH_RES_EVT:
 
         esk8_log_I(ESK8_TAG_BLE,
