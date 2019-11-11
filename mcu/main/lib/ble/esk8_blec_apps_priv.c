@@ -77,12 +77,20 @@ esk8_blec_apps_gap_cb(
             break;
         }
 
+
+        if (dev_name_len >= 63) {
+            esk8_log_E(ESK8_TAG_BLE,
+                "Device name too long. This should never happen, an "
+                "advertisement packet is smaller than this. Length: %d\n",
+                dev_name_len
+            );
+            break;
+        }
         char dev_name_str[64] = { 0 };
         memcpy(dev_name_str, dev_name, dev_name_len);
 
         esk8_blec_app_hndl_t* app_hndl = NULL;
-        for (int i = 0; i < esk8_blec_apps.app_n; i++)
-        {
+        for (int i = 0; i < esk8_blec_apps.app_n; i++) {
             esk8_blec_app_hndl_t* _app_hndl = &esk8_blec_apps.app_hndl_l[i];
             if  (
                     strcmp(_app_hndl->dev_p->name, dev_name_str) == 0 &&
@@ -94,8 +102,7 @@ esk8_blec_apps_gap_cb(
             }
         }
 
-        if (!app_hndl)
-        {
+        if (!app_hndl) {
             esk8_log_I(ESK8_TAG_BLE,
                 "Found unkown dev: '%s', " MACSTR "\n",
                 dev_name_str,
@@ -145,19 +152,17 @@ void esk8_blec_apps_gattc_cb(
         goto skip_search;
 
     for (int i=0; i<esk8_blec_apps.app_n; i++)
-    {
-        if (gattc_if == esk8_blec_apps.app_hndl_l[i].gattc_if)
+        if (gattc_if == esk8_blec_apps.app_hndl_l[i].gattc_if) {
             app_hndl = &esk8_blec_apps.app_hndl_l[i];
-    }
+            goto skip_search;
+        }
 
-    if (!app_hndl)
-    {
-        esk8_log_E(ESK8_TAG_BLE,
-            "Got event %d, with no associated app\n",
-            event
-        );
-        return;
-    }
+    esk8_log_E(ESK8_TAG_BLE,
+        "Got event %d, with no associated app\n",
+        event
+    );
+
+    return;
 
 skip_search:
 
@@ -172,13 +177,22 @@ skip_search:
             "Registered app '%s'\n",
             app_hndl->app_p->app_name
         );
-
         break;
 
     case ESP_GATTC_OPEN_EVT:
-        esp_ble_gattc_search_service(gattc_if, param->open.conn_id, NULL);
+        if (param->open.status) {
+            esk8_log_E(ESK8_TAG_BLE,
+                "Error openning gattc. Dev: %s " MACSTR ", App: %s, Status: %d\n",
+                app_hndl->dev_p->name,
+                app_hndl->dev_p->addr,
+                app_hndl->app_p->app_name,
+                param->open.status
+            );
+            break;
+        }
         app_hndl->state |= ESK8_BLEC_APP_HNDL_STATE_CONN;
         app_hndl->conn_id = param->open.conn_id;
+        esp_ble_gattc_search_service(gattc_if, param->open.conn_id, NULL);
         break;
 
     case ESP_GATTC_CLOSE_EVT:
@@ -191,20 +205,7 @@ skip_search:
             );
         break;
 
-
-    case ESP_GATTC_SEARCH_CMPL_EVT:
-        if (param->search_cmpl.status)
-        {
-            esk8_log_E(ESK8_TAG_BLE,
-                "Got bad status: %d\n"
-                , param->search_cmpl.status
-            );
-        }
-
-        break;
-
     case ESP_GATTC_SEARCH_RES_EVT:
-
         esk8_log_I(ESK8_TAG_BLE,
             "Found services. start: %u, end: %u, is_primary: %d, srvc_uuid: 0x%04x\n",
             param->search_res.start_handle,
@@ -212,7 +213,16 @@ skip_search:
             param->search_res.is_primary,
             param->search_res.srvc_id.uuid.uuid.uuid16
         );
+        break;
 
+    case ESP_GATTC_SEARCH_CMPL_EVT:
+        if (param->search_cmpl.status) {
+            esk8_log_E(ESK8_TAG_BLE,
+                "Got bad status: %d\n"
+                , param->search_cmpl.status
+            );
+            break;
+        }
         break;
 
     default:
