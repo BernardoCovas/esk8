@@ -184,7 +184,7 @@ skip_search:
             esk8_log_E(ESK8_TAG_BLE,
                 "Error openning gattc. Dev: %s " MACSTR ", App: %s, Status: %d\n",
                 app_hndl->dev_p->name,
-                app_hndl->dev_p->addr,
+                MAC2STR(app_hndl->dev_p->addr),
                 app_hndl->app_p->app_name,
                 param->open.status
             );
