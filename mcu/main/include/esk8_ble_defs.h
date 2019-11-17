@@ -1,17 +1,27 @@
 #ifndef _ESK8_BLE_DEFS_H
 #define _ESK8_BLE_DEFS_H
 
-#define ESK8_BLE_AUTH_UUID                  0xE8A0
-#define ESK8_BLE_AUTH_KEY_UUID              0xE8A1
-#define ESK8_BLE_AUTH_CHANGE_UUID           0xE8A2
+#define ESK8_BLE_UUID_AUTH                  0xE8A0
+#define ESK8_BLE_UUID_AUTH_KEY              0xE8A1
+#define ESK8_BLE_UUID_AUTH_CHANGE           0xE8A2
+#define ESK8_BLE_PERM_AUTH
+#define ESK8_BLE_PERM_AUTH_KEY
+#define ESK8_BLE_PERM_AUTH_CHANGE
 
-#define ESK8_BLE_CTRL_UUID                  0xE8C0
-#define ESK8_BLE_CTRL_SPEED_UUID            0xE8C1
-#define ESK8_BLE_CTRL_PWR_UUID              0xE8C2
+#define ESK8_BLE_UUID_CTRL                  0xE8C0
+#define ESK8_BLE_UUID_CTRL_SPEED            0xE8C1
+#define ESK8_BLE_UUID_CTRL_PWR              0xE8C2
+#define ESK8_BLE_PERM_CTRL
+#define ESK8_BLE_PERM_CTRL_SPEED
+#define ESK8_BLE_PERM_CTRL_PWR
 
-#define ESK8_BLE_STATUS_UUID                0xE8E0
-#define ESK8_BLE_STATUS_SPEED_UUID          0xE8E1
-#define ESK8_BLE_STATUS_BMS_SHALLOW_UUID    0xE8E2
-#define ESK8_BLE_STATUS_BMS_DEEP_UUID       0xE8E3
+#define ESK8_BLE_UUID_STATUS                0xE8E0
+#define ESK8_BLE_UUID_STATUS_SPEED          0xE8E1
+#define ESK8_BLE_UUID_STATUS_BMS_SHALLOW    0xE8E2
+#define ESK8_BLE_UUID_STATUS_BMS_DEEP       0xE8E3
+#define ESK8_BLE_PERM_STATUS
+#define ESK8_BLE_PERM_STATUS_SPEED
+#define ESK8_BLE_PERM_STATUS_BMS_SHALLOW
+#define ESK8_BLE_PERM_STATUS_BMS_DEEP
 
 #endif /* _ESK8_BLE_DEFS_H */

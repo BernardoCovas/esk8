@@ -10,6 +10,9 @@
 #define ESK8_CONFIG_BLEC_SCAN_DURATION_s 10
 #endif
 
+#ifndef ESK8_CONFIG_BLEC_MAX_HNDL
+#define ESK8_CONFIG_BLEC_MAX_HNDL 30
+#endif
 
 typedef struct
 {
@@ -22,13 +25,16 @@ typedef struct
 {
     const char* app_name;
 
-    esk8_err_t (*app_init      )();
-    esk8_err_t (*app_deinit    )();
-    esk8_err_t (*app_conn_add  )(esk8_blec_dev_t* dev, void** conn_ctx_p);
-    esk8_err_t (*app_conn_del  )(esk8_blec_dev_t* dev, void** conn_ctx_p);
-    esk8_err_t (*app_conn_notif)(esk8_blec_dev_t* dev, void** conn_ctx_p, int attr_idx, size_t  len, uint8_t* val);
-    esk8_err_t (*app_conn_read )(esk8_blec_dev_t* dev, void** conn_ctx_p, int attr_idx, size_t  len, uint8_t* val);
+    esk8_err_t (*app_init      )(int gattc_if);
+    esk8_err_t (*app_deinit    )(int gattc_if);
+    esk8_err_t (*app_conn_add  )(esk8_blec_dev_t* dev, uint16_t conn_id);
+    esk8_err_t (*app_conn_del  )(esk8_blec_dev_t* dev, uint16_t conn_id);
+    esk8_err_t (*app_conn_notif)(esk8_blec_dev_t* dev, int attr_idx, size_t len, uint8_t* val);
+    esk8_err_t (*app_conn_read )(esk8_blec_dev_t* dev, int attr_idx, size_t  len, uint8_t* val);
     esk8_err_t (*app_evt_cb    )(esp_gattc_cb_event_t event, esp_ble_gattc_cb_param_t *param);
+
+    uint16_t             ble_elm_n;
+    esp_gattc_db_elem_t* ble_elm_l;
 }
 esk8_blec_app_t;
 

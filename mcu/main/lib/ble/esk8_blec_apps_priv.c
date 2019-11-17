@@ -223,6 +223,79 @@ skip_search:
             );
             break;
         }
+
+        uint16_t attr_count = ESK8_CONFIG_BLEC_MAX_HNDL;
+        esp_gattc_db_elem_t db[ESK8_CONFIG_BLEC_MAX_HNDL];
+        esp_err_t err = esp_ble_gattc_get_db(
+            gattc_if, param->search_cmpl.conn_id,
+            0x0001, 0xFFFF, db, &attr_count
+        );
+
+        if (err) {
+            esk8_log_I(ESK8_TAG_BLE,
+                "Got %d attr. Err: %s\n",
+                attr_count, esp_err_to_name(err)
+            );
+            break;
+        }
+
+        if (attr_count != app_hndl->app_p->ble_elm_n) {
+            esk8_log_E(ESK8_TAG_BLE,
+                "Got wrong number of attributes: %d, expected %d\n",
+                attr_count,
+                app_hndl->app_p->ble_elm_n
+            );
+
+            break;
+        }
+
+        for (int i=0; i < attr_count; i++) {
+            esp_gattc_db_elem_t* dev_db = &db[i];
+            esp_gattc_db_elem_t* clt_db = &app_hndl->app_p->ble_elm_l[i];
+
+            if (dev_db->type != clt_db->type) {
+                esk8_log_E(ESK8_TAG_BLE,
+                    "Got type: %d, expected: %d. Index %d\n",
+                    dev_db->type,
+                    clt_db->type, i
+                );
+                goto attr_fail_break;
+            }
+
+            if (dev_db->uuid.len != clt_db->uuid.len) {
+                esk8_log_E(ESK8_TAG_BLE,
+                    "Got UUID len: %d, expected: %d. Index %d\n",
+                    dev_db->uuid.len,
+                    clt_db->uuid.len, i
+                );
+                goto attr_fail_break;
+            }
+
+            if (memcmp(&dev_db->uuid.uuid, &clt_db->uuid.uuid, clt_db->uuid.len) != 0) {
+                esk8_log_E(ESK8_TAG_BLE,
+                    "Got UUID: 0x%04x, expected: 0x%04x. Index %d\n",
+                    dev_db->uuid.uuid.uuid16,
+                    clt_db->uuid.uuid.uuid16, i
+                );
+                goto attr_fail_break;
+            }
+        }
+
+        /* Success */
+        if (app_hndl->app_p->app_conn_add) {
+            app_hndl->app_p->app_conn_add(
+                app_hndl->dev_p,
+                param->search_cmpl.conn_id
+            );
+
+            esk8_log_E(ESK8_TAG_BLE,
+                "Got valid dev: %s, passing to app: %s\n",
+                app_hndl->dev_p->name,
+                app_hndl->app_p->app_name
+            );
+        }
+
+attr_fail_break:
         break;
 
     default:

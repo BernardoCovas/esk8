@@ -160,8 +160,7 @@ esk8_blec_conn(
     if (esk8_blec_apps.state & ESK8_BLEC_APPS_STATE_SEARCHING)
         esp_ble_gap_stop_scanning();
 
-    for (int i = 0; i < esk8_blec_apps.app_n; i++)
-    {
+    for (int i = 0; i < esk8_blec_apps.app_n; i++) {
         esk8_blec_app_hndl_t* app_hndl = &esk8_blec_apps.app_hndl_l[i];
         esk8_log_I(ESK8_TAG_BLE,
             "Openning gattc to %s " MACSTR ", with app %s\n",

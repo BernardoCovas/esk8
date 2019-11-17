@@ -10,13 +10,13 @@
 #define SRVC_AUTH_NAME  "SRVC_AUTH"
 
 
-static uint16_t         SRVC_AUTH_UUID              = ESK8_BLE_AUTH_UUID;
+static uint16_t         SRVC_AUTH_UUID              = ESK8_BLE_UUID_AUTH;
 
-static uint16_t         SRVC_AUTH_KEY_UUID          = ESK8_BLE_AUTH_KEY_UUID;
+static uint16_t         SRVC_AUTH_KEY_UUID          = ESK8_BLE_UUID_AUTH_KEY;
 static esk8_auth_key_t  SRVC_AUTH_KEY_VAL           = {0};
 static uint16_t         SRVC_AUTH_KEY_DESC          = 0x0000;
 
-static uint16_t         SRVC_AUTH_CHANGE_UUID       = ESK8_BLE_AUTH_CHANGE_UUID;
+static uint16_t         SRVC_AUTH_CHANGE_UUID       = ESK8_BLE_UUID_AUTH_CHANGE;
 static esk8_auth_key_t  SRVC_AUTH_CHANGE_VAL        = {0};
 static uint16_t         SRVC_AUTH_CHANGE_DESC       = 0x0000;
 

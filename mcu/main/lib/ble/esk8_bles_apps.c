@@ -91,9 +91,9 @@ esk8_bles_apps_init(
     ESP_ERROR_CHECK(esp_bt_controller_enable(ESP_BT_MODE_BLE)                       );
     ESP_ERROR_CHECK(esp_bluedroid_init()                                            );
     ESP_ERROR_CHECK(esp_bluedroid_enable()                                          );
-    ESP_ERROR_CHECK(esp_ble_gap_register_callback(esk8_bles_apps_gap_evt_hndl)       );
+    ESP_ERROR_CHECK(esp_ble_gap_register_callback(esk8_bles_apps_gap_evt_hndl)      );
     ESP_ERROR_CHECK(esp_ble_gap_set_device_name(ESK8_BLE_DEV_NAME)                  );
-    ESP_ERROR_CHECK(esp_ble_gatts_register_callback(esk8_bles_apps_gatts_evt_hndl)   );
+    ESP_ERROR_CHECK(esp_ble_gatts_register_callback(esk8_bles_apps_gatts_evt_hndl)  );
     ESP_ERROR_CHECK(esp_ble_gap_config_adv_data(&adv_data)                          );
 
     ESK8_ERRCHECK_THROW(esk8_nvs_init());

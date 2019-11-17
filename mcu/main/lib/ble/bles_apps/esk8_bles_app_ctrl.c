@@ -9,13 +9,13 @@
 #define SRVC_CTRL_NAME  "SRVC_CTRL"
 
 
-static uint16_t SRVC_CTRL_UUID                 = ESK8_BLE_CTRL_UUID;
+static uint16_t SRVC_CTRL_UUID                 = ESK8_BLE_UUID_CTRL;
 
-static uint16_t SRVC_CTRL_SPEED_UUID           = ESK8_BLE_CTRL_SPEED_UUID;
+static uint16_t SRVC_CTRL_SPEED_UUID           = ESK8_BLE_UUID_CTRL_SPEED;
 static uint8_t  SRVC_CTRL_SPEED_VAL[1]         = {0};
 static uint16_t SRVC_CTRL_SPEED_DESC           = 0x0000;
 
-static uint16_t SRVC_CTRL_PWR_UUID             = ESK8_BLE_CTRL_PWR_UUID;
+static uint16_t SRVC_CTRL_PWR_UUID             = ESK8_BLE_UUID_CTRL_PWR;
 static uint8_t  SRVC_CTRL_PWR_VAL[1]           = {0};
 static uint16_t SRVC_CTRL_PWR_DESC             = 0x0000;
 
