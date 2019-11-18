@@ -47,12 +47,66 @@ app_evt_cb(
 
 esp_gattc_db_elem_t db[] = {
     {
-    .type               = ESP_GATT_DB_PRIMARY_SERVICE,
-    .attribute_handle   = ESK8_BLE_UUID_CTRL,
-    .properties = 0,
-    .uuid,
-    }
-}
+        .type               = ESK8_BLE_TYPE_AUTH,
+        .properties         = ESK8_BLE_PROP_AUTH,
+        .uuid.uuid          = ESK8_BLE_UUID_AUTH,
+        .uuid.len           = ESP_UUID_LEN_16,
+    },
+    {
+        .type               = ESK8_BLE_TYPE_AUTH_KEY,
+        .properties         = ESK8_BLE_PROP_AUTH_KEY,
+        .uuid.uuid          = ESK8_BLE_UUID_AUTH_KEY,
+        .uuid.len           = ESP_UUID_LEN_16,
+    },
+    {
+        .type               = ESK8_BLE_TYPE_AUTH_CHANGE,
+        .properties         = ESK8_BLE_PROP_AUTH_CHANGE,
+        .uuid.uuid          = ESK8_BLE_UUID_AUTH_CHANGE,
+        .uuid.len           = ESP_UUID_LEN_16,
+    },
+    {
+        .type               = ESK8_BLE_TYPE_STATUS,
+        .properties         = ESK8_BLE_PROP_STATUS,
+        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS,
+        .uuid.len           = ESP_UUID_LEN_16,
+    },
+    {
+        .type               = ESK8_BLE_TYPE_STATUS_SPEED,
+        .properties         = ESK8_BLE_PROP_STATUS_SPEED,
+        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS_SPEED,
+        .uuid.len           = ESP_UUID_LEN_16,
+    },
+    {
+        .type               = ESK8_BLE_TYPE_STATUS_BMS_SHALLOW,
+        .properties         = ESK8_BLE_PROP_STATUS_BMS_SHALLOW,
+        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS_BMS_SHALLOW,
+        .uuid.len           = ESP_UUID_LEN_16,
+    },
+        {
+        .type               = ESK8_BLE_TYPE_STATUS_BMS_DEEP,
+        .properties         = ESK8_BLE_PROP_STATUS_BMS_DEEP,
+        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS_BMS_DEEP,
+        .uuid.len           = ESP_UUID_LEN_16,
+    },
+    {
+        .type               = ESK8_BLE_TYPE_CTRL,
+        .properties         = ESK8_BLE_PROP_CTRL,
+        .uuid.uuid.uuid16   = ESK8_BLE_UUID_CTRL,
+        .uuid.len           = ESP_UUID_LEN_16,
+    },
+    {
+        .type               = ESK8_BLE_TYPE_CTRL_SPEED,
+        .properties         = ESK8_BLE_PROP_CTRL_SPEED,
+        .uuid.uuid.uuid16   = ESK8_BLE_UUID_CTRL_SPEED,
+        .uuid.len           = ESP_UUID_LEN_16,
+    },
+    {
+        .type               = ESK8_BLE_TYPE_CTRL_PWR,
+        .properties         = ESK8_BLE_PROP_CTRL_PWR,
+        .uuid.uuid.uuid16   = ESK8_BLE_UUID_CTRL_PWR,
+        .uuid.len           = ESP_UUID_LEN_16,
+    },
+};
 
 
 esk8_blec_app_t
@@ -68,8 +122,8 @@ esk8_blec_app_board =
     .app_conn_read = app_conn_read,
     .app_evt_cb = app_evt_cb,
 
-    .ble_elm_n = ,
-    .ble_elm_l = 
+    .ble_elm_n = sizeof(db) / sizeof(*db),
+    .ble_elm_l = db
 };
 
 
