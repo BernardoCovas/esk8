@@ -177,6 +177,9 @@ skip_search:
             "Registered app '%s'\n",
             app_hndl->app_p->app_name
         );
+
+        if (app_hndl->app_p->app_init)
+            app_hndl->app_p->app_init(gattc_if);
         break;
 
     case ESP_GATTC_OPEN_EVT:

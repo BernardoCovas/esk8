@@ -98,9 +98,6 @@ esk8_blec_app_reg(
     if (app_n >= esk8_blec_apps.app_n_max)
         return ESK8_ERR_BLE_APPC_MAXREG;
 
-    if (app_p->app_init)
-        app_p->app_init();
-
     esk8_blec_apps.app_hndl_l[app_n].app_p = app_p;
     esk8_blec_apps.app_hndl_l[app_n].dev_p = dev_p;
     esk8_blec_apps.app_hndl_l[app_n].state |= ESK8_BLEC_APP_HNDL_STATE_INIT;

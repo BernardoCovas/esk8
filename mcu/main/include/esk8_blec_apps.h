@@ -25,8 +25,8 @@ typedef struct
 {
     const char* app_name;
 
-    esk8_err_t (*app_init      )(int gattc_if);
-    esk8_err_t (*app_deinit    )(int gattc_if);
+    esk8_err_t (*app_init      )(uint16_t gattc_if);
+    esk8_err_t (*app_deinit    )(uint16_t gattc_if);
     esk8_err_t (*app_conn_add  )(esk8_blec_dev_t* dev, uint16_t conn_id);
     esk8_err_t (*app_conn_del  )(esk8_blec_dev_t* dev, uint16_t conn_id);
     esk8_err_t (*app_conn_notif)(esk8_blec_dev_t* dev, int attr_idx, size_t len, uint8_t* val);
