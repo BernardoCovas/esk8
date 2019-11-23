@@ -1,5 +1,8 @@
+#include <esk8_log.h>
 #include <esk8_blec_apps.h>
 #include <esk8_ble_defs.h>
+
+#include <esp_log.h>
 
 
 static esk8_err_t
@@ -212,12 +215,19 @@ esk8_blec_app_board =
     .ble_elm_l = db
 };
 
+static struct {
+    int gattc_if;
+    int conn_id;
+} app_ctx;
+
 
 static esk8_err_t
 app_init(
     uint16_t gattc_if
 )
 {
+    app_ctx.gattc_if = -1;
+    app_ctx.conn_id = -1;
     return ESK8_OK;
 }
 
@@ -227,6 +237,7 @@ app_deinit(
     uint16_t gattc_if
 )
 {
+    app_ctx.gattc_if = gattc_if;
     return ESK8_OK;
 }
 
@@ -237,6 +248,11 @@ app_conn_add(
     uint16_t conn_id
 )
 {
+    esk8_log_I(ESK8_TAG_BLE,
+        "Got connection. Id: %d, dev: '%s' " MACSTR "\n",
+        conn_id, dev->name, MAC2STR(dev->addr)
+    );
+    app_ctx.conn_id = conn_id;
     return ESK8_OK;
 }
 
@@ -247,6 +263,11 @@ app_conn_del(
     uint16_t conn_id
 )
 {
+    esk8_log_I(ESK8_TAG_BLE,
+        "del conn_id: %d, dev: '%s' " MACSTR "\n",
+        conn_id, dev->name, MAC2STR(dev->addr)
+    );
+    app_ctx.conn_id = -1;
     return ESK8_OK;
 }
 

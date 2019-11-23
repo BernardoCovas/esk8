@@ -206,6 +206,17 @@ skip_search:
                 param->close.status,
                 app_hndl->dev_p->name
             );
+        else
+        {
+            esk8_log_I(ESK8_TAG_BLE,
+                "Closing conn to %s on app '%s'\n",
+                app_hndl->dev_p->name,
+                app_hndl->app_p->app_name
+            );
+
+            if (app_hndl->app_p->app_conn_del)
+                app_hndl->app_p->app_conn_del(app_hndl->dev_p, param->close.conn_id);
+        }
         break;
 
     case ESP_GATTC_SEARCH_RES_EVT:
