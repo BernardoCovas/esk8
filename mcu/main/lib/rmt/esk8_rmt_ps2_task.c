@@ -68,7 +68,13 @@ esk8_rmt_task_ps2(
                 mvmt.lft_btn?"Yes":"No"
             );
 
-            esk8_rmt_incr_speed(mvmt.x);
+            err = esk8_rmt_incr_speed(mvmt.x);
+
+            if (err)
+                esk8_log_E(ESK8_TAG_RMT,
+                    "Got err: %d (%s) updating speed\n",
+                    err, esk8_err_to_str(err)
+                );
         }
     }
 }

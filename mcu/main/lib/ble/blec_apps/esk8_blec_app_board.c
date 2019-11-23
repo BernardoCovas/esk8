@@ -50,6 +50,36 @@ app_evt_cb(
 );
 
 
+enum {
+    ESK8_APP_BOARD_ATTR_IDX_GENATTR,
+    ESK8_APP_BOARD_ATTR_IDX_SRVC_CHNG,
+    ESK8_APP_BOARD_ATTR_IDX_SRVC_CHNG_DESC,
+    ESK8_APP_BOARD_ATTR_IDX_GEN_ACCESS,
+    ESK8_APP_BOARD_ATTR_IDX_DEV_NAME,
+    ESK8_APP_BOARD_ATTR_IDX_DEV_APPERENCE,
+    ESK8_APP_BOARD_ATTR_IDX_DEV_GEN_ADR_NAME_RES,
+    ESK8_APP_BOARD_ATTR_IDX_AUTH,
+    ESK8_APP_BOARD_ATTR_IDX_AUTH_KEY,
+    ESK8_APP_BOARD_ATTR_IDX_AUTH_KEY_CCCD,
+    ESK8_APP_BOARD_ATTR_IDX_AUTH_CHNG,
+    ESK8_APP_BOARD_ATTR_IDX_AUTH_CHNG_CCCD,
+    ESK8_APP_BOARD_ATTR_IDX_CTRL,
+    ESK8_APP_BOARD_ATTR_IDX_CTRL_SPEED,
+    ESK8_APP_BOARD_ATTR_IDX_CTRL_SPEED_CCCD,
+    ESK8_APP_BOARD_ATTR_IDX_CTRL_PWR,
+    ESK8_APP_BOARD_ATTR_IDX_CTRL_PWR_CCCD,
+    ESK8_APP_BOARD_ATTR_IDX_STAT,
+    ESK8_APP_BOARD_ATTR_IDX_STAT_SPEED,
+    ESK8_APP_BOARD_ATTR_IDX_STAT_SPEED_CCCD,
+    ESK8_APP_BOARD_ATTR_IDX_STAT_BMS_SHALLOW,
+    ESK8_APP_BOARD_ATTR_IDX_STAT_BMS_SHALLOW_CCCD,
+    ESK8_APP_BOARD_ATTR_IDX_STAT_BMS_DEEP,
+    ESK8_APP_BOARD_ATTR_IDX_STAT_BMS_DEEP_CCCD,
+
+    ESK8_APP_BOARD_ATTR_IDX_MAX
+};
+
+
 esp_gattc_db_elem_t db[] = {
     {   /* Generic Attribute */
         .type               = ESP_GATT_DB_PRIMARY_SERVICE,
@@ -226,7 +256,7 @@ app_init(
     uint16_t gattc_if
 )
 {
-    app_ctx.gattc_if = -1;
+    app_ctx.gattc_if = (int)gattc_if;
     app_ctx.conn_id = -1;
     return ESK8_OK;
 }
@@ -302,5 +332,32 @@ app_evt_cb(
     esp_ble_gattc_cb_param_t *param
 )
 {
+    return ESK8_OK;
+}
+
+
+esk8_err_t
+esk8_blec_app_ctrl(
+    uint8_t speed
+)
+{
+    printf("BLE APP CTRL\n");
+
+    if (app_ctx.conn_id < 0)
+        return ESK8_ERR_BLE_APPC_NOCONNECT;
+
+    esp_err_t err = esp_ble_gattc_write_char(
+        app_ctx.gattc_if,
+        app_ctx.conn_id,
+        db[ESK8_APP_BOARD_ATTR_IDX_CTRL_SPEED].attribute_handle,
+        1, &speed, ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE
+    );
+
+    if (err)
+        esk8_log_E(ESK8_TAG_BLE,
+            "Got err: %d updating speed.\n",
+            err
+        );
+
     return ESK8_OK;
 }

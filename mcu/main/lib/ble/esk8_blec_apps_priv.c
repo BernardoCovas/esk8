@@ -306,19 +306,20 @@ skip_search:
         }
 
         /* Success */
-        if (app_hndl->app_p->app_conn_add) {
-            esk8_log_I(ESK8_TAG_BLE,
-                "Got valid dev: %s, passing to app: %s\n",
-                app_hndl->dev_p->name,
-                app_hndl->app_p->app_name
+        esk8_log_I(ESK8_TAG_BLE,
+            "Got valid dev: %s, passing to app: %s\n",
+            app_hndl->dev_p->name,
+            app_hndl->app_p->app_name
+        );
+
+        for (int i=0; i<attr_count; i++)
+            app_hndl->app_p->ble_elm_l[i].attribute_handle = db[i].attribute_handle;
+
+        if (app_hndl->app_p->app_conn_add)
+            app_hndl->app_p->app_conn_add(
+                app_hndl->dev_p,
+                param->search_cmpl.conn_id
             );
-    
-            if (app_hndl->app_p->app_conn_add)
-                app_hndl->app_p->app_conn_add(
-                    app_hndl->dev_p,
-                    param->search_cmpl.conn_id
-                );
-        }
 
 attr_fail_break:
         break;

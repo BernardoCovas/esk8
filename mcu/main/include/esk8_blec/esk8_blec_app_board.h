@@ -11,8 +11,8 @@ extern esk8_blec_app_t
 esk8_blec_app_board;
 
 esk8_err_t
-esk8_blec_app_ctrl_incr(
-    uint8_t incr
+esk8_blec_app_ctrl(
+    uint8_t speed
 );
 
 esk8_err_t

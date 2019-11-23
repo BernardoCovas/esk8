@@ -4,6 +4,7 @@
 #include <esk8_ps2.h>
 #include <esk8_config.h>
 #include <esk8_rmt.h>
+#include <esk8_blec/esk8_blec_app_board.h>
 
 #include "esk8_rmt_priv.h"
 
@@ -143,5 +144,6 @@ esk8_rmt_incr_speed(
         esk8_rmt.speed
     );
 
+    esk8_blec_app_ctrl(esk8_rmt.speed);
     return err;
 }
