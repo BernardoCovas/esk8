@@ -210,7 +210,7 @@ skip_search:
 
     case ESP_GATTC_SEARCH_RES_EVT:
         esk8_log_I(ESK8_TAG_BLE,
-            "Found services. start: %u, end: %u, is_primary: %d, srvc_uuid: 0x%04x\n",
+            "Found service. Start: %u, end: %u, is_primary: %d, srvc_uuid: 0x%04x\n",
             param->search_res.start_handle,
             param->search_res.end_handle,
             param->search_res.is_primary,
@@ -242,13 +242,23 @@ skip_search:
             break;
         }
 
+        for (int i=0; i<attr_count; i++)
+        {
+            esk8_log_D(ESK8_TAG_BLE,
+                "Got attr: 0x%04x, len: %d\n",
+                db[i].uuid.uuid.uuid16,
+                db[i].uuid.len
+            );
+        }
+
         if (attr_count != app_hndl->app_p->ble_elm_n) {
             esk8_log_E(ESK8_TAG_BLE,
-                "Got wrong number of attributes: %d, expected %d\n",
+                "Got wrong number of attributes: %d, expected %d. Disconnecting.\n",
                 attr_count,
                 app_hndl->app_p->ble_elm_n
             );
 
+            esp_ble_gap_disconnect((uint8_t*)app_hndl->dev_p->addr);
             break;
         }
 
@@ -286,16 +296,17 @@ skip_search:
 
         /* Success */
         if (app_hndl->app_p->app_conn_add) {
-            app_hndl->app_p->app_conn_add(
-                app_hndl->dev_p,
-                param->search_cmpl.conn_id
-            );
-
-            esk8_log_E(ESK8_TAG_BLE,
+            esk8_log_I(ESK8_TAG_BLE,
                 "Got valid dev: %s, passing to app: %s\n",
                 app_hndl->dev_p->name,
                 app_hndl->app_p->app_name
             );
+    
+            if (app_hndl->app_p->app_conn_add)
+                app_hndl->app_p->app_conn_add(
+                    app_hndl->dev_p,
+                    param->search_cmpl.conn_id
+                );
         }
 
 attr_fail_break:

@@ -3,6 +3,7 @@
 
 #include <esp_gattc_api.h>
 
+
 #define ESK8_BLE_UUID_AUTH                  0xE8A0
 #define ESK8_BLE_UUID_AUTH_KEY              0xE8A1
 #define ESK8_BLE_UUID_AUTH_CHANGE           0xE8A2

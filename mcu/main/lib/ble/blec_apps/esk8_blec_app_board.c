@@ -48,6 +48,48 @@ app_evt_cb(
 
 
 esp_gattc_db_elem_t db[] = {
+    {   /* Generic Attribute */
+        .type               = ESP_GATT_DB_PRIMARY_SERVICE,
+        .properties         = 0,
+        .uuid.uuid.uuid16   = 0x1801,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {   /* Service Changed */
+        .type               = ESP_GATT_DB_CHARACTERISTIC,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_INDICATE,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_GATT_SRV_CHGD,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {   /* Client Config Descriptor */
+        .type               = ESP_GATT_DB_DESCRIPTOR,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_CHAR_CLIENT_CONFIG,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {   /* Generic Access */
+        .type               = ESP_GATT_DB_PRIMARY_SERVICE,
+        .properties         = 0,
+        .uuid.uuid.uuid16   = 0x1800,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {   /* Device Name */
+        .type               = ESP_GATT_DB_CHARACTERISTIC,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_READ,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_GAP_DEVICE_NAME,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {   /* Appearence */
+        .type               = ESP_GATT_DB_CHARACTERISTIC,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_READ,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_GAP_ICON,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {   /* Generic Address Resolution */
+        .type               = ESP_GATT_DB_CHARACTERISTIC,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_READ,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_GAP_CENTRAL_ADDR_RESOL,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
     {
         .type               = ESK8_BLE_TYPE_AUTH,
         .properties         = ESK8_BLE_PROP_AUTH,
@@ -60,34 +102,22 @@ esp_gattc_db_elem_t db[] = {
         .uuid.uuid.uuid16   = ESK8_BLE_UUID_AUTH_KEY,
         .uuid.len           = ESP_UUID_LEN_16
     },
+    {   /* Client Config Descriptor */
+        .type               = ESP_GATT_DB_DESCRIPTOR,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_CHAR_CLIENT_CONFIG,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
     {
         .type               = ESK8_BLE_TYPE_AUTH_CHANGE,
         .properties         = ESK8_BLE_PROP_AUTH_CHANGE,
         .uuid.uuid.uuid16   = ESK8_BLE_UUID_AUTH_CHANGE,
         .uuid.len           = ESP_UUID_LEN_16
     },
-    {
-        .type               = ESK8_BLE_TYPE_STATUS,
-        .properties         = ESK8_BLE_PROP_STATUS,
-        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS,
-        .uuid.len           = ESP_UUID_LEN_16
-    },
-    {
-        .type               = ESK8_BLE_TYPE_STATUS_SPEED,
-        .properties         = ESK8_BLE_PROP_STATUS_SPEED,
-        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS_SPEED,
-        .uuid.len           = ESP_UUID_LEN_16
-    },
-    {
-        .type               = ESK8_BLE_TYPE_STATUS_BMS_SHALLOW,
-        .properties         = ESK8_BLE_PROP_STATUS_BMS_SHALLOW,
-        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS_BMS_SHALLOW,
-        .uuid.len           = ESP_UUID_LEN_16
-    },
-    {
-        .type               = ESK8_BLE_TYPE_STATUS_BMS_DEEP,
-        .properties         = ESK8_BLE_PROP_STATUS_BMS_DEEP,
-        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS_BMS_DEEP,
+    {   /* Client Config Descriptor */
+        .type               = ESP_GATT_DB_DESCRIPTOR,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_CHAR_CLIENT_CONFIG,
         .uuid.len           = ESP_UUID_LEN_16
     },
     {
@@ -102,12 +132,66 @@ esp_gattc_db_elem_t db[] = {
         .uuid.uuid.uuid16   = ESK8_BLE_UUID_CTRL_SPEED,
         .uuid.len           = ESP_UUID_LEN_16
     },
+    {   /* Client Config Descriptor */
+        .type               = ESP_GATT_DB_DESCRIPTOR,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_CHAR_CLIENT_CONFIG,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
     {
         .type               = ESK8_BLE_TYPE_CTRL_PWR,
         .properties         = ESK8_BLE_PROP_CTRL_PWR,
         .uuid.uuid.uuid16   = ESK8_BLE_UUID_CTRL_PWR,
         .uuid.len           = ESP_UUID_LEN_16
-    }
+    },
+    {   /* Client Config Descriptor */
+        .type               = ESP_GATT_DB_DESCRIPTOR,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_CHAR_CLIENT_CONFIG,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {
+        .type               = ESK8_BLE_TYPE_STATUS,
+        .properties         = ESK8_BLE_PROP_STATUS,
+        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {
+        .type               = ESK8_BLE_TYPE_STATUS_SPEED,
+        .properties         = ESK8_BLE_PROP_STATUS_SPEED,
+        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS_SPEED,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {   /* Client Config Descriptor */
+        .type               = ESP_GATT_DB_DESCRIPTOR,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_CHAR_CLIENT_CONFIG,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {
+        .type               = ESK8_BLE_TYPE_STATUS_BMS_SHALLOW,
+        .properties         = ESK8_BLE_PROP_STATUS_BMS_SHALLOW,
+        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS_BMS_SHALLOW,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {   /* Client Config Descriptor */
+        .type               = ESP_GATT_DB_DESCRIPTOR,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_CHAR_CLIENT_CONFIG,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {
+        .type               = ESK8_BLE_TYPE_STATUS_BMS_DEEP,
+        .properties         = ESK8_BLE_PROP_STATUS_BMS_DEEP,
+        .uuid.uuid.uuid16   = ESK8_BLE_UUID_STATUS_BMS_DEEP,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
+    {   /* Client Config Descriptor */
+        .type               = ESP_GATT_DB_DESCRIPTOR,
+        .properties         = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE,
+        .uuid.uuid.uuid16   = ESP_GATT_UUID_CHAR_CLIENT_CONFIG,
+        .uuid.len           = ESP_UUID_LEN_16
+    },
 };
 
 
